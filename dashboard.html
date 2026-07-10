@@ -133,6 +133,22 @@
               </div>
             </div>
 
+            <!-- POTD Aggregator Card -->
+            <div class="potd-aggregator-card glass" style="margin-bottom: 24px; padding: 20px; border: 1px solid var(--clr-border); border-radius: var(--radius); background: var(--clr-surface-card);">
+              <div class="potd-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 16px;">📅</span>
+                  <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: var(--clr-text); text-transform: uppercase; letter-spacing: 0.5px;">Problems Of The Day</h3>
+                </div>
+                <span id="potdStreakProgress" class="potd-streak-badge" style="font-size: 11px; font-weight: 700; color: var(--clr-primary); background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.2); padding: 4px 10px; border-radius: 12px;">Today's Solves: Loading...</span>
+              </div>
+              <div class="potd-grid" id="potdGridContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                <div class="potd-loading" style="text-align: center; padding: 24px; color: var(--clr-muted); font-size: 13px; font-weight: 700; grid-column: 1 / -1;">
+                  Loading today's challenges...
+                </div>
+              </div>
+            </div>
+
             <!-- Heatmap Card -->
             <div class="heatmap-card glass">
               <h3>Solves Activity Heatmap</h3>
@@ -371,7 +387,7 @@
                   </div>
 
                   <div class="sheet-filter-panel-footer" style="display: flex; gap: 8px; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--clr-border);">
-                    <button id="btnSaveAsSmartList" class="filter-reset-btn disabled" disabled style="background: none; border: 1px solid var(--clr-border); border-radius: 4px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--clr-muted); cursor: not-allowed; transition: all 0.2s ease;">Save as Smart List</button>
+                    <button id="btnSaveAsSmartList" class="filter-reset-btn disabled" disabled style="background: none; border: 1px solid var(--clr-border); border-radius: 4px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--clr-muted); transition: all 0.2s ease;">Save as Smart List</button>
                     <button id="btnResetAllFilters" class="filter-reset-btn">Reset All</button>
                   </div>
                 </div>

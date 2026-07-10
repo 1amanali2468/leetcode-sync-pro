@@ -1,6 +1,7 @@
 // dashboard.js – Companion Dashboard Controller
 import { FIREBASE_CONFIG, getFirestoreApiUrl } from "./firebase-config.js";
 import { loadSheet, populateSheetDropdown as populateSheetDropdownHelper, getCrossSheetMap } from "./sheet-loader.js";
+import { getDailyPOTD } from "./potd-fetcher.js";
 
 const STORAGE_KEYS = {
   history: "leetsyncHistory",
@@ -286,6 +287,7 @@ async function renderAll() {
   renderOverview();
   renderSheets();
   renderRevisionSchedule();
+  renderPOTDWidget();
 }
 
 // ── Screen Navigation Setup ──────────────────────────────────────────────────
@@ -1660,8 +1662,13 @@ function renderAccordionGroupView(sheetData, solvedMap) {
 
 // Dynamic Problem row generator
 function createProblemRow(problem, solvedMap, isVisible) {
-  const LEETCODE_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M16.102 17.93l-2.69 2.607c-.466.451-1.211.451-1.677 0l-8.62-8.351a1.147 1.147 0 0 1 0-1.622l2.69-2.608a1.18 1.18 0 0 1 1.677 0l8.621 8.352a1.148 1.148 0 0 1 0 1.622zm3.32-8.351L17.728 7.97a1.148 1.148 0 0 0-1.677 0l-2.69 2.607a1.18 1.18 0 0 0 0 1.622l1.701 1.648a1.148 1.148 0 0 0 1.677 0l2.69-2.607a1.18 1.18 0 0 0 0-1.622z" fill="#FFA116"/></svg>`;
-  const GFG_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F8D46" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`;
+  const LEETCODE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" id="leetcode" style="vertical-align: middle;">
+  <path fill="#B3B1B0" d="M22 14.355c0-.742-.564-1.346-1.26-1.346H10.676c-.696 0-1.26.604-1.26 1.346s.563 1.346 1.26 1.346H20.74c.696.001 1.26-.603 1.26-1.346z"></path>
+  <path fill="#E7A41F" d="m3.482 18.187 4.313 4.361c.973.979 2.318 1.452 3.803 1.452 1.485 0 2.83-.512 3.805-1.494l2.588-2.637c.51-.514.492-1.365-.039-1.9-.531-.535-1.375-.553-1.884-.039l-2.676 2.607c-.462.467-1.102.662-1.809.662s-1.346-.195-1.81-.662l-4.298-4.363c-.463-.467-.696-1.15-.696-1.863 0-.713.233-1.357.696-1.824l4.285-4.38c.463-.467 1.116-.645 1.822-.645s1.346.195 1.809.662l2.676 2.606c.51.515 1.354.497 1.885-.038.531-.536.549-1.387.039-1.901l-2.588-2.636a4.994 4.994 0 0 0-2.392-1.33l-.034-.007 2.447-2.503c.512-.514.494-1.366-.037-1.901-.531-.535-1.376-.552-1.887-.038l-10.018 10.1C2.509 11.458 2 12.813 2 14.311c0 1.498.509 2.896 1.482 3.876z"></path>
+  <path fill="#070706" d="M8.115 22.814a2.109 2.109 0 0 1-.474-.361c-1.327-1.333-2.66-2.66-3.984-3.997-1.989-2.008-2.302-4.937-.786-7.32a6 6 0 0 1 .839-1.004L13.333.489c.625-.626 1.498-.652 2.079-.067.56.563.527 1.455-.078 2.066-.769.776-1.539 1.55-2.309 2.325-.041.122-.14.2-.225.287-.863.876-1.75 1.729-2.601 2.618-.111.116-.262.186-.372.305-1.423 1.423-2.863 2.83-4.266 4.272-1.135 1.167-1.097 2.938.068 4.127 1.308 1.336 2.639 2.65 3.961 3.974.067.067.136.132.204.198.468.303.474 1.25.183 1.671-.321.465-.74.75-1.333.728-.199-.006-.363-.086-.529-.179z"></path>
+</svg>`;
+  const GFG_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#2F8D46" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M21.45 14.315c-.143.28-.334.532-.565.745a3.691 3.691 0 0 1-1.104.695 4.51 4.51 0 0 1-3.116-.016 3.79 3.79 0 0 1-2.135-2.078 3.571 3.571 0 0 1-.13-.353h7.418a4.26 4.26 0 0 1-.368 1.008zm-11.99-.654a3.793 3.793 0 0 1-2.134 2.078 4.51 4.51 0 0 1-3.117.016 3.7 3.7 0 0 1-1.104-.695 2.652 2.652 0 0 1-.564-.745 4.221 4.221 0 0 1-.368-1.006H9.59c-.038.12-.08.238-.13.352zm14.501-1.758a3.849 3.849 0 0 0-.082-.475l-9.634-.008a3.932 3.932 0 0 1 1.143-2.348c.363-.35.79-.625 1.26-.809a3.97 3.97 0 0 1 4.484.957l1.521-1.49a5.7 5.7 0 0 0-1.922-1.357 6.283 6.283 0 0 0-2.544-.49 6.35 6.35 0 0 0-2.405.457 6.007 6.007 0 0 0-1.963 1.276 6.142 6.142 0 0 0-1.325 1.94 5.862 5.862 0 0 0-.466 1.864h-.063a5.857 5.857 0 0 0-.467-1.865 6.13 6.13 0 0 0-1.325-1.939A6 6 0 0 0 8.21 6.34a6.698 6.698 0 0 0-4.949.031A5.708 5.708 0 0 0 1.34 7.73l1.52 1.49a4.166 4.166 0 0 1 4.484-.958c.47.184.898.46 1.26.81.368.36.66.792.859 1.268.146.344.242.708.285 1.08l-9.635.008A4.714 4.714 0 0 0 0 12.457a6.493 6.493 0 0 0 .345 2.127 4.927 4.927 0 0 0 1.08 1.783c.528.56 1.17 1 1.88 1.293a6.454 6.454 0 0 0 2.504.457c.824.005 1.64-.15 2.404-.457a5.986 5.986 0 0 0 1.964-1.277 6.116 6.116 0 0 0 1.686-3.076h.273a6.13 6.13 0 0 0 1.686 3.077 5.99 5.99 0 0 0 1.964 1.276 6.345 6.345 0 0 0 2.405.457 6.45 6.45 0 0 0 2.502-.457 5.42 5.42 0 0 0 1.882-1.293 4.928 4.928 0 0 0 1.08-1.783A6.52 6.52 0 0 0 24 12.457a4.757 4.757 0 0 0-.039-.554z"/></svg>`;
+  const STRIVER_SVG = `<img src="tuf.jpg" width="18" height="18" style="vertical-align: middle; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.15);" />`;
   const GITHUB_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>`;
 
   const slug = problem.slug.trim().toLowerCase();
@@ -1755,8 +1762,16 @@ function createProblemRow(problem, solvedMap, isVisible) {
   platLink.style = "display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;";
   platLink.addEventListener("mouseover", () => platLink.style.transform = "scale(1.15)");
   platLink.addEventListener("mouseout", () => platLink.style.transform = "scale(1)");
-  const isGFG = (problem.leetcodeUrl || "").includes("geeksforgeeks.org");
-  platLink.innerHTML = isGFG ? GFG_SVG : LEETCODE_SVG;
+  const destUrl = (problem.leetcodeUrl || "").toLowerCase();
+  const isStriver = destUrl.includes("takeuforward.org");
+  const isGFG = destUrl.includes("geeksforgeeks.org");
+  if (isStriver) {
+    platLink.innerHTML = STRIVER_SVG;
+  } else if (isGFG) {
+    platLink.innerHTML = GFG_SVG;
+  } else {
+    platLink.innerHTML = LEETCODE_SVG;
+  }
   tdPractice.appendChild(platLink);
   tr.appendChild(tdPractice);
 
@@ -4565,4 +4580,123 @@ async function exportActiveSheetToExcel() {
   URL.revokeObjectURL(url);
 }
 
+async function renderPOTDWidget() {
+  const container = document.getElementById("potdGridContainer");
+  const streakBadge = document.getElementById("potdStreakProgress");
+  if (!container) return;
+
+  try {
+    const potdData = await getDailyPOTD();
+    const stored = await chrome.storage.local.get(STORAGE_KEYS.history);
+    const history = stored[STORAGE_KEYS.history] || [];
+
+    // Filter today's solves
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todaySolves = history.filter(h => {
+      if (!h.savedAt) return false;
+      const solveDateStr = new Date(h.savedAt).toISOString().slice(0, 10);
+      return solveDateStr === todayStr;
+    });
+
+    // Segment today's solves by platform
+    const lcSolves = todaySolves.filter(h => !h.url || h.url.includes("leetcode.com"));
+    const gfgSolves = todaySolves.filter(h => h.url && h.url.includes("geeksforgeeks.org"));
+    const cnSolves = todaySolves.filter(h => h.url && (h.url.includes("codingninjas.com") || h.url.includes("naukri.com/code360")));
+
+    let solvedCount = 0;
+    container.innerHTML = "";
+
+    const platforms = [
+      { 
+        key: "leetcode", 
+        name: "LeetCode", 
+        class: "leetcode", 
+        logo: "🟨", 
+        checkSolved: (info) => {
+          const slug = info.slug?.trim().toLowerCase();
+          return lcSolves.some(h => h.slug?.trim().toLowerCase() === slug || (info.title && h.title?.toLowerCase() === info.title.toLowerCase()));
+        },
+        getTitle: (info) => info.title
+      },
+      { 
+        key: "gfg", 
+        name: "GeeksforGeeks", 
+        class: "gfg", 
+        logo: "🟩", 
+        checkSolved: (info) => {
+          const slug = info.slug?.trim().toLowerCase();
+          return gfgSolves.some(h => h.slug?.trim().toLowerCase() === slug || gfgSolves.length > 0);
+        },
+        getTitle: (info) => {
+          const slug = info.slug?.trim().toLowerCase();
+          const matching = gfgSolves.find(h => h.slug?.trim().toLowerCase() === slug);
+          return matching ? matching.title : (gfgSolves[0] ? gfgSolves[0].title : info.title);
+        }
+      },
+      { 
+        key: "code360", 
+        name: "Code 360", 
+        class: "codingninjas", 
+        logo: "🟧", 
+        checkSolved: () => cnSolves.length > 0,
+        getTitle: (info) => {
+          return cnSolves.length > 0 ? cnSolves[0].title : info.title;
+        }
+      }
+    ];
+
+    // Self-healing: if cache is old and doesn't contain new code360 key, clear and re-fetch
+    if (potdData && !potdData.code360) {
+      console.log("LeetSync: Obsolete cache detected. Re-fetching fresh POTD data...");
+      await chrome.storage.local.remove("leetsyncPotdCache");
+      return renderPOTDWidget();
+    }
+
+    const fallbackUrls = {
+      leetcode: "https://leetcode.com/problemset/all/",
+      gfg: "https://practice.geeksforgeeks.org/problem-of-the-day",
+      code360: "https://www.naukri.com/code360/problem-of-the-day"
+    };
+
+    platforms.forEach(p => {
+      const info = potdData[p.key] || {};
+      const isSolved = p.checkSolved(info);
+      const displayTitle = p.getTitle(info);
+      const targetUrl = info.url || fallbackUrls[p.key] || "#";
+
+      if (isSolved) solvedCount++;
+
+      const card = document.createElement("div");
+      card.className = `potd-card ${p.class} ${isSolved ? "solved" : ""}`;
+      
+      const diffLower = (info.difficulty || "Medium").toLowerCase();
+      
+      card.innerHTML = `
+        <div>
+          <div class="potd-card-platform">
+            <span>${p.logo}</span>
+            <span>${p.name}</span>
+          </div>
+          <div class="potd-card-title" title="${escapeHtml(displayTitle || "")}">
+            ${escapeHtml(displayTitle || "Daily Coding Challenge")}
+          </div>
+        </div>
+        <div class="potd-card-footer">
+          <span class="potd-card-diff ${diffLower}">${escapeHtml(info.difficulty || "Medium")}</span>
+          <a href="${escapeHtml(targetUrl)}" target="_blank" class="potd-card-btn">
+            ${isSolved ? "✅ Solved" : "Solve Now ↗"}
+          </a>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    if (streakBadge) {
+      streakBadge.textContent = `Today's Solves: ${solvedCount}/${platforms.length}`;
+    }
+  } catch (e) {
+    console.error("LeetSync: Failed to render POTD widget:", e);
+    container.innerHTML = `<div style="color:var(--clr-muted); font-size:12px; padding:12px; text-align:center; grid-column:1/-1;">Failed to load daily challenges. Please refresh or check connection.</div>`;
+  }
+}
 

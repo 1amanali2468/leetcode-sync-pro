@@ -97,6 +97,7 @@ Humne **Floating Stopwatch Timer (B)**, **Spaced Repetition Scheduler (C)**, **A
 * **Clickable Frequency Sorting**: Table **"Problem"** column header is now clickable (cycling through default sheet order, descending sheet frequency `▼`, and ascending sheet frequency `▲`), allowing users to instantly sort list items based on their overlap counts.
 * **DSA Sheet Excel Export**: Added a download button `btnSheetExportExcel` in the active DSA sheet controls bar on the dashboard. It dynamically fetches all problems in the selected active sheet, parses user's completion history, merges multiple-approach notes/GitHub links/time-spent/revisions, applies color-coded difficulty layouts, and exports a high-fidelity Excel report (.xls).
 * **Excel Column AutoFilter Support**: Enabled native MS Excel/Google Sheets AutoFilter markup on generated spreadsheets for both DSA Sheets and History Exports. Downloading files now locks sorting headers so users can dynamically filter and sort columns directly inside Excel.
+* **Problem Of The Day (POTD) Aggregator**: Integrated a daily challenge grid at the top of the dashboard. Fetches active daily questions from LeetCode and GeeksforGeeks, and supports Coding Ninjas (Naukri Code 360) as a single unified card (counting as 1 solve in total counts if any Code 360 problem is solved today). Caches responses in local storage dynamically per date (0ms startup latency after initial daily fetch). Automatically scans user's solve history to change cards state to "✅ Solved" immediately.
 
 ---
 

@@ -1583,6 +1583,12 @@ body {
 }
 
 /* Save as Smart List Glowing Button */
+#btnSaveAsSmartList {
+  cursor: pointer;
+}
+#btnSaveAsSmartList.disabled, #btnSaveAsSmartList:disabled {
+  cursor: not-allowed;
+}
 #btnSaveAsSmartList:not(.disabled) {
   animation: glowPulse 2s infinite ease-in-out;
   cursor: pointer;
@@ -1624,4 +1630,155 @@ body {
   background-color: rgba(56, 189, 248, 0.16);
   border-color: rgba(56, 189, 248, 0.6);
   transform: translateY(-0.5px);
+}
+
+/* POTD Aggregator styling */
+.potd-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.potd-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  opacity: 0.8;
+}
+
+/* LeetCode Theme */
+.potd-card.leetcode::before {
+  background: linear-gradient(90deg, #ffa116, #f3bb1c);
+}
+.potd-card.leetcode:hover {
+  border-color: rgba(255, 161, 22, 0.4);
+  box-shadow: 0 4px 20px rgba(255, 161, 22, 0.08);
+  transform: translateY(-2px);
+}
+
+/* GFG Theme */
+.potd-card.gfg::before {
+  background: linear-gradient(90deg, #2f8d46, #4daf5b);
+}
+.potd-card.gfg:hover {
+  border-color: rgba(47, 141, 70, 0.4);
+  box-shadow: 0 4px 20px rgba(47, 141, 70, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Coding Ninjas / Naukri 360 Theme */
+.potd-card.codingninjas::before {
+  background: linear-gradient(90deg, #f27935, #f5965e);
+}
+.potd-card.codingninjas:hover {
+  border-color: rgba(242, 121, 53, 0.4);
+  box-shadow: 0 4px 20px rgba(242, 121, 53, 0.08);
+  transform: translateY(-2px);
+}
+
+/* HackerEarth Theme */
+.potd-card.hackerearth::before {
+  background: linear-gradient(90deg, #3275a8, #5b99c7);
+}
+.potd-card.hackerearth:hover {
+  border-color: rgba(50, 117, 168, 0.4);
+  box-shadow: 0 4px 20px rgba(50, 117, 168, 0.08);
+  transform: translateY(-2px);
+}
+
+.potd-card-platform {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.potd-card.leetcode .potd-card-platform { color: #ffa116; }
+.potd-card.gfg .potd-card-platform { color: #2f8d46; }
+.potd-card.codingninjas .potd-card-platform { color: #f27935; }
+.potd-card.hackerearth .potd-card-platform { color: #3275a8; }
+
+.potd-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  color: var(--clr-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 38px;
+}
+
+.potd-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.02);
+}
+
+.potd-card-diff {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.potd-card-diff.easy { background: rgba(44, 187, 93, 0.1); color: #2cbb5d; }
+.potd-card-diff.medium { background: rgba(255, 184, 0, 0.1); color: #ffb800; }
+.potd-card-diff.hard { background: rgba(239, 71, 111, 0.1); color: #ef476f; }
+
+.potd-card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--clr-border);
+  color: var(--clr-text-muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.potd-card-btn:hover {
+  background: var(--clr-primary);
+  border-color: var(--clr-primary);
+  color: #ffffff;
+}
+
+/* Completed State styling */
+.potd-card.solved {
+  background: rgba(44, 187, 93, 0.02);
+  border-color: rgba(44, 187, 93, 0.2) !important;
+}
+.potd-card.solved:hover {
+  box-shadow: 0 4px 20px rgba(44, 187, 93, 0.08);
+}
+.potd-card.solved .potd-card-btn {
+  background: rgba(44, 187, 93, 0.1);
+  border-color: rgba(44, 187, 93, 0.2);
+  color: #2cbb5d;
+  font-weight: 800;
+}
+.potd-card.solved .potd-card-btn:hover {
+  background: #2cbb5d;
+  color: #ffffff;
 }
