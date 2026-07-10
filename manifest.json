@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "LeetSync Pro",
+  "description": "Save accepted LeetCode solutions to GitHub as Brute, Better, Optimal, or custom approach files.",
+  "version": "0.1.0",
+  "permissions": ["storage", "activeTab", "scripting", "alarms", "notifications", "identity"],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "host_permissions": [
+    "<all_urls>",
+    "https://leetcode.com/*",
+    "https://*.leetcode.com/*",
+    "https://*.geeksforgeeks.org/*",
+    "https://api.github.com/*",
+    "https://github.com/*",
+    "https://identitytoolkit.googleapis.com/*",
+    "https://securetoken.googleapis.com/*",
+    "https://firestore.googleapis.com/*",
+    "https://leetsync-pro.firebaseapp.com/*"
+  ],
+  "action": {
+    "default_title": "LeetSync Pro",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*", "https://*.leetcode.com/*", "https://*.geeksforgeeks.org/*"],
+      "js": ["injected.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://leetcode.com/*", "https://*.leetcode.com/*", "https://*.geeksforgeeks.org/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

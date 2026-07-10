@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LeetSync Pro</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-screen">
+      <div class="auth-box" style="text-align: center;">
+        <div class="auth-header" style="margin-bottom: 24px;">
+          <span class="auth-logo">⚡</span>
+          <h2>Welcome to LeetSync Pro</h2>
+          <p style="margin-top: 8px; line-height: 1.4;">Sign in with GitHub to securely sync your solved LeetCode problems, notes, and collections to the cloud.</p>
+        </div>
+        <button id="btnLaunchAuth" class="primary-button" style="width: 100%; padding: 12px; font-weight: 700; font-size: 13px;" type="button">🚀 Sign In with GitHub</button>
+      </div>
+    </div>
+
+    <main class="shell hidden">
+      <!-- ── Top Bar ─────────────────────────────────────────── -->
+      <header class="topbar">
+        <div class="topbar-brand" style="display: flex; align-items: center; gap: 6px;">
+          <span class="brand-icon">⚡</span>
+          <h1 style="margin: 0;">LeetSync Pro</h1>
+          <button id="btnManualSync" class="sync-btn-icon" title="Sync Cloud Data" type="button" style="background: transparent; border: 0; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; margin-left: 4px;">🔄</button>
+          <button id="btnOpenDashboard" class="sync-btn-icon" title="Open Dashboard in New Tab" type="button" style="background: transparent; border: 0; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; margin-left: 4px;">↗️</button>
+        </div>
+        <!-- Tab Nav -->
+        <nav class="tab-nav">
+          <button class="tab-btn active" data-tab="settings" type="button">Settings</button>
+          <button class="tab-btn" data-tab="stats" type="button">Stats</button>
+          <button class="tab-btn" data-tab="calendar" type="button">Calendar</button>
+          <button class="tab-btn" data-tab="history" type="button">History</button>
+          <button class="tab-btn" data-tab="custom-solve" type="button">+ Custom Solve</button>
+          <button class="tab-btn" data-tab="sheets" type="button">DSA Sheets</button>
+        </nav>
+      </header>
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: SETTINGS
+      ═══════════════════════════════════════════════════════ -->
+      <div id="tab-settings" class="tab-content active">
+
+        <!-- Cloud Account Status -->
+        <section class="panel" style="margin-bottom: 12px; padding: 12px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+              <span style="font-size: 9px; text-transform: uppercase; color: var(--clr-muted); font-weight: 700; display: block; margin-bottom: 2px;">Synced Account</span>
+              <span id="cloudUserEmail" style="font-size: 12px; font-weight: 600; color: var(--clr-text);">user@example.com</span>
+              <span id="cloudSyncStatus" style="font-size: 10px; display: block; margin-top: 4px; color: var(--clr-muted);">Sync: <span id="cloudSyncStatusText" style="font-weight: 700; color: var(--clr-muted);">Idle</span></span>
+            </div>
+            <button id="btnLogout" class="text-button" type="button" style="color: var(--clr-hard); font-size: 11px; padding: 4px 8px; font-weight: 700;">Log Out</button>
+          </div>
+        </section>
+
+        <!-- GitHub Section -->
+        <section class="panel">
+          <h2>GitHub</h2>
+
+          <!-- Connected Profile -->
+          <div id="profileCard" class="profile-card hidden">
+            <img id="profileAvatar" src="" alt="Avatar" class="avatar">
+            <div class="profile-info">
+              <span class="profile-username" id="profileUsername">@username</span>
+              <span class="status-badge">Connected</span>
+            </div>
+            <button id="disconnectButton" class="text-button" type="button">Disconnect</button>
+          </div>
+
+
+
+
+          <!-- Owner + Repo -->
+          <div class="grid">
+            <label>
+              Owner
+              <input id="owner" type="text" placeholder="username">
+            </label>
+            <div class="repo-field-wrapper">
+              <div class="repo-label-row">
+                <label>Repo</label>
+                <button id="toggleNewRepoBtn" class="link-button hidden" type="button">+ Create New</button>
+              </div>
+              <div id="repoSelectContainer" class="repo-select-container hidden">
+                <select id="repoSelect">
+                  <option value="">-- Loading Repos --</option>
+                </select>
+              </div>
+              <input id="repo" type="text" placeholder="leetcode-solutions">
+              <div id="newRepoArea" class="new-repo-area hidden">
+                <div class="new-repo-input-row">
+                  <input id="newRepoName" type="text" placeholder="new-repo-name">
+                  <button id="createNewRepoBtn" class="small-primary-button" type="button">Create</button>
+                  <button id="cancelNewRepoBtn" class="small-text-button" type="button">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Branch + Base Folder -->
+          <div class="grid">
+            <label>
+              Branch
+              <input id="branch" type="text" placeholder="main">
+            </label>
+            <label>
+              Base Folder
+              <input id="basePath" type="text" placeholder="e.g. DSA/LeetCode">
+            </label>
+          </div>
+          <p class="field-hint">Base Folder: Solutions will be saved inside this path in your repo.<br>Leave empty to save at root.</p>
+          
+          <!-- Streak Reminder Toggle -->
+          <div class="preference-row" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <input id="streakReminderEnabled" type="checkbox" checked style="width: auto; margin: 0; cursor: pointer;">
+            <label for="streakReminderEnabled" style="display: inline; font-size: 11px; font-weight: 600; color: #344054; cursor: pointer; user-select: none;">
+              🔔 Enable Daily Streak Reminders (6:00 PM)
+            </label>
+          </div>
+        </section>
+
+        <!-- Fetch Solves Area -->
+        <section class="panel" style="margin-top: 6px; margin-bottom: 6px; padding: 8px 10px;">
+          <h2 style="font-size: 13px; margin: 0 0 6px 0;">Sync Solved History</h2>
+          <p style="font-size: 10px; color: var(--clr-muted); margin: 0 0 6px 0;">Fetch all existing solved problems from your GitHub repository to sync with your local history and Firestore database.</p>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <button id="btnFetchGitHubRepoSolves" class="primary-button" type="button" style="margin: 0; padding: 6px 12px; font-size: 11px; width: 100%;">Fetch & Sync Solves from GitHub</button>
+          </div>
+          <div id="repoFetchStatus" style="font-size: 10px; font-weight: 600; text-align: center; margin-top: 8px; min-height: 12px;"></div>
+        </section>
+
+        <!-- Compact Reset Area -->
+        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--clr-border); text-align: center;">
+          <button id="btnResetLocal" class="btn-reset-compact" type="button">
+            🗑️ Reset Offline Local Data
+          </button>
+        </div>
+
+        <p id="resultText" class="result" aria-live="polite"></p>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: STATS
+      ═══════════════════════════════════════════════════════ -->
+      <div id="tab-stats" class="tab-content hidden">
+        <section class="panel stats-panel">
+          <h2>Your Progress</h2>
+
+          <div class="stats-grid">
+            <div class="stat-card total">
+              <span class="stat-num" id="statTotal">0</span>
+              <span class="stat-label">Total Solved</span>
+            </div>
+            <div class="stat-card easy">
+              <span class="stat-num" id="statEasy">0</span>
+              <span class="stat-label">Easy</span>
+            </div>
+            <div class="stat-card medium">
+              <span class="stat-num" id="statMedium">0</span>
+              <span class="stat-label">Medium</span>
+            </div>
+            <div class="stat-card hard">
+              <span class="stat-num" id="statHard">0</span>
+              <span class="stat-label">Hard</span>
+            </div>
+          </div>
+
+          <div class="streak-row">
+            <div class="streak-card">
+              <span class="streak-flame">🔥</span>
+              <div>
+                <span class="stat-num" id="statStreak">0</span>
+                <span class="stat-label"> day streak</span>
+              </div>
+            </div>
+            <div class="streak-card">
+              <span class="streak-flame">📅</span>
+              <div>
+                <span class="stat-num" id="statSolvedToday">0</span>
+                <span class="stat-label"> solved today</span>
+              </div>
+            </div>
+          </div>
+          <!-- Topic Breakdown Section -->
+          <div class="day-details-panel" id="topicBreakdownArea" style="margin-top: 10px; border-top: 1px solid var(--clr-border); padding-top: 8px;">
+            <div class="day-details-header">
+              <span class="details-section-title">📁 Solved by Topic</span>
+            </div>
+            <div id="topicPillList" class="topic-pill-list" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; max-height: 100px; overflow-y: auto; padding-bottom: 4px;">
+              <!-- Dynamically populated tags with counts -->
+            </div>
+          </div>
+
+          <!-- Revision Scheduler Section -->
+          <div class="day-details-panel" style="margin-top: 10px; border-top: 1px solid var(--clr-border); padding-top: 8px;">
+            <div class="day-details-header">
+              <span class="details-section-title">📅 Today's Revisions Due</span>
+              <span id="statRevisionDueCount" class="details-date-label" style="background: #fee2e2; color: #dc2626;">0 Due</span>
+            </div>
+            <div id="popupRevisionList" class="day-details-list" style="max-height: 120px; overflow-y: auto; margin-top: 6px;">
+              <p class="empty-state">🎉 All caught up! No revisions due today.</p>
+            </div>
+          </div>
+
+        </section>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: CALENDAR
+      ═══════════════════════════════════════════════════════ -->
+      <div id="tab-calendar" class="tab-content hidden">
+        <section class="panel calendar-panel">
+          <div class="calendar-header">
+            <button id="calendarPrevMonthBtn" class="calendar-nav-btn" type="button">◀</button>
+            <h2 id="calendarMonthYear" class="calendar-title">June 2026</h2>
+            <button id="calendarNextMonthBtn" class="calendar-nav-btn" type="button">▶</button>
+          </div>
+          
+          <div class="calendar-weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+          </div>
+          
+          <div id="calendarGrid" class="calendar-grid">
+            <!-- Dynamically generated days -->
+          </div>
+
+          <!-- Selected Day Details Section -->
+          <div class="day-details-panel">
+            <div class="day-details-header">
+              <span class="details-section-title">Solved Problems</span>
+              <span id="calendarSelectedDateStr" class="details-date-label">Today</span>
+            </div>
+            <div id="calendarDayDetailsList" class="day-details-list">
+              <p class="empty-state">No problems solved on this day.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: HISTORY
+      ═══════════════════════════════════════════════════════ -->
+      <div id="tab-history" class="tab-content hidden">
+        <section class="panel">
+          <div class="history-header">
+            <h2>Submission History</h2>
+            <button id="exportCsvBtn" class="ghost-button small" type="button">⬇ Export Excel</button>
+          </div>
+          <div class="history-controls">
+            <div class="controls-row-1">
+              <input id="historySearch" type="text" placeholder="Search by title or ID...">
+              <div class="custom-select-container" id="historyFilterDifficultyContainer" style="width: 90px;">
+                <div class="custom-select-trigger" id="historyFilterDifficultyTrigger">
+                  <span class="custom-select-text" id="historyFilterDifficultyText">All Diff</span>
+                  <span class="custom-select-arrow">▼</span>
+                </div>
+                <div class="custom-select-options hidden" id="historyFilterDifficultyOptions"></div>
+              </div>
+              <button id="historyFilterFav" type="button" class="fav-filter-btn" title="Show Favorites Only">🤍</button>
+            </div>
+            <div class="controls-row-2">
+              <div class="filter-wrapper">
+                <div class="filter-box">
+                  <div class="custom-select-container" id="historyFilterTopicContainer">
+                    <div class="custom-select-trigger" id="historyFilterTopicTrigger">
+                      <span class="custom-select-text">All Topics</span>
+                      <span class="custom-select-arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options hidden" id="historyFilterTopicOptions"></div>
+                  </div>
+                  <div id="historyFilterTopicCustomWrap" class="custom-input-container hidden">
+                    <input id="historyFilterTopicCustom" type="text" placeholder="Custom Topic...">
+                    <button id="historyFilterTopicReset" type="button" class="reset-filter-btn" title="Back to dropdown">✕</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-wrapper">
+                <div class="filter-box">
+                  <div class="custom-select-container" id="historyFilterPatternContainer">
+                    <div class="custom-select-trigger" id="historyFilterPatternTrigger">
+                      <span class="custom-select-text">All Patterns</span>
+                      <span class="custom-select-arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options hidden" id="historyFilterPatternOptions"></div>
+                  </div>
+                  <div id="historyFilterPatternCustomWrap" class="custom-input-container hidden">
+                    <input id="historyFilterPatternCustom" type="text" placeholder="Custom Pattern...">
+                    <button id="historyFilterPatternReset" type="button" class="reset-filter-btn" title="Back to dropdown">✕</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="filter-wrapper">
+                <div class="filter-box">
+                  <div class="custom-select-container" id="historyFilterCollectionContainer">
+                    <div class="custom-select-trigger" id="historyFilterCollectionTrigger">
+                      <span class="custom-select-text">All Collections</span>
+                      <span class="custom-select-arrow">▼</span>
+                    </div>
+                    <div class="custom-select-options hidden" id="historyFilterCollectionOptions"></div>
+                  </div>
+                  <div id="historyFilterCollectionCustomWrap" class="custom-input-container hidden">
+                    <input id="historyFilterCollectionCustom" type="text" placeholder="Custom Coll...">
+                    <button id="historyFilterCollectionReset" type="button" class="reset-filter-btn" title="Back to dropdown">✕</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="historyList" class="history-list">
+            <p class="empty-state">No solutions saved yet.<br>Submit an accepted solution on LeetCode!</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: CUSTOM SOLVE (Offline / other platforms)
+      ═══════════════════════════════════════════════════════ -->
+      <div id="tab-custom-solve" class="tab-content hidden">
+        <section class="panel" style="padding: 8px 12px; margin-bottom: 4px;">
+          <h2 style="font-size: 12px; margin: 0 0 4px 0;">Add Custom Solve</h2>
+          <form id="customSolveForm" style="display: flex; flex-direction: column; gap: 4px;">
+            <div class="grid" style="grid-template-columns: 2.2fr 1fr; gap: 6px;">
+              <label style="font-size: 9.5px; font-weight: 600;">
+                Problem Title *
+                <input id="customTitle" type="text" placeholder="e.g. Two Sum" required style="padding: 2px 4px; font-size: 10.5px; height: 22px;">
+              </label>
+              <label style="font-size: 9.5px; font-weight: 600;">
+                Difficulty
+                <select id="customDifficulty" style="padding: 2px 4px; font-size: 10.5px; height: 22px;">
+                  <option value="Easy">Easy</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </label>
+            </div>
+            
+            <div>
+              <span style="font-size: 9.5px; font-weight: 600; color: #344054;">Approach</span>
+              <div class="leetsync-segmented" style="margin-top: 1px; border-radius: 4px; padding: 1px;">
+                <label><input type="radio" name="customApproach" value="bf"><span>Brute</span></label>
+                <label><input type="radio" name="customApproach" value="ba"><span>Better</span></label>
+                <label><input type="radio" name="customApproach" value="oa" checked><span>Optimal</span></label>
+                <label><input type="radio" name="customApproach" value="custom"><span>Custom</span></label>
+              </div>
+              <div id="customApproachNameWrap" class="hidden" style="position: relative; margin-top: 1px;">
+                <input id="customApproachName" type="text" placeholder="Custom Approach Name" style="padding: 2px 25px 2px 4px; font-size: 10.5px; width: 100%; height: 22px;">
+                <button type="button" id="customApproachReset" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 11px; padding: 0;">✕</button>
+              </div>
+            </div>
+            
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 6px;">
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 9.5px; font-weight: 600; color: #344054;">Topic Tag</span>
+                <div id="customTopicSelectWrap">
+                  <select id="customTopicSelect" style="padding: 2px 4px; font-size: 10.5px; height: 22px; width: 100%;">
+                    <option value="">— Choose Topic —</option>
+                    <option value="Array">Array</option>
+                    <option value="String">String</option>
+                    <option value="Hash Table">Hash Table</option>
+                    <option value="Dynamic Programming">Dynamic Programming</option>
+                    <option value="Math">Math</option>
+                    <option value="Sorting">Sorting</option>
+                    <option value="Greedy">Greedy</option>
+                    <option value="Depth-First Search">Depth-First Search</option>
+                    <option value="Breadth-First Search">Breadth-First Search</option>
+                    <option value="Binary Search">Binary Search</option>
+                    <option value="Matrix">Matrix</option>
+                    <option value="Two Pointers">Two Pointers</option>
+                    <option value="Bit Manipulation">Bit Manipulation</option>
+                    <option value="Stack">Stack</option>
+                    <option value="Heap (Priority Queue)">Heap (Priority Queue)</option>
+                    <option value="Backtracking">Backtracking</option>
+                    <option value="Graph">Graph</option>
+                    <option value="Tree">Tree</option>
+                    <option value="Linked List">Linked List</option>
+                    <option value="Sliding Window">Sliding Window</option>
+                    <option value="Trie">Trie</option>
+                    <option value="Union Find">Union Find</option>
+                    <option value="__other__">✏️ Custom...</option>
+                  </select>
+                </div>
+                <div id="customTopicInputWrap" class="hidden" style="position: relative;">
+                  <input id="customTopicInput" type="text" placeholder="Topic Tag" style="padding: 2px 25px 2px 4px; font-size: 10.5px; width: 100%; height: 22px;">
+                  <button type="button" id="customTopicReset" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 11px; padding: 0;">✕</button>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 9.5px; font-weight: 600; color: #344054;">Pattern Used</span>
+                <div id="customPatternSelectWrap">
+                  <select id="customPatternSelect" style="padding: 2px 4px; font-size: 10.5px; height: 22px; width: 100%;">
+                    <option value="">— Select Topic First —</option>
+                  </select>
+                </div>
+                <div id="customPatternInputWrap" class="hidden" style="position: relative;">
+                  <input id="customPatternInput" type="text" placeholder="Pattern Used" style="padding: 2px 25px 2px 4px; font-size: 10.5px; width: 100%; height: 22px;">
+                  <button type="button" id="customPatternReset" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 11px; padding: 0;">✕</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 6px;">
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 9.5px; font-weight: 600; color: #344054;">Time Complexity</span>
+                <div id="customTimeSelectWrap">
+                  <select id="customTimeComplexity" style="padding: 2px 4px; font-size: 10.5px; height: 22px; width: 100%;">
+                    <option value="O(1)">O(1)</option>
+                    <option value="O(log n)">O(log n)</option>
+                    <option value="O(n)" selected>O(n)</option>
+                    <option value="O(n log n)">O(n log n)</option>
+                    <option value="O(n^2)">O(n²)</option>
+                    <option value="O(n^3)">O(n³)</option>
+                    <option value="O(2^n)">O(2ⁿ)</option>
+                    <option value="O(n!)">O(n!)</option>
+                    <option value="custom">✏️ Custom...</option>
+                  </select>
+                </div>
+                <div id="customTimeComplexityNameWrap" class="hidden" style="position: relative;">
+                  <input id="customTimeComplexityName" type="text" placeholder="e.g. O(n log k)" style="padding: 2px 25px 2px 4px; font-size: 10.5px; width: 100%; height: 22px;">
+                  <button type="button" id="customTimeComplexityReset" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 11px; padding: 0;">✕</button>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 9.5px; font-weight: 600; color: #344054;">Space Complexity</span>
+                <div id="customSpaceSelectWrap">
+                  <select id="customSpaceComplexity" style="padding: 2px 4px; font-size: 10.5px; height: 22px; width: 100%;">
+                    <option value="O(1)" selected>O(1)</option>
+                    <option value="O(log n)">O(log n)</option>
+                    <option value="O(n)">O(n)</option>
+                    <option value="O(n log n)">O(n log n)</option>
+                    <option value="O(n^2)">O(n²)</option>
+                    <option value="custom">✏️ Custom...</option>
+                  </select>
+                </div>
+                <div id="customSpaceComplexityNameWrap" class="hidden" style="position: relative;">
+                  <input id="customSpaceComplexityName" type="text" placeholder="e.g. O(k)" style="padding: 2px 25px 2px 4px; font-size: 10.5px; width: 100%; height: 22px;">
+                  <button type="button" id="customSpaceComplexityReset" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 11px; padding: 0;">✕</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid" style="grid-template-columns: 1fr 1.2fr; gap: 6px;">
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 9.5px; font-weight: 600; color: #344054;">Collection</span>
+                <div id="customCollectionSelectWrap">
+                  <select id="customCollection" style="padding: 2px 4px; font-size: 10.5px; height: 22px; width: 100%;">
+                    <option value="">— Choose Collection —</option>
+                    <option value="Blind75">Blind75</option>
+                    <option value="NeetCode150">NeetCode150</option>
+                    <option value="Striver A-Z Sheet">Striver A-Z Sheet</option>
+                    <option value="Google">Google</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="Must Revise">Must Revise</option>
+                    <option value="__other__">✏️ Custom...</option>
+                  </select>
+                </div>
+                <div id="customCollectionInputWrap" class="hidden" style="position: relative;">
+                  <input id="customCollectionInput" type="text" placeholder="Collection" style="padding: 2px 25px 2px 4px; font-size: 10.5px; width: 100%; height: 22px;">
+                  <button type="button" id="customCollectionReset" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 11px; padding: 0;">✕</button>
+                </div>
+              </div>
+              <label style="font-size: 9.5px; font-weight: 600;">
+                Platform / Link (Optional)
+                <input id="customLink" type="text" placeholder="e.g. Codeforces, GFG" style="padding: 2px 4px; font-size: 10.5px; height: 22px; width: 100%;">
+              </label>
+            </div>
+
+            <label style="font-size: 9.5px; font-weight: 600;">
+              Notes (Optional)
+              <textarea id="customNotes" placeholder="Write notes about your approach..." style="min-height: 28px; font-family: inherit; font-size: 10.5px; width: 100%; border: 1px solid var(--clr-border); border-radius: 4px; padding: 2px 4px; box-sizing: border-box; resize: vertical;"></textarea>
+            </label>
+
+            <label style="font-size: 9.5px; font-weight: 600;">
+              Source Code *
+              <textarea id="customCode" placeholder="Paste your code here..." style="min-height: 42px; font-family: monospace; font-size: 10px; width: 100%; border: 1px solid var(--clr-border); border-radius: 4px; padding: 2px 4px; box-sizing: border-box; resize: vertical;" required></textarea>
+            </label>
+
+            <div id="customSolveStatus" style="font-size: 9px; font-weight: 600; text-align: center; min-height: 10px; margin: 1px 0;"></div>
+
+            <button id="btnSubmitCustomSolve" class="primary-button" type="submit" style="width: 100%; padding: 4px 8px; font-size: 11px; font-weight: 700; height: 26px;">Save & Commit to GitHub</button>
+          </form>
+        </section>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB: DSA SHEETS
+      ═══════════════════════════════════════════════════════ -->
+      <div id="tab-sheets" class="tab-content hidden">
+        <section class="panel" style="padding: 10px 14px;">
+          <!-- Sheet Selector -->
+          <div class="sheet-selector-row" style="margin-bottom: 10px;">
+            <label style="font-weight: 700; font-size: 11px; margin-bottom: 4px; display: block; color: var(--clr-text);">Select DSA Sheet</label>
+            <select id="sheetSelect" class="leetsync-select" style="height: 28px; padding: 2px 6px; font-size: 11.5px; width: 100%; border-radius: 4px; box-sizing: border-box;">
+              <option value="apnacollege_dsa_sheet" selected>ApnaCollege DSA Sheet</option>
+              <option value="collegewallah_dsa_master_sheet">CollegeWallah DSA Master Sheet</option>
+              <option value="fraz_dsa_sheet">Fraz DSA Sheet</option>
+              <option value="leetcode_75">LeetCode 75</option>
+              <option value="leetcode_top_100_liked">Leetcode-Top 100 Liked</option>
+              <option value="love_babbar_dsa_sheet">Love Babbar DSA Sheet</option>
+              <option value="neetcode_150">NeetCode 150</option>
+              <option value="striver_a2z_sheet">Striver A2Z Sheet</option>
+              <option value="top_interview_150">LeetCode-Top Interview 150</option>
+            </select>
+          </div>
+
+          <!-- Overall Sheet Progress -->
+          <div class="sheet-progress-wrapper" style="margin-bottom: 12px; background: #f8fafc; border: 1px solid var(--clr-border); padding: 8px 12px; border-radius: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--clr-text);">Overall Sheet Progress</span>
+              <span id="sheetProgressText" style="font-size: 11.5px; font-weight: 700; color: #185abc;">0% (0/0)</span>
+            </div>
+            <div class="sheet-progress-bar-bg" style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+              <div id="sheetProgressBarFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #185abc 0%, #38bdf8 100%); transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+
+          <!-- Sheet Filter Bar -->
+          <div class="sheet-filter-bar" style="margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 4px;">
+            <button class="sheet-filter-btn active" data-filter="all" type="button">All</button>
+            <button class="sheet-filter-btn" data-filter="completed" type="button">Completed</button>
+            <button class="sheet-filter-btn" data-filter="pending" type="button">Pending</button>
+            <button class="sheet-filter-btn" data-filter="easy" type="button">Easy</button>
+            <button class="sheet-filter-btn" data-filter="medium" type="button">Medium</button>
+            <button class="sheet-filter-btn" data-filter="hard" type="button">Hard</button>
+            <button class="sheet-filter-btn" data-filter="bookmarked" type="button">⭐ Starred</button>
+          </div>
+
+          <!-- Accordion Lists Container -->
+          <div id="sheetAccordionContainer" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;">
+            <!-- Dynamically populated via popup.js -->
+            <p class="empty-state">Loading sheet data...</p>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- Dedicated Notes Edit Modal Overlay -->
+    <div id="notesModal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 id="notesModalTitle" style="margin: 0; font-size: 15px;">Edit Notes</h2>
+          <span class="notes-sync-status" id="notesModalStatus" style="font-size: 9.5px; font-weight: 600;"></span>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+          <p id="notesModalSubtitle" style="font-size: 11px; margin: 0; color: var(--clr-muted); font-weight: 500;"></p>
+          <div id="notesModalContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+        <div class="modal-footer" style="margin-top: 14px; display: flex; justify-content: flex-end; gap: 8px;">
+          <button id="notesModalCancelBtn" class="notes-btn cancel" type="button">Cancel</button>
+          <button id="notesModalSaveBtn" class="notes-btn save" type="button">Save Notes</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
