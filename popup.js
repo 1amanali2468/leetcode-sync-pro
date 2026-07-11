@@ -3571,11 +3571,16 @@ async function renderSheets() {
 
   const solvedMap = {};
   history.forEach(h => {
-    const slug = h.slug;
-    if (!solvedMap[slug]) {
-      solvedMap[slug] = [];
+    if (h.slug) {
+      let slug = h.slug.trim().toLowerCase();
+      if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+        slug = slug.replace(/-[0-9]+$/, "");
+      }
+      if (!solvedMap[slug]) {
+        solvedMap[slug] = [];
+      }
+      solvedMap[slug].push(h);
     }
-    solvedMap[slug].push(h);
   });
 
   let totalProblems = 0;
@@ -3583,7 +3588,11 @@ async function renderSheets() {
 
   container.innerHTML = "";
 
-  const LEETCODE_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M16.102 17.93l-2.69 2.607c-.466.451-1.211.451-1.677 0l-8.62-8.351a1.147 1.147 0 0 1 0-1.622l2.69-2.608a1.18 1.18 0 0 1 1.677 0l8.621 8.352a1.148 1.148 0 0 1 0 1.622zm3.32-8.351L17.728 7.97a1.148 1.148 0 0 0-1.677 0l-2.69 2.607a1.18 1.18 0 0 0 0 1.622l1.701 1.648a1.148 1.148 0 0 0 1.677 0l2.69-2.607a1.18 1.18 0 0 0 0-1.622z" fill="#FFA116"/></svg>`;
+  const LEETCODE_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+    <path fill="#B3B1B0" d="M22 14.355c0-.742-.564-1.346-1.26-1.346H10.676c-.696 0-1.26.604-1.26 1.346s.563 1.346 1.26 1.346H20.74c.696.001 1.26-.603 1.26-1.346z"></path>
+    <path fill="#E7A41F" d="m3.482 18.187 4.313 4.361c.973.979 2.318 1.452 3.803 1.452 1.485 0 2.83-.512 3.805-1.494l2.588-2.637c.51-.514.492-1.365-.039-1.9-.531-.535-1.375-.553-1.884-.039l-2.676 2.607c-.462.467-1.102.662-1.809.662s-1.346-.195-1.81-.662l-4.298-4.363c-.463-.467-.696-1.15-.696-1.863 0-.713.233-1.357.696-1.824l4.285-4.38c.463-.467 1.116-.645 1.822-.645s1.346.195 1.809.662l2.676 2.606c.51.515 1.354.497 1.885-.038.531-.536.549-1.387.039-1.901l-2.588-2.636a4.994 4.994 0 0 0-2.392-1.33l-.034-.007 2.447-2.503c.512-.514.494-1.366-.037-1.901-.531-.535-1.376-.552-1.887-.038l-10.018 10.1C2.509 11.458 2 12.813 2 14.311c0 1.498.509 2.896 1.482 3.876z"></path>
+    <path fill="#070706" d="M8.115 22.814a2.109 2.109 0 0 1-.474-.361c-1.327-1.333-2.66-2.66-3.984-3.997-1.989-2.008-2.302-4.937-.786-7.32a6 6 0 0 1 .839-1.004L13.333.489c.625-.626 1.498-.652 2.079-.067.56.563.527 1.455-.078 2.066-.769.776-1.539 1.55-2.309 2.325-.041.122-.14.2-.225.287-.863.876-1.75 1.729-2.601 2.618-.111.116-.262.186-.372.305-1.423 1.423-2.863 2.83-4.266 4.272-1.135 1.167-1.097 2.938.068 4.127 1.308 1.336 2.639 2.65 3.961 3.974.067.067.136.132.204.198.468.303.474 1.25.183 1.671-.321.465-.74.75-1.333.728-.199-.006-.363-.086-.529-.179z"></path>
+  </svg>`;
   const GFG_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2F8D46" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`;
   const GITHUB_SVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>`;
 
@@ -3597,7 +3606,6 @@ async function renderSheets() {
 
     const subtopicContainer = document.createElement("div");
     subtopicContainer.className = "sheet-topic-content";
-    subtopicContainer.style.display = "none";
     subtopicContainer.style.flexDirection = "column";
     subtopicContainer.style.gap = "8px";
     subtopicContainer.style.padding = "10px";
@@ -3606,10 +3614,7 @@ async function renderSheets() {
     subtopicContainer.style.borderTop = "0";
 
     const subkeys = Object.keys(subtopics);
-    const isSingleGeneral = subkeys.length === 1 && 
-      (subkeys[0].toLowerCase().includes("general") || 
-       subkeys[0].toLowerCase().includes("imported list") || 
-       cleanDisplayName(subkeys[0]).trim() === "");
+    const isSingleGeneral = subkeys.length === 1;
 
     if (isSingleGeneral) {
       const problems = subtopics[subkeys[0]];
@@ -3743,8 +3748,16 @@ async function renderSheets() {
         platLink.style = "display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;";
         platLink.addEventListener("mouseover", () => platLink.style.transform = "scale(1.15)");
         platLink.addEventListener("mouseout", () => platLink.style.transform = "scale(1)");
-        const isGFG = (problem.leetcodeUrl || "").includes("geeksforgeeks.org");
-        platLink.innerHTML = isGFG ? GFG_SVG : LEETCODE_SVG;
+        const destUrl = (problem.leetcodeUrl || "").toLowerCase();
+        const isGFG = destUrl.includes("geeksforgeeks.org");
+        const isTUF = destUrl.includes("takeuforward.org");
+        if (isTUF) {
+          platLink.innerHTML = `<img src="${chrome.runtime.getURL('tuf.jpg')}" style="width:15px; height:15px; border-radius:50%; object-fit:cover; vertical-align:middle;" />`;
+        } else if (isGFG) {
+          platLink.innerHTML = GFG_SVG;
+        } else {
+          platLink.innerHTML = LEETCODE_SVG;
+        }
         tdPractice.appendChild(platLink);
         tr.appendChild(tdPractice);
 
@@ -3989,8 +4002,16 @@ async function renderSheets() {
           platLink.style = "display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease;";
           platLink.addEventListener("mouseover", () => platLink.style.transform = "scale(1.15)");
           platLink.addEventListener("mouseout", () => platLink.style.transform = "scale(1)");
-          const isGFG = (problem.leetcodeUrl || "").includes("geeksforgeeks.org");
-          platLink.innerHTML = isGFG ? GFG_SVG : LEETCODE_SVG;
+          const destUrl = (problem.leetcodeUrl || "").toLowerCase();
+          const isGFG = destUrl.includes("geeksforgeeks.org");
+          const isTUF = destUrl.includes("takeuforward.org");
+          if (isTUF) {
+            platLink.innerHTML = `<img src="${chrome.runtime.getURL('tuf.jpg')}" style="width:15px; height:15px; border-radius:50%; object-fit:cover; vertical-align:middle;" />`;
+          } else if (isGFG) {
+            platLink.innerHTML = GFG_SVG;
+          } else {
+            platLink.innerHTML = LEETCODE_SVG;
+          }
           tdPractice.appendChild(platLink);
           tr.appendChild(tdPractice);
 

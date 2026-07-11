@@ -16,6 +16,10 @@
     "CollegeWallah DSA Master Sheet",
     "NeetCode 150"
   ],
+  "chocolate-distribution-problem": [
+    "ApnaCollege DSA Sheet",
+    "Love Babbar DSA Sheet"
+  ],
   "search-in-rotated-sorted-array": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
@@ -32,7 +36,8 @@
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
     "Love Babbar DSA Sheet",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "best-time-to-buy-and-sell-stock": [
     "ApnaCollege DSA Sheet",
@@ -51,6 +56,7 @@
     "LeetCode 75",
     "Leetcode-Top 100 Liked",
     "NeetCode 150",
+    "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
   "trapping-rain-water": [
@@ -58,9 +64,11 @@
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "product-of-array-except-self": [
     "ApnaCollege DSA Sheet",
@@ -75,8 +83,10 @@
     "ApnaCollege DSA Sheet",
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "NeetCode 150",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "find-minimum-in-rotated-sorted-array": [
     "ApnaCollege DSA Sheet",
@@ -102,11 +112,13 @@
     "LeetCode 75",
     "Leetcode-Top 100 Liked",
     "NeetCode 150",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
-  "kth-smallest-element5635": [
+  "kth-smallest-element": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "valid-palindrome": [
     "ApnaCollege DSA Sheet",
@@ -130,7 +142,7 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
-  "consecutive-elements2306": [
+  "consecutive-elements": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
@@ -190,26 +202,23 @@
     "Fraz DSA Sheet",
     "NeetCode 150"
   ],
-  "next-permutation5226": [
-    "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
-  ],
   "count-palindromic-subsequences": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet",
     "Striver A2Z Sheet"
   ],
-  "smallest-window-in-a-string-containing-all-the-characters-of-another-string-1587115621": [
+  "smallest-window-in-a-string-containing-all-the-characters-of-another-string": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "wildcard-string-matching1126": [
+  "wildcard-string-matching": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "longest-prefix-suffix2527": [
+  "longest-prefix-suffix": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "rabin-karp-algorithm-for-pattern-searching": [
     "ApnaCollege DSA Sheet",
@@ -232,7 +241,7 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "word-wrap1646": [
+  "word-wrap": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -242,7 +251,8 @@
     "Leetcode-Top 100 Liked",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "spiral-matrix": [
     "ApnaCollege DSA Sheet",
@@ -269,7 +279,8 @@
     "Leetcode-Top 100 Liked",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "searching-array-adjacent-differ-k": [
     "ApnaCollege DSA Sheet",
@@ -280,22 +291,27 @@
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
-  "inversion-of-array-1587115620": [
+  "inversion-of-array": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "median-of-two-sorted-arrays-of-different-sizes": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "allocate-minimum-number-of-pages0937": [
+  "allocate-minimum-number-of-pages": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "longest-possible-route-in-a-matrix-with-hurdles": [
     "ApnaCollege DSA Sheet",
@@ -305,18 +321,23 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "solve-the-sudoku-1587115621": [
+  "solve-the-sudoku": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
-  "subset-sum-problem2014": [
-    "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
-  ],
-  "m-coloring-problem-1587115620": [
+  "subset-sum-problem": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
+  "m-coloring-problem": [
+    "ApnaCollege DSA Sheet",
+    "CollegeWallah DSA Master Sheet",
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "remove-invalid-parentheses": [
     "ApnaCollege DSA Sheet",
@@ -391,7 +412,8 @@
   "flattening-a-linked-list": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "implement-two-stacks-in-an-array": [
     "ApnaCollege DSA Sheet",
@@ -424,8 +446,10 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "sort-a-stack-using-recursion": [
+  "sort-a-stack": [
     "ApnaCollege DSA Sheet",
+    "CollegeWallah DSA Master Sheet",
+    "Love Babbar DSA Sheet",
     "Striver A2Z Sheet"
   ],
   "the-celebrity-problem": [
@@ -433,22 +457,24 @@
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "next-larger-element-1587115620": [
+  "next-larger-element": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
-  "distance-of-nearest-cell-having-1-1587115620": [
+  "distance-of-nearest-cell-having-1": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "rotten-oranges2536": [
-    "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
-  ],
-  "next-smaller-element": [
+  "rotten-oranges": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "immediate-smaller-element": [
+    "ApnaCollege DSA Sheet",
     "Striver A2Z Sheet"
   ],
   "efficiently-implement-k-stacks-single-array": [
@@ -465,7 +491,10 @@
   ],
   "job-sequencing-problem": [
     "ApnaCollege DSA Sheet",
-    "Striver A2Z Sheet"
+    "CollegeWallah DSA Master Sheet",
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "minimum-edges-reverse-make-path-source-destination": [
     "ApnaCollege DSA Sheet",
@@ -565,7 +594,8 @@
   ],
   "height-of-binary-tree": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "diameter-of-binary-tree": [
     "ApnaCollege DSA Sheet",
@@ -574,16 +604,19 @@
     "Leetcode-Top 100 Liked",
     "Love Babbar DSA Sheet",
     "NeetCode 150",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "top-view-of-binary-tree": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "bottom-view-of-binary-tree": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "diagonal-traversal-of-binary-tree": [
     "ApnaCollege DSA Sheet",
@@ -593,7 +626,8 @@
   "boundary-traversal-of-binary-tree": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "construct-binary-tree-string-bracket-representation": [
     "ApnaCollege DSA Sheet",
@@ -665,7 +699,8 @@
   "minimum-element-in-bst": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "predecessor-and-successor": [
     "ApnaCollege DSA Sheet",
@@ -712,7 +747,7 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "preorder-to-postorder4423": [
+  "preorder-to-postorder": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -785,7 +820,9 @@
   "bfs-traversal-of-graph": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "depth-first-search-or-dfs-for-a-graph": [
     "ApnaCollege DSA Sheet",
@@ -808,14 +845,17 @@
   "detect-cycle-in-an-undirected-graph": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "rat-in-a-maze-problem": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
-  "steps-by-knight5927": [
+  "steps-by-knight": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -825,7 +865,8 @@
     "Fraz DSA Sheet",
     "Love Babbar DSA Sheet",
     "NeetCode 150",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "number-of-operations-to-make-network-connected": [
     "ApnaCollege DSA Sheet",
@@ -841,7 +882,9 @@
   "topological-sort": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "minimum-time-taken-by-each-job-to-be-completed-given-by-a-directed-acyclic-graph": [
     "ApnaCollege DSA Sheet",
@@ -853,20 +896,23 @@
   ],
   "find-the-number-of-islands": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "prims-minimum-spanning-tree-mst-greedy-algo-5": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "negative-weight-cycle3504": [
+  "negative-weight-cycle": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "implementing-floyd-warshall2042": [
+  "implementing-floyd-warshall": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "graph-coloring-applications": [
     "ApnaCollege DSA Sheet",
@@ -921,7 +967,8 @@
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet",
     "NeetCode 150",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "kruskals-minimum-spanning-tree-algorithm-greedy-algo-2": [
     "ApnaCollege DSA Sheet",
@@ -953,7 +1000,9 @@
   ],
   "trie-insert-and-search": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "unique-rows-in-boolean-matrix": [
     "ApnaCollege DSA Sheet",
@@ -967,19 +1016,20 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "knapsack-with-duplicate-items4201": [
+  "knapsack-with-duplicate-items": [
+    "ApnaCollege DSA Sheet",
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "bbt-counter": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "bbt-counter4914": [
+  "reach-a-given-score": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "reach-a-given-score-1587115621": [
-    "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
-  ],
-  "maximum-difference-of-zeros-and-ones-in-binary-string4111": [
+  "maximum-difference-of-zeros-and-ones-in-binary-string": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -996,15 +1046,15 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "longest-repeating-subsequence2004": [
+  "longest-repeating-subsequence": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "pairs-with-specific-difference1533": [
+  "pairs-with-specific-difference": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "longest-subsequence-such-that-difference-between-adjacents-is-one4724": [
+  "longest-subsequence-such-that-difference-between-adjacents-is-one": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1013,35 +1063,43 @@
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "longest-increasing-subsequence": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "longest-common-subsequence": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
     "LeetCode 75",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "NeetCode 150",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "word-break": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "house-robber": [
     "ApnaCollege DSA Sheet",
@@ -1057,7 +1115,8 @@
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
     "NeetCode 150",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "decode-ways": [
     "ApnaCollege DSA Sheet",
@@ -1083,12 +1142,13 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
-  "0-1-knapsack-problem0945": [
+  "0-1-knapsack-problem": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
-  "ncr1019": [
+  "ncr": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1096,9 +1156,17 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "edit-distance3702": [
+  "edit-distance": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "CollegeWallah DSA Master Sheet",
+    "Fraz DSA Sheet",
+    "LeetCode 75",
+    "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
+    "NeetCode 150",
+    "Striver A2Z Sheet",
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "gold-mine-problem": [
     "ApnaCollege DSA Sheet",
@@ -1108,11 +1176,11 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "cutted-segments1642": [
+  "cutted-segments": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "maximum-sum-increasing-subsequence4749": [
+  "maximum-sum-increasing-subsequence": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1124,7 +1192,7 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "egg-dropping-puzzle-1587115620": [
+  "egg-dropping-puzzle": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1132,32 +1200,34 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "largest-square-formed-in-a-matrix0806": [
+  "largest-square-formed-in-a-matrix": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "path-in-matrix3805": [
+  "path-in-matrix": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "minimum-number-of-jumps-1587115620": [
+  "minimum-number-of-jumps": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "minimum-removals-array-make-max-min-k": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "longest-common-substring1452": [
+  "longest-common-substring": [
     "ApnaCollege DSA Sheet",
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "longest-palindromic-subsequence-dp-12": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "longest-alternating-subsequence5951": [
+  "longest-alternating-subsequence": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1173,11 +1243,11 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "optimal-strategy-for-a-game-1587115620": [
+  "optimal-strategy-for-a-game": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "mobile-numeric-keypad5456": [
+  "mobile-numeric-keypad": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1205,15 +1275,16 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "set-bits0143": [
+  "set-bits": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "finding-the-numbers0215": [
+  "finding-the-numbers": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
-  "find-position-of-set-bit3706": [
+  "find-position-of-set-bit": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1229,9 +1300,10 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "power-set4302": [
+  "power-set": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "range-sum-query-immutable": [
     "ApnaCollege DSA Sheet",
@@ -1253,7 +1325,7 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "check-mirror-in-n-ary-tree1528": [
+  "check-mirror-in-n-ary-tree": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1273,7 +1345,7 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "maximum-sum-rectangle2948": [
+  "maximum-sum-rectangle": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1281,7 +1353,7 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "painting-the-fence3727": [
+  "painting-the-fence": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1289,19 +1361,21 @@
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "minimum-cost-to-fill-given-weight-in-a-bag1956": [
+  "minimum-cost-to-fill-given-weight-in-a-bag": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
-  "boolean-parenthesization5610": [
+  "boolean-parenthesization": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
-  "maximum-profit4657": [
+  "maximum-profit": [
     "ApnaCollege DSA Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
-  "palindromic-patitioning4845": [
+  "palindromic-patitioning": [
     "ApnaCollege DSA Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1311,9 +1385,15 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
+  "second-largest": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
   "reverse-an-array": [
     "CollegeWallah DSA Master Sheet",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "missing-number": [
     "CollegeWallah DSA Master Sheet",
@@ -1324,7 +1404,7 @@
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
-  "palindromic-array-1587115620": [
+  "palindromic-array": [
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1341,17 +1421,25 @@
     "Leetcode-Top 100 Liked",
     "Striver A2Z Sheet"
   ],
+  "equilibrium-point": [
+    "CollegeWallah DSA Master Sheet",
+    "GFG 160 Sheet"
+  ],
   "reverse-integer": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet"
   ],
+  "leaders-in-an-array": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "rearrange-array-elements-by-sign": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
-  "cyclically-rotate-an-array-by-one2614": [
+  "cyclically-rotate-an-array-by-one": [
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1374,8 +1462,17 @@
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet"
   ],
+  "all-divisors-of-a-number": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "prime-number": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "isomorphic-strings": [
     "CollegeWallah DSA Master Sheet",
+    "Love Babbar DSA Sheet",
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
@@ -1415,11 +1512,24 @@
     "NeetCode 150",
     "Striver A2Z Sheet"
   ],
+  "implement-lower-bound": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
+  "implement-upper-bound": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "search-insert-position": [
     "CollegeWallah DSA Master Sheet",
     "Leetcode-Top 100 Liked",
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
+  ],
+  "ceil-in-a-sorted-array": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
   ],
   "guess-number-higher-or-lower": [
     "CollegeWallah DSA Master Sheet",
@@ -1441,6 +1551,10 @@
     "Striver A2Z Sheet"
   ],
   "single-element-in-a-sorted-array": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "rotation": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
@@ -1469,20 +1583,26 @@
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
-  "median-in-a-row-wise-sorted-matrix1527": [
+  "median-in-a-row-wise-sorted-matrix": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "sqrtx": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "LeetCode-Top Interview 150"
   ],
+  "find-nth-root-of-m": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "koko-eating-bananas": [
     "CollegeWallah DSA Master Sheet",
     "LeetCode 75",
     "NeetCode 150",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "find-the-smallest-divisor-given-a-threshold": [
     "CollegeWallah DSA Master Sheet",
@@ -1502,13 +1622,20 @@
     "Fraz DSA Sheet",
     "Striver A2Z Sheet"
   ],
-  "k-th-element-of-two-sorted-array1317": [
+  "the-painters-partition-problem": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Striver A2Z Sheet"
+  ],
+  "k-th-element-of-two-sorted-array": [
+    "CollegeWallah DSA Master Sheet",
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "aggressive-cows": [
     "CollegeWallah DSA Master Sheet",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "minimize-max-distance-to-gas-station": [
     "CollegeWallah DSA Master Sheet",
@@ -1522,6 +1649,10 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
+  "print-1-to-n-without-using-loops": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "fibonacci-number": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
@@ -1532,9 +1663,18 @@
     "Fraz DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "count-good-numbers": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "implement-atoi": [
+    "CollegeWallah DSA Master Sheet",
+    "GFG 160 Sheet"
+  ],
+  "search-an-element-in-an-array": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
@@ -1551,7 +1691,11 @@
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
-  "delete-node-in-a-linked-list": [
+  "count-nodes-of-linked-list": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "search-in-linked-list": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
@@ -1570,6 +1714,10 @@
     "Leetcode-Top 100 Liked",
     "Striver A2Z Sheet"
   ],
+  "find-length-of-loop": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "linked-list-cycle-ii": [
     "CollegeWallah DSA Master Sheet",
     "Leetcode-Top 100 Liked",
@@ -1577,7 +1725,8 @@
   ],
   "remove-loop-in-linked-list": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "palindrome-linked-list": [
     "CollegeWallah DSA Master Sheet",
@@ -1600,7 +1749,8 @@
   ],
   "add-1-to-a-number-represented-as-linked-list": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
   "add-two-numbers": [
     "CollegeWallah DSA Master Sheet",
@@ -1611,9 +1761,10 @@
   ],
   "given-a-linked-list-of-0s-1s-and-2s-sort-it": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
   ],
-  "segregate-even-and-odd-nodes-in-a-linked-list5035": [
+  "segregate-even-and-odd-nodes-in-a-linked-list": [
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -1626,6 +1777,18 @@
     "Leetcode-Top 100 Liked",
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
+  ],
+  "create-a-doubly-linked-list-from-a-given-array": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "remove-duplicates-from-a-sorted-doubly-linked-list": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "delete-all-occurrences-of-a-given-key-in-a-doubly-linked-list": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
   ],
   "find-pairs-with-given-sum-in-doubly-linked-list": [
     "CollegeWallah DSA Master Sheet",
@@ -1645,6 +1808,14 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
+  "implement-stack-using-array": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "implement-stack-using-linked-list": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "remove-outermost-parentheses": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
@@ -1663,11 +1834,11 @@
     "NeetCode 150",
     "LeetCode-Top Interview 150"
   ],
-  "sort-a-stack": [
-    "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
-  ],
   "reverse-a-stack": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "infix-to-postfix": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
@@ -1676,6 +1847,10 @@
     "Striver A2Z Sheet"
   ],
   "postfix-to-prefix-conversion": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "infix-to-prefix-notation": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
@@ -1732,6 +1907,14 @@
     "NeetCode 150",
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
+  ],
+  "implement-queue-using-array": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "implement-queue-using-linked-list": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
   ],
   "implement-queue-using-stacks": [
     "CollegeWallah DSA Master Sheet",
@@ -1855,6 +2038,10 @@
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
+  "implementing-ceil-in-bst": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "inorder-successor-in-bst": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
@@ -1895,6 +2082,10 @@
     "NeetCode 150",
     "LeetCode-Top Interview 150"
   ],
+  "count-of-distinct-substrings": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "word-search-ii": [
     "CollegeWallah DSA Master Sheet",
     "NeetCode 150",
@@ -1902,7 +2093,8 @@
   ],
   "maximum-xor-of-two-numbers-in-an-array": [
     "CollegeWallah DSA Master Sheet",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "maximum-xor-with-an-element-from-array": [
     "CollegeWallah DSA Master Sheet",
@@ -1937,6 +2129,11 @@
     "Leetcode-Top 100 Liked",
     "Striver A2Z Sheet"
   ],
+  "count-subarray-with-given-xor": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
   "subarray-sums-divisible-by-k": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet"
@@ -1945,6 +2142,11 @@
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet"
   ],
+  "longest-sub-array-with-sum-k": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
   "lru-cache": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
@@ -1952,11 +2154,21 @@
     "Love Babbar DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "lfu-cache": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "does-array-represent-heap": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "convert-min-heap-to-max-heap": [
+    "CollegeWallah DSA Master Sheet",
+    "Love Babbar DSA Sheet",
     "Striver A2Z Sheet"
   ],
   "last-stone-weight": [
@@ -1968,7 +2180,11 @@
     "Fraz DSA Sheet",
     "NeetCode 150"
   ],
-  "minimum-cost-of-ropes-1587115620": [
+  "nearly-sorted": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "minimum-cost-of-ropes": [
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -2036,6 +2252,10 @@
     "LeetCode 75",
     "Striver A2Z Sheet"
   ],
+  "fruit-into-baskets": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "number-of-substrings-containing-all-three-characters": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
@@ -2054,6 +2274,14 @@
     "Striver A2Z Sheet"
   ],
   "minimum-window-subsequence": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "check-whether-k-th-bit-is-set-or-not": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "odd-or-even": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
@@ -2082,7 +2310,7 @@
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
-  "count-total-set-bits-1587115620": [
+  "count-total-set-bits": [
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -2103,7 +2331,7 @@
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
-  "n-meetings-in-one-room-1587115620": [
+  "n-meetings-in-one-room": [
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
@@ -2111,27 +2339,31 @@
     "CollegeWallah DSA Master Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
+    "LeetCode-Top Interview 150",
+    "GFG 160 Sheet"
   ],
   "non-overlapping-intervals": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "LeetCode 75",
     "NeetCode 150",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "minimum-number-of-arrows-to-burst-balloons": [
     "CollegeWallah DSA Master Sheet",
     "LeetCode 75",
     "LeetCode-Top Interview 150"
   ],
-  "job-sequencing-problem-1587115620": [
+  "minimum-platforms": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
-  "minimum-platforms-1587115620": [
+  "maximum-meetings-in-one-room": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Striver A2Z Sheet"
   ],
   "valid-parenthesis-string": [
     "CollegeWallah DSA Master Sheet",
@@ -2152,9 +2384,10 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
-  "minimize-the-heights3351": [
+  "minimize-the-heights": [
     "CollegeWallah DSA Master Sheet",
-    "Love Babbar DSA Sheet"
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "candy": [
     "CollegeWallah DSA Master Sheet",
@@ -2162,13 +2395,18 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
-  "huffman-encoding3345": [
+  "huffman-encoding": [
     "CollegeWallah DSA Master Sheet",
     "Love Babbar DSA Sheet"
   ],
   "minimum-number-of-taps-to-open-to-water-a-garden": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet"
+  ],
+  "depth-first-traversal-for-a-graph": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "number-of-provinces": [
     "CollegeWallah DSA Master Sheet",
@@ -2228,6 +2466,10 @@
     "Fraz DSA Sheet",
     "Striver A2Z Sheet"
   ],
+  "detect-cycle-in-a-directed-graph": [
+    "CollegeWallah DSA Master Sheet",
+    "GFG 160 Sheet"
+  ],
   "find-eventual-safe-states": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
@@ -2247,6 +2489,11 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
+  "implementing-dijkstra-set-1-adjacency-matrix": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
   "network-delay-time": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
@@ -2256,6 +2503,11 @@
   "path-with-minimum-effort": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
+  ],
+  "distance-from-the-source-bellman-ford-algorithm": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance": [
     "CollegeWallah DSA Master Sheet",
@@ -2270,9 +2522,17 @@
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
+  "minimum-spanning-tree": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "min-cost-to-connect-all-points": [
     "CollegeWallah DSA Master Sheet",
     "NeetCode 150"
+  ],
+  "disjoint-set-union-find": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
   ],
   "accounts-merge": [
     "CollegeWallah DSA Master Sheet",
@@ -2298,6 +2558,15 @@
   "number-of-islands-ii": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
+  ],
+  "bridge-edge-in-graph": [
+    "CollegeWallah DSA Master Sheet",
+    "GFG 160 Sheet"
+  ],
+  "articulation-point": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "critical-connections-in-a-network": [
     "CollegeWallah DSA Master Sheet",
@@ -2329,10 +2598,15 @@
     "NeetCode 150",
     "Striver A2Z Sheet"
   ],
+  "subset-sums": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "combination-sum": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "Leetcode-Top 100 Liked",
+    "Love Babbar DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
@@ -2391,9 +2665,10 @@
   "min-cost-climbing-stairs": [
     "CollegeWallah DSA Master Sheet",
     "LeetCode 75",
-    "NeetCode 150"
+    "NeetCode 150",
+    "GFG 160 Sheet"
   ],
-  "frog-jump": [
+  "geek-jump": [
     "CollegeWallah DSA Master Sheet",
     "Fraz DSA Sheet",
     "Striver A2Z Sheet"
@@ -2414,13 +2689,30 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
+  "cherry-pickup-ii": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "partition-equal-subset-sum": [
     "CollegeWallah DSA Master Sheet",
     "Leetcode-Top 100 Liked",
     "NeetCode 150",
     "Striver A2Z Sheet"
   ],
+  "target-sum": [
+    "CollegeWallah DSA Master Sheet",
+    "NeetCode 150",
+    "Striver A2Z Sheet"
+  ],
+  "partitions-with-given-difference": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "partition-array-into-two-arrays-to-minimize-sum-difference": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "rod-cutting": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
@@ -2434,7 +2726,8 @@
   ],
   "longest-palindromic-subsequence": [
     "CollegeWallah DSA Master Sheet",
-    "Striver A2Z Sheet"
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "minimum-insertion-steps-to-make-a-string-palindrome": [
     "CollegeWallah DSA Master Sheet",
@@ -2454,15 +2747,6 @@
     "Fraz DSA Sheet",
     "NeetCode 150",
     "Striver A2Z Sheet"
-  ],
-  "edit-distance": [
-    "CollegeWallah DSA Master Sheet",
-    "Fraz DSA Sheet",
-    "LeetCode 75",
-    "Leetcode-Top 100 Liked",
-    "NeetCode 150",
-    "Striver A2Z Sheet",
-    "LeetCode-Top Interview 150"
   ],
   "wildcard-matching": [
     "CollegeWallah DSA Master Sheet",
@@ -2501,17 +2785,31 @@
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
+  "printing-longest-increasing-subsequence": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet"
+  ],
   "largest-divisible-subset": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
   "longest-string-chain": [
     "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
+  "longest-bitonic-subsequence": [
+    "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
   ],
   "number-of-longest-increasing-subsequence": [
     "CollegeWallah DSA Master Sheet",
     "Striver A2Z Sheet"
+  ],
+  "matrix-chain-multiplication": [
+    "CollegeWallah DSA Master Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ],
   "minimum-cost-to-cut-a-stick": [
     "CollegeWallah DSA Master Sheet",
@@ -2571,7 +2869,8 @@
   ],
   "longest-valid-parentheses": [
     "Fraz DSA Sheet",
-    "Leetcode-Top 100 Liked"
+    "Leetcode-Top 100 Liked",
+    "GFG 160 Sheet"
   ],
   "integer-to-roman": [
     "Fraz DSA Sheet",
@@ -2675,21 +2974,146 @@
     "NeetCode 150",
     "LeetCode-Top Interview 150"
   ],
+  "sort-an-array-of-0s-1s-and-2s": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "union-of-two-arrays": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "kadanes-algorithm": [
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
+  "merge-two-sorted-arrays": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "longest-consecutive-subsequence": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "spirally-traversing-a-matrix": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "row-with-max-1s": [
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
+  ],
   "count-and-say": [
     "Love Babbar DSA Sheet",
     "Striver A2Z Sheet"
   ],
-  "convert-min-heap-to-max-heap": [
+  "longest-palindrome-in-a-string": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "permutations-of-a-given-string": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "parenthesis-checker": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "print-anagrams-together": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "find-missing-and-repeating": [
     "Love Babbar DSA Sheet",
     "Striver A2Z Sheet"
+  ],
+  "stickler-theif": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "product-array-puzzle": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "reverse-a-linked-list": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "reverse-a-linked-list-in-groups-of-given-size": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "detect-loop-in-linked-list": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "add-two-numbers-represented-by-linked-lists": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "clone-a-linked-list-with-next-and-random-pointer": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "merge-k-sorted-linked-lists": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "check-for-bst": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "lowest-common-ancestor-in-a-bst": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "find-k-th-smallest-element-in-bst": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "k-largest-elements": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "find-median-in-a-stream": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "minimum-sum": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "level-order-traversal": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "construct-tree": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "fractional-knapsack": [
+    "Love Babbar DSA Sheet",
+    "Striver A2Z Sheet"
+  ],
+  "evaluation-of-postfix-expression": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "overlapping-intervals-": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "maximum-rectangular-area-in-a-histogram": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
+  ],
+  "circular-tour": [
+    "Love Babbar DSA Sheet",
+    "GFG 160 Sheet"
   ],
   "valid-sudoku": [
     "NeetCode 150",
     "LeetCode-Top Interview 150"
-  ],
-  "target-sum": [
-    "NeetCode 150",
-    "Striver A2Z Sheet"
   ],
   "interleaving-string": [
     "NeetCode 150",
@@ -2701,6 +3125,7 @@
   ],
   "number-of-1-bits": [
     "NeetCode 150",
+    "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
   ],
   "reverse-bits": [
@@ -2710,5 +3135,17 @@
   "merge-sorted-array": [
     "Striver A2Z Sheet",
     "LeetCode-Top Interview 150"
+  ],
+  "number-of-occurrence": [
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
+  "square-root": [
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
+  ],
+  "search-pattern": [
+    "Striver A2Z Sheet",
+    "GFG 160 Sheet"
   ]
 }

@@ -3,31 +3,31 @@
     "Lec 01: Array Basics": [
       {
         "title": "Find Element at a Given Index",
-        "slug": "c-array-print-an-element-set-25933",
+        "slug": "c-array-print-an-element-set",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/c-array-print-an-element-set-25933/1"
       },
       {
         "title": "Min and Max in Array",
-        "slug": "find-minimum-and-maximum-element-in-an-array4428",
+        "slug": "find-minimum-and-maximum-element-in-an-array",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/find-minimum-and-maximum-element-in-an-array4428/1"
       },
       {
         "title": "Sum of Array",
-        "slug": "sum-of-array2326",
+        "slug": "sum-of-array",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/sum-of-array2326/1"
       },
       {
         "title": "Sum of Digits",
-        "slug": "sum-of-digits1742",
+        "slug": "sum-of-digits",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/sum-of-digits1742/1"
       },
       {
         "title": "Check If Array is Sorted",
-        "slug": "check-if-an-array-is-sorted0701",
+        "slug": "check-if-an-array-is-sorted",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/check-if-an-array-is-sorted0701/1"
       },
@@ -47,7 +47,7 @@
       },
       {
         "title": "Second Largest in Array",
-        "slug": "second-largest3735",
+        "slug": "second-largest",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/second-largest3735/1"
       },
@@ -55,7 +55,7 @@
         "title": "Reverse an array",
         "slug": "reverse-an-array",
         "difficulty": "Easy",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/reverse-a-given-array/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/reverse-an-array/1"
       },
       {
         "title": "Missing Number",
@@ -65,7 +65,7 @@
       },
       {
         "title": "Segregate 0s and 1s",
-        "slug": "segregate-0s-and-1s5106",
+        "slug": "segregate-0s-and-1s",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/segregate-0s-and-1s5106/1"
       },
@@ -77,7 +77,7 @@
       },
       {
         "title": "Palindromic Array",
-        "slug": "palindromic-array-1587115620",
+        "slug": "palindromic-array",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/palindromic-array-1587115620/1"
       },
@@ -97,7 +97,7 @@
     "Lec 03: Intermediate Problems": [
       {
         "title": "Equilibrium Point",
-        "slug": "equilibrium-point-1587115620",
+        "slug": "equilibrium-point",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/equilibrium-point-1587115620/1"
       },
@@ -109,7 +109,7 @@
       },
       {
         "title": "Leaders in Array",
-        "slug": "leaders-in-an-array-1587115620",
+        "slug": "leaders-in-an-array",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/leaders-in-an-array-1587115620/1?itm_source=geeksforgeeks&amp;itm_medium=article&amp;itm_campaign=practice_card"
       },
@@ -121,7 +121,7 @@
       },
       {
         "title": "Rotate Array by One",
-        "slug": "cyclically-rotate-an-array-by-one2614",
+        "slug": "cyclically-rotate-an-array-by-one",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/cyclically-rotate-an-array-by-one2614/1"
       },
@@ -165,7 +165,7 @@
       },
       {
         "title": "Maximum Value Of Expression",
-        "slug": "maximum-value-of-expression2515",
+        "slug": "maximum-value-of-expression",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/maximum-value-of-expression2515/1"
       },
@@ -181,7 +181,7 @@
     "Lec 01: Matrix Basics": [
       {
         "title": "Sum of elements in a matrix",
-        "slug": "sum-of-elements-in-a-matrix2000",
+        "slug": "sum-of-elements-in-a-matrix",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/sum-of-elements-in-a-matrix2000/1"
       },
@@ -207,7 +207,7 @@
     "Lec 02: Matrix Operations": [
       {
         "title": "Addition of Two Square Matrix",
-        "slug": "addition-of-two-square-matrices4916",
+        "slug": "addition-of-two-square-matrices",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/addition-of-two-square-matrices4916/1"
       },
@@ -233,7 +233,7 @@
       },
       {
         "title": "ZigZag Matrix",
-        "slug": "print-matrix-in-zig-zag-fashion--122748",
+        "slug": "print-matrix-in-zig-zag-fashion-",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/print-matrix-in-zig-zag-fashion--122748/1"
       },
@@ -261,7 +261,7 @@
     "Lec 01: Number Theory Basics": [
       {
         "title": "Check if a number is Armstrong",
-        "slug": "armstrong-numbers2727",
+        "slug": "armstrong-numbers",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/armstrong-numbers2727/1"
       },
@@ -273,25 +273,25 @@
       },
       {
         "title": "Check if a number is Prime",
-        "slug": "prime-number2314",
+        "slug": "prime-number",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/prime-number2314/1"
       },
       {
         "title": "GCD / HCF of 2 numbers",
-        "slug": "gcd-of-two-numbers3459",
+        "slug": "gcd-of-two-numbers",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/gcd-of-two-numbers3459/1"
       },
       {
         "title": "Prime Factorisation of a Number",
-        "slug": "largest-prime-factor2601",
+        "slug": "largest-prime-factor",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/largest-prime-factor2601/1"
       },
       {
         "title": "Count Primes in range L to R",
-        "slug": "count-primes-in-range1604",
+        "slug": "count-primes-in-range",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/count-primes-in-range1604/1"
       }
@@ -301,25 +301,25 @@
     "Lec 01: String Fundamentals": [
       {
         "title": "Maximum Occuring Character",
-        "slug": "maximum-occuring-character-1587115620",
+        "slug": "maximum-occuring-character",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/maximum-occuring-character-1587115620/1"
       },
       {
         "title": "Remove Spaces",
-        "slug": "remove-spaces0128",
+        "slug": "remove-spaces",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/remove-spaces0128/1"
       },
       {
         "title": "Print first letter of every word in the string",
-        "slug": "print-first-letter-of-every-word-in-the-string3632",
+        "slug": "print-first-letter-of-every-word-in-the-string",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/print-first-letter-of-every-word-in-the-string3632/1"
       },
       {
         "title": "Remove Consecutive Characters",
-        "slug": "consecutive-elements2306",
+        "slug": "consecutive-elements",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/consecutive-elements2306/1"
       },
@@ -435,7 +435,7 @@
       },
       {
         "title": "Floor In Sorted Array",
-        "slug": "floor-in-a-sorted-array-1587115620",
+        "slug": "floor-in-a-sorted-array",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/floor-in-a-sorted-array-1587115620/1"
       },
@@ -453,7 +453,7 @@
       },
       {
         "title": "First 1 in a Sorted Binary Array",
-        "slug": "index-of-first-1-in-a-sorted-array-of-0s-and-1s4048",
+        "slug": "index-of-first-1-in-a-sorted-array-of-0s-and-1s",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/index-of-first-1-in-a-sorted-array-of-0s-and-1s4048/1"
       },
@@ -497,7 +497,7 @@
       },
       {
         "title": "Find kth Rotation",
-        "slug": "rotation4723",
+        "slug": "rotation",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/rotation4723/1"
       },
@@ -541,7 +541,7 @@
       },
       {
         "title": "Median in a row-wise sorted Matrix",
-        "slug": "median-in-a-row-wise-sorted-matrix1527",
+        "slug": "median-in-a-row-wise-sorted-matrix",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/median-in-a-row-wise-sorted-matrix1527/1"
       }
@@ -561,7 +561,7 @@
       },
       {
         "title": "Find Nth root of a number",
-        "slug": "find-nth-root-of-m5843",
+        "slug": "find-nth-root-of-m",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/find-nth-root-of-m5843/1"
       },
@@ -597,7 +597,7 @@
       },
       {
         "title": "Allocate Minimum Pages",
-        "slug": "allocate-minimum-number-of-pages0937",
+        "slug": "allocate-minimum-number-of-pages",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/allocate-minimum-number-of-pages0937/1"
       },
@@ -609,13 +609,13 @@
       },
       {
         "title": "Painter's Partition Problem",
-        "slug": "the-painters-partition-problem1535",
+        "slug": "the-painters-partition-problem",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/the-painters-partition-problem1535/1"
       },
       {
         "title": "K-th element of two  Arrays",
-        "slug": "k-th-element-of-two-sorted-array1317",
+        "slug": "k-th-element-of-two-sorted-array",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/k-th-element-of-two-sorted-array1317/1"
       },
@@ -623,7 +623,7 @@
         "title": "Aggressive Cows",
         "slug": "aggressive-cows",
         "difficulty": "Hard",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/aggressive-cows-detailed-solution/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/aggressive-cows/1"
       },
       {
         "title": "Minimize Max Distance to Gas Station",
@@ -643,19 +643,19 @@
     "Lec 01: Introduction to Recursion": [
       {
         "title": "Print 1 to N without using loops",
-        "slug": "print-1-to-n-without-using-loops3621",
+        "slug": "print-1-to-n-without-using-loops",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/print-1-to-n-without-using-loops3621/1"
       },
       {
         "title": "Sum of first N numbers",
-        "slug": "sum-of-series2811",
+        "slug": "sum-of-series",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/sum-of-series2811/1"
       },
       {
         "title": "Factorial of a given number",
-        "slug": "factorial5739",
+        "slug": "factorial",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/factorial5739/1"
       },
@@ -671,7 +671,7 @@
         "title": "Reverse an array",
         "slug": "reverse-an-array",
         "difficulty": "Easy",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/reverse-a-given-array/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/reverse-an-array/1"
       },
       {
         "title": "Pow(x, n)",
@@ -705,7 +705,7 @@
     "Lec 01: Sorting Fundamentals": [
       {
         "title": "Linear Search",
-        "slug": "search-an-element-in-an-array-1587115621",
+        "slug": "search-an-element-in-an-array",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/search-an-element-in-an-array-1587115621/1"
       },
@@ -731,7 +731,7 @@
     "Lec 02: Custom Comparator Sorting": [
       {
         "title": "Sort Elements by Decreasing Frequency",
-        "slug": "sorting-elements-of-an-array-by-frequency-1587115621",
+        "slug": "sorting-elements-of-an-array-by-frequency",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/sorting-elements-of-an-array-by-frequency-1587115621/1"
       },
@@ -751,7 +751,7 @@
       },
       {
         "title": "Count Inversions",
-        "slug": "inversion-of-array-1587115620",
+        "slug": "inversion-of-array",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/inversion-of-array-1587115620/1"
       },
@@ -779,7 +779,7 @@
       },
       {
         "title": "Search in a Linked List",
-        "slug": "search-in-linked-list-1664434326",
+        "slug": "search-in-linked-list",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/search-in-linked-list-1664434326/1"
       }
@@ -939,7 +939,7 @@
       },
       {
         "title": "Segregate even and odd nodes in a Linked List",
-        "slug": "segregate-even-and-odd-nodes-in-a-linked-list5035",
+        "slug": "segregate-even-and-odd-nodes-in-a-linked-list",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/segregate-even-and-odd-nodes-in-a-linked-list5035/1"
       },
@@ -973,7 +973,7 @@
         "title": "Reverse a Doubly Linked List",
         "slug": "reverse-a-doubly-linked-list",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/reverse-a-doubly-linked-list/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/reverse-a-doubly-linked-list/1"
       },
       {
         "title": "Remove Duplicates from Sorted DLL",
@@ -997,7 +997,7 @@
         "title": "Find Pairs with Given Sum in Doubly Linked List",
         "slug": "find-pairs-with-given-sum-in-doubly-linked-list",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/find-pairs-with-given-sum-in-doubly-linked-list"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/find-pairs-with-given-sum-in-doubly-linked-list/1"
       }
     ],
     "Lec 08: Advanced Problems": [
@@ -1091,13 +1091,13 @@
         "title": "Reverse a Stack",
         "slug": "reverse-a-stack",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/reverse-a-stack-using-recursion"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/reverse-a-stack/1"
       }
     ],
     "Lec 04: Expression Conversions": [
       {
         "title": "Infix to Postfix Conversion",
-        "slug": "infix-to-postfix-1587115620",
+        "slug": "infix-to-postfix",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/infix-to-postfix-1587115620/1"
       },
@@ -1105,13 +1105,13 @@
         "title": "Prefix to Infix Conversion",
         "slug": "prefix-to-infix-conversion",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/prefix-to-infix-conversion"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/prefix-to-infix-conversion/1"
       },
       {
         "title": "Postfix to Prefix Conversion",
         "slug": "postfix-to-prefix-conversion",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/postfix-to-prefix-conversion"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/postfix-to-prefix-conversion/1"
       },
       {
         "title": "Infix to Prefix Conversion",
@@ -1129,7 +1129,7 @@
       },
       {
         "title": "Next Smaller Element / Help Classmates",
-        "slug": "help-classmates--141631",
+        "slug": "help-classmates-",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/help-classmates--141631/1"
       },
@@ -1615,7 +1615,7 @@
       },
       {
         "title": "Longest Word with All Prefixes",
-        "slug": "find-the-longest-string--170645",
+        "slug": "find-the-longest-string-",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/find-the-longest-string--170645/1"
       },
@@ -1669,7 +1669,7 @@
       },
       {
         "title": "Find distinct elements / Find the Frequency",
-        "slug": "find-distinct-elements--130928",
+        "slug": "find-distinct-elements-",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/find-distinct-elements--130928/1"
       },
@@ -1745,7 +1745,7 @@
     "Lec 03: Advanced / Multi Concept": [
       {
         "title": "Maximum Size Subarray Sum Equals k",
-        "slug": "longest-sub-array-with-sum-k0809",
+        "slug": "longest-sub-array-with-sum-k",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-sub-array-with-sum-k0809/1"
       },
@@ -1773,13 +1773,13 @@
     "Lec 01: Heap Fundamentals": [
       {
         "title": "Check if an array represents a min heap",
-        "slug": "does-array-represent-heap4345",
+        "slug": "does-array-represent-heap",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/does-array-represent-heap4345/1"
       },
       {
         "title": "Convert Min Heap to Max Heap",
-        "slug": "convert-min-heap-to-max-heap-1666385109",
+        "slug": "convert-min-heap-to-max-heap",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/convert-min-heap-to-max-heap-1666385109/1"
       }
@@ -1805,7 +1805,7 @@
       },
       {
         "title": "Sort a K Sorted Array / Nearly Sorted Algorithm",
-        "slug": "nearly-sorted-1587115620",
+        "slug": "nearly-sorted",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/nearly-sorted-1587115620/1"
       },
@@ -1819,7 +1819,7 @@
     "Lec 03: Merging &amp; Combinations": [
       {
         "title": "Minimum Cost of ropes",
-        "slug": "minimum-cost-of-ropes-1587115620",
+        "slug": "minimum-cost-of-ropes",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/minimum-cost-of-ropes-1587115620/1"
       },
@@ -1923,7 +1923,7 @@
       },
       {
         "title": "Maximum Sum of a 2D Subgrid of size K x K",
-        "slug": "coins-of-geekland--141631",
+        "slug": "coins-of-geekland-",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/coins-of-geekland--141631/1"
       }
@@ -2093,13 +2093,13 @@
     "Lec 01: Bit Basics &amp; Properties": [
       {
         "title": "K-th Bit is Set or Not",
-        "slug": "check-whether-k-th-bit-is-set-or-not-1587115620",
+        "slug": "check-whether-k-th-bit-is-set-or-not",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/check-whether-k-th-bit-is-set-or-not-1587115620/1"
       },
       {
         "title": "Check if a Number is Odd or Not",
-        "slug": "odd-or-even3618",
+        "slug": "odd-or-even",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/odd-or-even3618/1"
       },
@@ -2125,7 +2125,7 @@
     "Lec 02: XOR Tricks": [
       {
         "title": "Swap Two Numbers (XOR Trick)",
-        "slug": "swap-two-numbers3844",
+        "slug": "swap-two-numbers",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/swap-two-numbers3844/1"
       },
@@ -2137,7 +2137,7 @@
       },
       {
         "title": "Is Binary Number Multiple of 3",
-        "slug": "is-binary-number-multiple-of-30654",
+        "slug": "is-binary-number-multiple-of",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/is-binary-number-multiple-of-30654/1?page=1&amp;category=Bit%20Magic&amp;sortBy=submissions"
       },
@@ -2157,19 +2157,19 @@
         "title": "Single Number - III",
         "slug": "single-number-iii",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/find-the-two-numbers-appearing-odd-number-of-times"
+        "leetcodeUrl": "https://leetcode.com/problems/single-number-iii/description/"
       }
     ],
     "Lec 03: Bit Counting &amp; Advanced": [
       {
         "title": "Count set bits",
-        "slug": "count-total-set-bits-1587115620",
+        "slug": "count-total-set-bits",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/count-total-set-bits-1587115620/1"
       },
       {
         "title": "Bleak Numbers",
-        "slug": "bleak-numbers1552",
+        "slug": "bleak-numbers",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/bleak-numbers1552/1?page=6&amp;category=Bit%20Magic&amp;sortBy=difficulty"
       },
@@ -2211,11 +2211,11 @@
         "title": "Shortest Job First",
         "slug": "shortest-job-first",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/Greedy/shortest-job-first-or-sjf-cpu-scheduling"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/shortest-job-first/1"
       },
       {
         "title": "N meetings in one room",
-        "slug": "n-meetings-in-one-room-1587115620",
+        "slug": "n-meetings-in-one-room",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/n-meetings-in-one-room-1587115620/1"
       }
@@ -2247,13 +2247,13 @@
       },
       {
         "title": "Job Sequencing Problem",
-        "slug": "job-sequencing-problem-1587115620",
+        "slug": "job-sequencing-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/job-sequencing-problem-1587115620/1"
       },
       {
         "title": "Minimum Platforms",
-        "slug": "minimum-platforms-1587115620",
+        "slug": "minimum-platforms",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/minimum-platforms-1587115620/1"
       },
@@ -2299,7 +2299,7 @@
     "Lec 04: Advanced Greedy": [
       {
         "title": "Minimize the Heights II",
-        "slug": "minimize-the-heights3351",
+        "slug": "minimize-the-heights",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/minimize-the-heights3351/1"
       },
@@ -2311,7 +2311,7 @@
       },
       {
         "title": "Huffman Encoding",
-        "slug": "huffman-encoding3345",
+        "slug": "huffman-encoding",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/huffman-encoding3345/1"
       },
@@ -2395,7 +2395,7 @@
       },
       {
         "title": "Distance of nearest cell having 1",
-        "slug": "distance-of-nearest-cell-having-1-1587115620",
+        "slug": "distance-of-nearest-cell-having-1",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/distance-of-nearest-cell-having-1-1587115620/1"
       },
@@ -2533,7 +2533,7 @@
       },
       {
         "title": "Floyd Warshall",
-        "slug": "implementing-floyd-warshall2042",
+        "slug": "implementing-floyd-warshall",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/implementing-floyd-warshall2042/1"
       },
@@ -2547,7 +2547,7 @@
         "title": "Minimum multiplications to reach end",
         "slug": "minimum-multiplications-to-reach-end",
         "difficulty": "Hard",
-        "leetcodeUrl": "https://takeuforward.org/graph/g-39-minimum-multiplications-to-reach-end/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/minimum-multiplications-to-reach-end/1"
       },
       {
         "title": "Number of ways to arrive at destination",
@@ -2629,7 +2629,7 @@
       },
       {
         "title": "Articulation Point in Graph",
-        "slug": "articulation-point-1",
+        "slug": "articulation-point",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/articulation-point-1/1"
       },
@@ -2679,7 +2679,7 @@
         "title": "Check if there exists a subsequence with sum K",
         "slug": "check-if-there-exists-a-subsequence-with-sum-k",
         "difficulty": "Easy",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/check-if-there-exists-a-subsequence-with-sum-k"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/check-if-there-exists-a-subsequence-with-sum-k/1"
       },
       {
         "title": "Power Set Bit Manipulation",
@@ -2695,7 +2695,7 @@
       },
       {
         "title": "Subset Sums",
-        "slug": "subset-sums2234",
+        "slug": "subset-sums",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/subset-sums2234/1"
       }
@@ -2721,7 +2721,7 @@
       },
       {
         "title": "N Digit numbers with digits in increasing order",
-        "slug": "n-digit-numbers-with-digits-in-increasing-order5903",
+        "slug": "n-digit-numbers-with-digits-in-increasing-order",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/n-digit-numbers-with-digits-in-increasing-order5903/1"
       }
@@ -2751,7 +2751,7 @@
         "title": "Palindrome partitioning",
         "slug": "palindrome-partitioning",
         "difficulty": "Hard",
-        "leetcodeUrl": "$undefined"
+        "leetcodeUrl": "https://leetcode.com/problems/palindrome-partitioning/description/"
       },
       {
         "title": "Word Break",
@@ -2787,7 +2787,7 @@
       },
       {
         "title": "M-Coloring Problem",
-        "slug": "m-coloring-problem-1587115620",
+        "slug": "m-coloring-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/m-coloring-problem-1587115620/1"
       },
@@ -2833,9 +2833,9 @@
       },
       {
         "title": "Frog Jump",
-        "slug": "frog-jump",
+        "slug": "geek-jump",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/dynamic-programming-frog-jump-dp-3/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/geek-jump/1"
       },
       {
         "title": "Frog Jump with K Distances",
@@ -2909,7 +2909,7 @@
     "Lec 03: 0/1 Knapsack &amp; Subsets": [
       {
         "title": "Subset Sum Problem",
-        "slug": "subset-sum-problem-1611555638",
+        "slug": "subset-sum-problem",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/subset-sum-problem-1611555638/1"
       },
@@ -2921,7 +2921,7 @@
       },
       {
         "title": "Target Sum",
-        "slug": "target-sum-1626326450",
+        "slug": "target-sum",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/target-sum-1626326450/1"
       },
@@ -2933,7 +2933,7 @@
       },
       {
         "title": "0 - 1 Knapsack Problem",
-        "slug": "0-1-knapsack-problem0945",
+        "slug": "0-1-knapsack-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/0-1-knapsack-problem0945/1"
       },
@@ -2953,7 +2953,7 @@
     "Lec 04: Unbounded Knapsack": [
       {
         "title": "Rod Cutting Problem",
-        "slug": "rod-cutting0840",
+        "slug": "rod-cutting",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/rod-cutting0840/1"
       },
@@ -2981,17 +2981,17 @@
         "title": "Longest common subsequence",
         "slug": "longest-common-subsequence",
         "difficulty": "Hard",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/print-longest-common-subsequence-dp-26/"
+        "leetcodeUrl": "https://leetcode.com/problems/longest-common-subsequence/description/"
       },
       {
         "title": "Print Longest Common Subsequence",
-        "slug": "print-all-lcs-sequences3413",
+        "slug": "print-all-lcs-sequences",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/print-all-lcs-sequences3413/1"
       },
       {
         "title": "Longest Common Substring",
-        "slug": "longest-common-substring1452",
+        "slug": "longest-common-substring",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-common-substring1452/1"
       },
@@ -3109,7 +3109,7 @@
       },
       {
         "title": "Longest Bitonic Subsequence",
-        "slug": "longest-bitonic-subsequence0824",
+        "slug": "longest-bitonic-subsequence",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-bitonic-subsequence0824/1"
       },
@@ -3129,7 +3129,7 @@
     "Lec 08: Partition DP &amp; Matrix Chain Multiplication (MCM)": [
       {
         "title": "Matrix Chain Multiplication",
-        "slug": "matrix-chain-multiplication0303",
+        "slug": "matrix-chain-multiplication",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/matrix-chain-multiplication0303/1"
       },

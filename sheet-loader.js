@@ -31,7 +31,15 @@ export function denormalizeSheetData(sheetData, registry) {
             p = registry[pRef];
           }
           if (p && p.slug) {
-            result[topicName][subtopicName].push(p);
+            let slug = p.slug.trim().toLowerCase();
+            const url = p.leetcodeUrl || p.url || "";
+            if (url.includes("geeksforgeeks.org") || slug.match(/-[0-9]+$/)) {
+              slug = slug.replace(/-[0-9]+$/, "");
+            }
+            result[topicName][subtopicName].push({
+              ...p,
+              slug: slug
+            });
           }
         });
       }
@@ -110,6 +118,10 @@ function sanitizeSheetData(sheet) {
           let url = p.leetcodeUrl || p.url || "";
           if (url.includes("$undefined") || url.includes("undefined")) {
             url = `https://leetcode.com/problems/${slug}`;
+          }
+
+          if (url.includes("geeksforgeeks.org") || slug.match(/-[0-9]+$/)) {
+            slug = slug.replace(/-[0-9]+$/, "");
           }
 
           cleaned[topic][subtopic].push({
@@ -247,8 +259,13 @@ export async function getCrossSheetMap() {
         for (const [subtopic, problems] of Object.entries(subtopics)) {
           if (Array.isArray(problems)) {
             problems.forEach(p => {
-              const slug = (typeof p === "string" ? p : p.slug)?.trim().toLowerCase();
+              let slug = (typeof p === "string" ? p : p.slug)?.trim().toLowerCase();
               if (!slug) return;
+
+              const pUrl = (typeof p === "object" ? (p.leetcodeUrl || p.url) : "") || "";
+              if (pUrl.includes("geeksforgeeks.org") || slug.match(/-[0-9]+$/)) {
+                slug = slug.replace(/-[0-9]+$/, "");
+              }
 
               if (!baseMap[slug]) {
                 baseMap[slug] = [];

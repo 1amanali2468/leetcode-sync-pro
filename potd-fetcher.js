@@ -107,55 +107,38 @@ async function fetchGfgPOTD() {
   };
 
   try {
-    // Attempting to fetch practice GFG POTD html to scrape title & difficulty
-    const res = await fetch("https://practice.geeksforgeeks.org/problem-of-the-day");
+    const res = await fetch("https://practiceapi.geeksforgeeks.org/api/v1/problems-of-day/problem/today/");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const html = await res.text();
-    
-    // Parse using DOMParser
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    
-    // Search meta tags or script contents
-    let title = "";
-    let slug = "";
-    let difficulty = "Medium";
-    
-    // 1. Try to extract from og:title
-    const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content");
-    if (ogTitle && ogTitle.includes("|")) {
-      title = ogTitle.split("|")[0].trim();
-    } else if (ogTitle) {
-      title = ogTitle.trim();
-    }
-    
-    // 2. Try scraping the main problem title elements
-    if (!title) {
-      const mainHeading = doc.querySelector(".problem-title, h1, h2");
-      if (mainHeading) {
-        title = mainHeading.textContent.trim();
+    const json = await res.json();
+    if (json && json.problem_name) {
+      let slug = "";
+      const pUrl = json.problem_url || "";
+      if (pUrl) {
+        try {
+          const cleanUrl = pUrl.split("#")[0].split("?")[0];
+          const parts = cleanUrl.split("/").filter(Boolean);
+          const idx = parts.indexOf("problems");
+          if (idx !== -1 && parts[idx + 1]) {
+            let rawSlug = parts[idx + 1];
+            // Remove trailing ID suffix like -1587115620 if present
+            rawSlug = rawSlug.replace(/-?(\d+)$/, "");
+            slug = rawSlug.toLowerCase();
+          }
+        } catch (e) {}
       }
-    }
-    
-    // Find difficulty tag from HTML markup
-    const diffElement = doc.querySelector(".problem-difficulty, .difficulty");
-    if (diffElement) {
-      difficulty = diffElement.textContent.trim();
-    }
-
-    if (title) {
-      // Derive slug from title
-      slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      if (!slug) {
+        slug = json.problem_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      }
       return {
-        title,
-        url: "https://practice.geeksforgeeks.org/problem-of-the-day",
-        difficulty: difficulty || "Medium",
-        slug,
-        tags: []
+        title: json.problem_name,
+        url: json.problem_url || "https://practice.geeksforgeeks.org/problem-of-the-day",
+        difficulty: json.difficulty || "Medium",
+        slug: slug,
+        tags: json.tags?.topic_tags || []
       };
     }
   } catch (e) {
-    console.warn("LeetSync GFG fetch/scrape failed:", e);
+    console.warn("LeetSync GFG fetch failed:", e);
   }
   return defaultObj;
 }

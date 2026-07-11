@@ -475,7 +475,7 @@
         "title": "Palindrome partitioning",
         "slug": "palindrome-partitioning",
         "difficulty": "Hard",
-        "leetcodeUrl": "$undefined"
+        "leetcodeUrl": "https://leetcode.com/problems/palindrome-partitioning/description/"
       },
       {
         "title": "Letter Combinations of a Phone Number",
@@ -723,7 +723,7 @@
         "title": "Longest common subsequence",
         "slug": "longest-common-subsequence",
         "difficulty": "Hard",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/print-longest-common-subsequence-dp-26/"
+        "leetcodeUrl": "https://leetcode.com/problems/longest-common-subsequence/description/"
       },
       {
         "title": "Best Time to Buy and Sell Stock with Cooldown",

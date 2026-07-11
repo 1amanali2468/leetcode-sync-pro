@@ -816,7 +816,10 @@ async function renderSheets() {
     const solvedMap = {};
     history.forEach(h => {
       if (h.slug) {
-        const slug = h.slug.trim().toLowerCase();
+        let slug = h.slug.trim().toLowerCase();
+        if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+          slug = slug.replace(/-[0-9]+$/, "");
+        }
         if (!solvedMap[slug]) solvedMap[slug] = [];
         solvedMap[slug].push(h);
       }
@@ -862,7 +865,10 @@ async function renderSheets() {
   const solvedMap = {};
   history.forEach(h => {
     if (h.slug) {
-      const slug = h.slug.trim().toLowerCase();
+      let slug = h.slug.trim().toLowerCase();
+      if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+        slug = slug.replace(/-[0-9]+$/, "");
+      }
       if (!solvedMap[slug]) {
         solvedMap[slug] = [];
       }
@@ -1944,7 +1950,10 @@ async function pickRandomProblem() {
   const solvedMap = {};
   history.forEach(h => {
     if (h.slug) {
-      const slug = h.slug.trim().toLowerCase();
+      let slug = h.slug.trim().toLowerCase();
+      if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+        slug = slug.replace(/-[0-9]+$/, "");
+      }
       if (!solvedMap[slug]) solvedMap[slug] = [];
       solvedMap[slug].push(h);
     }
@@ -3390,7 +3399,8 @@ async function renderCustomSheetsManager() {
     "love_babbar_dsa_sheet",
     "neetcode_150",
     "striver_a2z_sheet",
-    "top_interview_150"
+    "top_interview_150",
+    "gfg_160"
   ];
   const keys = Object.keys(customSheets).filter(k => !staticKeys.includes(k));
   if (keys.length === 0) {
@@ -4625,12 +4635,20 @@ async function renderPOTDWidget() {
         logo: "🟩", 
         checkSolved: (info) => {
           const slug = info.slug?.trim().toLowerCase();
-          return gfgSolves.some(h => h.slug?.trim().toLowerCase() === slug || gfgSolves.length > 0);
+          if (!slug || slug === "problem-of-the-day" || slug === "") {
+            return gfgSolves.length > 0;
+          }
+          return gfgSolves.some(h => {
+            const hSlug = (h.slug || "").trim().toLowerCase();
+            return hSlug === slug || hSlug.replace(/-[0-9]+$/, "") === slug.replace(/-[0-9]+$/, "");
+          });
         },
         getTitle: (info) => {
           const slug = info.slug?.trim().toLowerCase();
-          const matching = gfgSolves.find(h => h.slug?.trim().toLowerCase() === slug);
-          return matching ? matching.title : (gfgSolves[0] ? gfgSolves[0].title : info.title);
+          if (!slug || slug === "problem-of-the-day" || slug === "") {
+            return gfgSolves[0] ? gfgSolves[0].title : info.title;
+          }
+          return info.title;
         }
       },
       { 

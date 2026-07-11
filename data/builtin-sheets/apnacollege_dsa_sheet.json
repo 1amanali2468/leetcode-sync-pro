@@ -74,10 +74,10 @@
         "leetcodeUrl": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/"
       },
       {
-        "title": "?ref=lbp",
-        "slug": "-ref-lbp",
+        "title": "Pair Sum in a Sorted and Rotated Array",
+        "slug": "pair-sum-in-a-sorted-and-rotated-array",
         "difficulty": "Easy",
-        "leetcodeUrl": "https://www.geeksforgeeks.org/given-a-sorted-and-rotated-array-find-if-there-is-a-pair-with-a-given-sum/?ref=lbp"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/pair-sum-in-a-sorted-and-rotated-array/1"
       },
       {
         "title": "3Sum",
@@ -99,7 +99,7 @@
       },
       {
         "title": "Kth Smallest",
-        "slug": "kth-smallest-element5635",
+        "slug": "kth-smallest-element",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/kth-smallest-element5635/1"
       },
@@ -169,7 +169,7 @@
       },
       {
         "title": "Remove Consecutive Characters",
-        "slug": "consecutive-elements2306",
+        "slug": "consecutive-elements",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/consecutive-elements2306/1"
       },
@@ -223,7 +223,7 @@
       },
       {
         "title": "Next Permutation",
-        "slug": "next-permutation5226",
+        "slug": "next-permutation",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/next-permutation5226/1"
       },
@@ -235,19 +235,19 @@
       },
       {
         "title": "Smallest window containing all characters",
-        "slug": "smallest-window-in-a-string-containing-all-the-characters-of-another-string-1587115621",
+        "slug": "smallest-window-in-a-string-containing-all-the-characters-of-another-string",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/smallest-window-in-a-string-containing-all-the-characters-of-another-string-1587115621/1"
       },
       {
         "title": "Wildcard string matching",
-        "slug": "wildcard-string-matching1126",
+        "slug": "wildcard-string-matching",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/wildcard-string-matching1126/1"
       },
       {
         "title": "Longest Prefix Suffix",
-        "slug": "longest-prefix-suffix2527",
+        "slug": "longest-prefix-suffix",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-prefix-suffix2527/1"
       },
@@ -277,7 +277,7 @@
       },
       {
         "title": "Word Wrap",
-        "slug": "word-wrap1646",
+        "slug": "word-wrap",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/word-wrap1646/1"
       }
@@ -411,7 +411,7 @@
       },
       {
         "title": "Count Inversions",
-        "slug": "inversion-of-array-1587115620",
+        "slug": "inversion-of-array",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/inversion-of-array-1587115620/1"
       },
@@ -471,7 +471,7 @@
       },
       {
         "title": "Allocate Minimum Pages",
-        "slug": "allocate-minimum-number-of-pages0937",
+        "slug": "allocate-minimum-number-of-pages",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/allocate-minimum-number-of-pages0937/1"
       },
@@ -511,19 +511,19 @@
       },
       {
         "title": "Solve the Sudoku",
-        "slug": "solve-the-sudoku-1587115621",
+        "slug": "solve-the-sudoku",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/solve-the-sudoku-1587115621/1"
       },
       {
         "title": "Partition Equal Subset Sum",
-        "slug": "subset-sum-problem2014",
+        "slug": "subset-sum-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/subset-sum-problem2014/1"
       },
       {
         "title": "M-Coloring Problem",
-        "slug": "m-coloring-problem-1587115620",
+        "slug": "m-coloring-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/m-coloring-problem-1587115620/1"
       },
@@ -685,7 +685,7 @@
         "title": "Reverse a Doubly Linked List",
         "slug": "reverse-a-doubly-linked-list",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/reverse-a-doubly-linked-list/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/reverse-a-doubly-linked-list/1"
       },
       {
         "title": "Delete Nodes Which Have A Greater Value On Right Side",
@@ -843,9 +843,9 @@
       },
       {
         "title": "Sort a stack using recursion",
-        "slug": "sort-a-stack-using-recursion",
+        "slug": "sort-a-stack",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/sort-a-stack"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/sort-a-stack/1"
       },
       {
         "title": "Queue Based Approach For First Non Repeating Character In A Stream",
@@ -861,27 +861,27 @@
       },
       {
         "title": "Next Greater Element",
-        "slug": "next-larger-element-1587115620",
+        "slug": "next-larger-element",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/next-larger-element-1587115620/1"
       },
       {
         "title": "Distance of nearest cell having 1",
-        "slug": "distance-of-nearest-cell-having-1-1587115620",
+        "slug": "distance-of-nearest-cell-having-1",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/distance-of-nearest-cell-having-1-1587115620/1"
       },
       {
         "title": "Rotten Oranges",
-        "slug": "rotten-oranges2536",
+        "slug": "rotten-oranges",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/rotten-oranges2536/1"
       },
       {
         "title": "Next Smaller Element",
-        "slug": "next-smaller-element",
+        "slug": "immediate-smaller-element",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/next-smaller-element"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/immediate-smaller-element1142/1"
       },
       {
         "title": "Efficiently Implement K Stacks Single Array",
@@ -963,7 +963,7 @@
         "title": "Job sequencing Problem",
         "slug": "job-sequencing-problem",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/job-sequencing-problem/"
+        "leetcodeUrl": "http://geeksforgeeks.org/problems/job-sequencing-problem-1587115620/1"
       },
       {
         "title": "Greedy Algorithm Egyptian Fraction",
@@ -1317,7 +1317,7 @@
       },
       {
         "title": "Preorder to BST",
-        "slug": "preorder-to-postorder4423",
+        "slug": "preorder-to-postorder",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/preorder-to-postorder4423/1"
       },
@@ -1595,7 +1595,7 @@
       },
       {
         "title": "Steps by Knight",
-        "slug": "steps-by-knight5927",
+        "slug": "steps-by-knight",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/steps-by-knight5927/1"
       },
@@ -1649,13 +1649,13 @@
       },
       {
         "title": "Negative weight cycle",
-        "slug": "negative-weight-cycle3504",
+        "slug": "negative-weight-cycle",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/negative-weight-cycle3504/1"
       },
       {
         "title": "Floyd Warshall",
-        "slug": "implementing-floyd-warshall2042",
+        "slug": "implementing-floyd-warshall",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/implementing-floyd-warshall2042/1"
       },
@@ -1685,7 +1685,7 @@
       },
       {
         "title": "M-Coloring Problem",
-        "slug": "m-coloring-problem-1587115620",
+        "slug": "m-coloring-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/m-coloring-problem-1587115620/1"
       },
@@ -1807,25 +1807,25 @@
     "Lec 01: General": [
       {
         "title": "Knapsack with Duplicate Items",
-        "slug": "knapsack-with-duplicate-items4201",
+        "slug": "knapsack-with-duplicate-items",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/knapsack-with-duplicate-items4201/1"
       },
       {
         "title": "BBT counter",
-        "slug": "bbt-counter4914",
+        "slug": "bbt-counter",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/bbt-counter4914/1"
       },
       {
         "title": "Reach a given score",
-        "slug": "reach-a-given-score-1587115621",
+        "slug": "reach-a-given-score",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/reach-a-given-score-1587115621/1"
       },
       {
         "title": "Maximum difference of zeros and ones in binary string",
-        "slug": "maximum-difference-of-zeros-and-ones-in-binary-string4111",
+        "slug": "maximum-difference-of-zeros-and-ones-in-binary-string",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/maximum-difference-of-zeros-and-ones-in-binary-string4111/1"
       },
@@ -1843,19 +1843,19 @@
       },
       {
         "title": "Longest Repeating Subsequence",
-        "slug": "longest-repeating-subsequence2004",
+        "slug": "longest-repeating-subsequence",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-repeating-subsequence2004/1"
       },
       {
         "title": "Pairs with certain difference",
-        "slug": "pairs-with-specific-difference1533",
+        "slug": "pairs-with-specific-difference",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/pairs-with-specific-difference1533/1"
       },
       {
         "title": "Longest subsequence-1",
-        "slug": "longest-subsequence-such-that-difference-between-adjacents-is-one4724",
+        "slug": "longest-subsequence-such-that-difference-between-adjacents-is-one",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-subsequence-such-that-difference-between-adjacents-is-one4724/1"
       },
@@ -1875,7 +1875,7 @@
         "title": "Longest common subsequence",
         "slug": "longest-common-subsequence",
         "difficulty": "Hard",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/print-longest-common-subsequence-dp-26/"
+        "leetcodeUrl": "https://leetcode.com/problems/longest-common-subsequence/description/"
       },
       {
         "title": "Word Break",
@@ -1921,13 +1921,13 @@
       },
       {
         "title": "0 - 1 Knapsack Problem",
-        "slug": "0-1-knapsack-problem0945",
+        "slug": "0-1-knapsack-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/0-1-knapsack-problem0945/1"
       },
       {
         "title": "nCr",
-        "slug": "ncr1019",
+        "slug": "ncr",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/ncr1019/1"
       },
@@ -1939,13 +1939,13 @@
       },
       {
         "title": "Edit Distance",
-        "slug": "edit-distance3702",
+        "slug": "edit-distance",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/edit-distance3702/1"
       },
       {
         "title": "Partition Equal Subset Sum",
-        "slug": "subset-sum-problem2014",
+        "slug": "subset-sum-problem",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/subset-sum-problem2014/1"
       },
@@ -1963,13 +1963,13 @@
       },
       {
         "title": "Maximize The Cut Segments",
-        "slug": "cutted-segments1642",
+        "slug": "cutted-segments",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/cutted-segments1642/1"
       },
       {
         "title": "Max Sum Increasing Subsequence",
-        "slug": "maximum-sum-increasing-subsequence4749",
+        "slug": "maximum-sum-increasing-subsequence",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/maximum-sum-increasing-subsequence4749/1"
       },
@@ -1987,7 +1987,7 @@
       },
       {
         "title": "Egg Dropping Puzzle",
-        "slug": "egg-dropping-puzzle-1587115620",
+        "slug": "egg-dropping-puzzle",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/egg-dropping-puzzle-1587115620/1"
       },
@@ -1999,19 +1999,19 @@
       },
       {
         "title": "Largest square formed in a matrix",
-        "slug": "largest-square-formed-in-a-matrix0806",
+        "slug": "largest-square-formed-in-a-matrix",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/largest-square-formed-in-a-matrix0806/1"
       },
       {
         "title": "Maximum path sum in matrix",
-        "slug": "path-in-matrix3805",
+        "slug": "path-in-matrix",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/path-in-matrix3805/1"
       },
       {
         "title": "Minimum Jumps",
-        "slug": "minimum-number-of-jumps-1587115620",
+        "slug": "minimum-number-of-jumps",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/minimum-number-of-jumps-1587115620/1"
       },
@@ -2023,7 +2023,7 @@
       },
       {
         "title": "Longest Common Substring",
-        "slug": "longest-common-substring1452",
+        "slug": "longest-common-substring",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-common-substring1452/1"
       },
@@ -2047,7 +2047,7 @@
       },
       {
         "title": "Longest alternating subsequence",
-        "slug": "longest-alternating-subsequence5951",
+        "slug": "longest-alternating-subsequence",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-alternating-subsequence5951/1"
       },
@@ -2071,19 +2071,19 @@
       },
       {
         "title": "Optimal Strategy For A Game",
-        "slug": "optimal-strategy-for-a-game-1587115620",
+        "slug": "optimal-strategy-for-a-game",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/optimal-strategy-for-a-game-1587115620/1"
       },
       {
         "title": "Word Wrap",
-        "slug": "word-wrap1646",
+        "slug": "word-wrap",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/word-wrap1646/1"
       },
       {
         "title": "Mobile numeric keypad",
-        "slug": "mobile-numeric-keypad5456",
+        "slug": "mobile-numeric-keypad",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/mobile-numeric-keypad5456/1"
       },
@@ -2129,19 +2129,19 @@
     "Lec 01: General": [
       {
         "title": "Number of 1 Bits",
-        "slug": "set-bits0143",
+        "slug": "set-bits",
         "difficulty": "Easy",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/set-bits0143/1"
       },
       {
         "title": "Unique Number II",
-        "slug": "finding-the-numbers0215",
+        "slug": "finding-the-numbers",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/finding-the-numbers0215/1"
       },
       {
         "title": "Find position of set bit",
-        "slug": "find-position-of-set-bit3706",
+        "slug": "find-position-of-set-bit",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/find-position-of-set-bit3706/1"
       },
@@ -2165,7 +2165,7 @@
       },
       {
         "title": "Power Set",
-        "slug": "power-set4302",
+        "slug": "power-set",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/power-set4302/1"
       }
@@ -2329,7 +2329,7 @@
       },
       {
         "title": "Check Mirror in N-ary tree",
-        "slug": "check-mirror-in-n-ary-tree1528",
+        "slug": "check-mirror-in-n-ary-tree",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/check-mirror-in-n-ary-tree1528/1"
       },
@@ -2395,7 +2395,7 @@
       },
       {
         "title": "Maximum sum Rectangle",
-        "slug": "maximum-sum-rectangle2948",
+        "slug": "maximum-sum-rectangle",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/maximum-sum-rectangle2948/1"
       },
@@ -2407,7 +2407,7 @@
       },
       {
         "title": "Painting the Fence",
-        "slug": "painting-the-fence3727",
+        "slug": "painting-the-fence",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/painting-the-fence3727/1"
       },
@@ -2419,25 +2419,25 @@
       },
       {
         "title": "Minimum cost to fill given weight in a bag",
-        "slug": "minimum-cost-to-fill-given-weight-in-a-bag1956",
+        "slug": "minimum-cost-to-fill-given-weight-in-a-bag",
         "difficulty": "Medium",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/minimum-cost-to-fill-given-weight-in-a-bag1956/1"
       },
       {
         "title": "Boolean Parenthesization",
-        "slug": "boolean-parenthesization5610",
+        "slug": "boolean-parenthesization",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/boolean-parenthesization5610/1"
       },
       {
         "title": "Stock Buy and Sell – Max K Transactions Allowed",
-        "slug": "maximum-profit4657",
+        "slug": "maximum-profit",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/maximum-profit4657/1"
       },
       {
         "title": "Palindromic Partitioning",
-        "slug": "palindromic-patitioning4845",
+        "slug": "palindromic-patitioning",
         "difficulty": "Hard",
         "leetcodeUrl": "https://www.geeksforgeeks.org/problems/palindromic-patitioning4845/1"
       }

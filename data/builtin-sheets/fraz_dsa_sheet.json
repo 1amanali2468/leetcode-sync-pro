@@ -427,9 +427,9 @@
       },
       {
         "title": "Frog Jump",
-        "slug": "frog-jump",
+        "slug": "geek-jump",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/dynamic-programming-frog-jump-dp-3/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/geek-jump/1"
       },
       {
         "title": "Best Time to Buy and Sell Stock IV",
