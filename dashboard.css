@@ -709,13 +709,25 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  opacity: 0.35;
+  filter: grayscale(1) contrast(0.8);
 }
 .btn-ico:hover {
   background-color: var(--clr-surface-card);
   color: var(--clr-text);
+  opacity: 0.8;
+  filter: none;
 }
-.btn-ico.active-note { color: #d97706; }
-.btn-ico.active-star { color: #eab308; }
+.btn-ico.active-note {
+  color: #d97706;
+  opacity: 1;
+  filter: none;
+}
+.btn-ico.active-star {
+  color: #eab308;
+  opacity: 1;
+  filter: none;
+}
 
 /* ── SCREEN: REVISION BOARD ─────────────────────────────────────────────── */
 .revision-container {

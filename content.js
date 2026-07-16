@@ -720,28 +720,13 @@ function showModal(submission, details, timeSpentStr) {
 
         <div class="leetsync-grid-2">
           <div>
-            <span class="leetsync-label">Collection</span>
-            <div id="leetsync-collection-select-wrap">
-              <select id="leetsync-collections-select" class="leetsync-select">
-                <option value="">— Choose a Collection —</option>
-                <option value="Blind75">Blind75</option>
-                <option value="NeetCode150">NeetCode150</option>
-                <option value="Striver A-Z Sheet">Striver A-Z Sheet</option>
-                <option value="Google">Google</option>
-                <option value="Amazon">Amazon</option>
-                <option value="Must Revise">Must Revise</option>
-                <option value="__other__">✏️ Other...</option>
-              </select>
-            </div>
-            <div id="leetsync-collection-input-wrap" class="leetsync-hidden" style="margin-top:0px; position: relative;">
-              <input type="text" id="leetsync-collections-input" class="leetsync-input" placeholder="Enter custom collection" style="padding-right: 30px;">
-              <button type="button" id="leetsync-collection-reset" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 14px; padding: 0;">✕</button>
-            </div>
-          </div>
-          <div>
             <span class="leetsync-label">Time Spent</span>
             <input type="text" id="leetsync-time-spent" class="leetsync-input" placeholder="e.g. 15m 30s" value="${timeSpentStr || ''}">
           </div>
+        </div>
+
+        <div id="leetsync-sheet-section" style="margin-top:2px;">
+          <div id="leetsync-sheet-loading" style="font-size:11px; color:var(--clr-muted, #94a3b8); padding:4px 0;">⏳ Checking sheets...</div>
         </div>
 
         <div>
@@ -777,29 +762,147 @@ function showModal(submission, details, timeSpentStr) {
     });
   }
 
-  const colSelect = overlay.querySelector("#leetsync-collections-select");
-  const colInput = overlay.querySelector("#leetsync-collections-input");
-  const colSelectWrap = overlay.querySelector("#leetsync-collection-select-wrap");
-  const colInputWrap = overlay.querySelector("#leetsync-collection-input-wrap");
-  const colReset = overlay.querySelector("#leetsync-collection-reset");
+  // ── Sheet Status Section ──────────────────────────────────────────────────
+  const sheetSection = overlay.querySelector("#leetsync-sheet-section");
+  const currentSlug = getProblemSlug();
+  const currentPlatform = isGFGProblemPage() ? "gfg" : "leetcode";
+  const defaultSheetKey = currentPlatform;
+  const defaultSheetName = currentPlatform === "gfg" ? "GFG" : "LeetCode";
 
-  if (colSelect && colInput && colSelectWrap && colInputWrap && colReset) {
-    colSelect.addEventListener("change", () => {
-      const val = colSelect.value;
-      if (val === "__other__") {
-        colSelectWrap.classList.add("leetsync-hidden");
-        colInputWrap.classList.remove("leetsync-hidden");
-        colInput.value = "";
-        colInput.focus();
+  if (sheetSection && currentSlug) {
+    chrome.runtime.sendMessage(
+      { type: "LEETSYNC_GET_SHEET_STATUS", payload: { slug: currentSlug, platform: currentPlatform } },
+      (resp) => {
+        const sheets = (resp?.sheets || []).filter(s => s !== defaultSheetName);
+        // Also check if it's already in the platform sheet — included via customSheets check in bg
+        const allSheets = resp?.sheets || [];
+
+        if (allSheets.length > 0) {
+          // Problem IS in sheets — just show info
+          sheetSection.innerHTML = `
+            <div style="font-size:11.5px; color:var(--clr-muted,#94a3b8); line-height:1.6;">
+              <span style="font-weight:700; color:var(--clr-text,#f1f5f9);">📋 In sheets:</span>
+              ${allSheets.map(s => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:2px 7px; border-radius:10px; background:rgba(99,102,241,0.18); color:#a5b4fc; font-size:10.5px; font-weight:600;">${s}</span>`).join("")}
+            </div>`;
+        } else {
+          // Problem NOT in any sheet — show add UI
+          sheetSection.innerHTML = `
+            <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+              <span class="leetsync-label" style="margin:0; white-space:nowrap;">➕ Add to sheet</span>
+              <select id="leetsync-sheet-add-select" class="leetsync-select" style="flex:1; min-width:130px; max-width:200px;">
+              </select>
+            </div>
+            <div id="leetsync-sheet-new-wrap" style="display:none; gap:6px; margin-top:5px; align-items:center;">
+              <input type="text" id="leetsync-sheet-new-name" class="leetsync-input" placeholder="Sheet name..." style="flex:1; font-size:12px;">
+              <button type="button" id="leetsync-sheet-create-btn" class="leetsync-btn leetsync-btn-primary" style="padding:4px 12px; font-size:11.5px; white-space:nowrap;">Create &amp; Add</button>
+            </div>
+            <div id="leetsync-sheet-add-msg" style="font-size:11px; min-height:14px; margin-top:3px;"></div>`;
+
+          // Builtin sheet keys — never show in user dropdown
+          const BUILTIN_KEYS = new Set([
+            "apnacollege_dsa_sheet", "collegewallah_dsa_master_sheet", "fraz_dsa_sheet",
+            "leetcode_75", "leetcode_top_100_liked", "love_babbar_dsa_sheet",
+            "neetcode_150", "striver_a2z_sheet", "top_interview_150", "gfg_160",
+            "gfg", "leetcode"
+          ]);
+
+          const sel = sheetSection.querySelector("#leetsync-sheet-add-select");
+          const msgEl = sheetSection.querySelector("#leetsync-sheet-add-msg");
+          const newWrap = sheetSection.querySelector("#leetsync-sheet-new-wrap");
+
+          function doAdd(sheetKey, sheetName) {
+            msgEl.textContent = "⏳ Adding...";
+            msgEl.style.color = "#94a3b8";
+            chrome.runtime.sendMessage({
+              type: "LEETSYNC_ADD_TO_SHEET",
+              payload: {
+                sheetKey,
+                sheetName,
+                problem: {
+                  slug: currentSlug,
+                  title: details.title || currentSlug,
+                  difficulty: details.difficulty || "Medium",
+                  url: window.location.href,
+                  platform: currentPlatform
+                }
+              }
+            }, (res) => {
+              if (res?.ok) {
+                msgEl.textContent = res.alreadyExisted ? `ℹ️ Already in "${sheetName}"` : `✅ Added to "${sheetName}"!`;
+                msgEl.style.color = res.alreadyExisted ? "#94a3b8" : "#4ade80";
+              } else {
+                msgEl.textContent = "❌ Failed: " + (res?.error || "Unknown error");
+                msgEl.style.color = "#f87171";
+              }
+            });
+          }
+
+          // Populate dropdown
+          chrome.storage.local.get(["customSheets"], (st) => {
+            const customSheets = st.customSheets || {};
+
+            // 1. Platform default first
+            const defOpt = document.createElement("option");
+            defOpt.value = defaultSheetKey;
+            defOpt.textContent = defaultSheetName;
+            defOpt.dataset.sheetName = defaultSheetName;
+            sel.appendChild(defOpt);
+
+            // 2. Only true user custom sheets
+            let hasCustom = false;
+            for (const [key, obj] of Object.entries(customSheets)) {
+              if (BUILTIN_KEYS.has(key)) continue;
+              if (!hasCustom) {
+                const sepEl = document.createElement("option");
+                sepEl.disabled = true;
+                sepEl.textContent = "── Your Sheets ──";
+                sel.appendChild(sepEl);
+                hasCustom = true;
+              }
+              const opt = document.createElement("option");
+              opt.value = key;
+              opt.textContent = "⭐ " + (obj.name || key);
+              opt.dataset.sheetName = obj.name || key;
+              sel.appendChild(opt);
+            }
+
+            // 3. Create new at bottom
+            const sepEl2 = document.createElement("option");
+            sepEl2.disabled = true;
+            sepEl2.textContent = "──────────";
+            sel.appendChild(sepEl2);
+            const newOpt = document.createElement("option");
+            newOpt.value = "__new__";
+            newOpt.textContent = "+ Create New Sheet...";
+            sel.appendChild(newOpt);
+          });
+
+          // Auto-add on select change (no button needed)
+          sel.addEventListener("change", () => {
+            msgEl.textContent = "";
+            if (sel.value === "__new__") {
+              newWrap.style.display = "flex";
+            } else {
+              newWrap.style.display = "none";
+              const chosenKey = sel.value;
+              const chosenName = sel.options[sel.selectedIndex]?.dataset?.sheetName || chosenKey;
+              doAdd(chosenKey, chosenName);
+            }
+          });
+
+          // Create new sheet confirm
+          sheetSection.querySelector("#leetsync-sheet-create-btn")?.addEventListener("click", () => {
+            const nameInput = sheetSection.querySelector("#leetsync-sheet-new-name");
+            const newName = nameInput?.value.trim();
+            if (!newName) { msgEl.textContent = "⚠️ Enter a sheet name."; msgEl.style.color = "#fbbf24"; return; }
+            const newKey = newName.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            newWrap.style.display = "none";
+            doAdd(newKey, newName);
+            if (nameInput) nameInput.value = "";
+          });
+        }
       }
-    });
-
-    colReset.addEventListener("click", () => {
-      colInput.value = "";
-      colInputWrap.classList.add("leetsync-hidden");
-      colSelectWrap.classList.remove("leetsync-hidden");
-      colSelect.value = "";
-    });
+    );
   }
 
   const closeBtn = overlay.querySelector("#leetsync-close-modal");
@@ -965,17 +1068,8 @@ function showModal(submission, details, timeSpentStr) {
         selectedPattern = otherPatternInput ? otherPatternInput.value.trim() : "";
       }
 
-      // Retrieve collection
-      const collectionSelect = overlay.querySelector("#leetsync-collections-select");
-      const collectionInput = overlay.querySelector("#leetsync-collections-input");
-      const collectionInputWrap = overlay.querySelector("#leetsync-collection-input-wrap");
-      
-      let selectedCollection = "";
-      if (collectionInputWrap && !collectionInputWrap.classList.contains("leetsync-hidden")) {
-        selectedCollection = collectionInput ? collectionInput.value.trim() : "";
-      } else {
-        selectedCollection = collectionSelect ? collectionSelect.value : "";
-      }
+      // Collection field kept for backwards compat with history storage (now unused in UI)
+      const selectedCollection = "";
 
       // Retrieve history to compute version count and merge notes
       const storedHistory = await chrome.storage.local.get("leetsyncHistory");

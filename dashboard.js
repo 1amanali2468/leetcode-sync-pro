@@ -1,6 +1,6 @@
 // dashboard.js – Companion Dashboard Controller
 import { FIREBASE_CONFIG, getFirestoreApiUrl } from "./firebase-config.js";
-import { loadSheet, populateSheetDropdown as populateSheetDropdownHelper, getCrossSheetMap } from "./sheet-loader.js";
+import { loadSheet, populateSheetDropdown as populateSheetDropdownHelper, getCrossSheetMap, clearSheetCache } from "./sheet-loader.js";
 import { getDailyPOTD } from "./potd-fetcher.js";
 
 const STORAGE_KEYS = {
@@ -21,38 +21,211 @@ let selectedTopicPill = "all";
 let selectedSidebarList = null;
 let selectedSidebarListIsSmart = false;
 let currentCrossSheetMap = {};
-let sheetSortDirection = "none"; // "none", "desc", "asc"
+let sheetSortDirection = "none"; // Kept for backwards compatibility
+let currentSortColumn = "none"; // "none", "status", "star", "problem", "practice", "notes", "github", "difficulty"
+let currentSortDirection = "none"; // "none", "asc", "desc" (for difficulty: "none", "easy", "medium", "hard")
 
-function sortProblemsByFrequency(problemsArray) {
-  if (sheetSortDirection === "none") return problemsArray;
-  
-  return [...problemsArray].sort((a, b) => {
-    const listA = currentCrossSheetMap[a.slug?.trim().toLowerCase()] || [];
-    const listB = currentCrossSheetMap[b.slug?.trim().toLowerCase()] || [];
-    
-    if (sheetSortDirection === "desc") {
-      return listB.length - listA.length;
-    } else {
-      return listA.length - listB.length;
+function getSheetCount(problem) {
+  if (Array.isArray(problem.sheetsIn)) return problem.sheetsIn.length;
+  const slug = problem.slug?.trim().toLowerCase();
+  return slug ? (currentCrossSheetMap?.[slug]?.length || 0) : 0;
+}
+
+function sortProblems(problemsArray, solvedMap) {
+  if (currentSortColumn === "none" || currentSortDirection === "none") {
+    // Default fallback to frequency sort if sheetSortDirection is set
+    if (sheetSortDirection !== "none") {
+      return [...problemsArray].sort((a, b) => {
+        const countA = getSheetCount(a);
+        const countB = getSheetCount(b);
+        if (sheetSortDirection === "desc") return countB - countA;
+        return countA - countB;
+      });
     }
+    return problemsArray;
+  }
+
+  return [...problemsArray].sort((a, b) => {
+    let valA, valB;
+
+    switch (currentSortColumn) {
+      case "status": {
+        const solvesA = solvedMap[a.slug?.trim().toLowerCase()] || [];
+        const solvesB = solvedMap[b.slug?.trim().toLowerCase()] || [];
+        valA = solvesA.length > 0 ? 1 : 0;
+        valB = solvesB.length > 0 ? 1 : 0;
+        break;
+      }
+      case "star": {
+        const solvesA = solvedMap[a.slug?.trim().toLowerCase()] || [];
+        const solvesB = solvedMap[b.slug?.trim().toLowerCase()] || [];
+        valA = solvesA.some(s => s.isFavorite) ? 1 : 0;
+        valB = solvesB.some(s => s.isFavorite) ? 1 : 0;
+        break;
+      }
+      case "problem": {
+        valA = getSheetCount(a);
+        valB = getSheetCount(b);
+        break;
+      }
+      case "practice": {
+        const urlA = a.leetcodeUrl || a.url || "";
+        const urlB = b.leetcodeUrl || b.url || "";
+        valA = urlA.includes("geeksforgeeks.org") ? "gfg" : "leetcode";
+        valB = urlB.includes("geeksforgeeks.org") ? "gfg" : "leetcode";
+        break;
+      }
+      case "notes": {
+        const solvesA = solvedMap[a.slug?.trim().toLowerCase()] || [];
+        const solvesB = solvedMap[b.slug?.trim().toLowerCase()] || [];
+        valA = solvesA.some(s => s.notes && s.notes.trim() !== "") ? 1 : 0;
+        valB = solvesB.some(s => s.notes && s.notes.trim() !== "") ? 1 : 0;
+        break;
+      }
+      case "github": {
+        const solvesA = solvedMap[a.slug?.trim().toLowerCase()] || [];
+        const solvesB = solvedMap[b.slug?.trim().toLowerCase()] || [];
+        valA = solvesA.some(s => s.githubUrl && s.githubUrl.trim() !== "") ? 1 : 0;
+        valB = solvesB.some(s => s.githubUrl && s.githubUrl.trim() !== "") ? 1 : 0;
+        break;
+      }
+      case "difficulty": {
+        const diffA = (a.difficulty || "Medium").toLowerCase();
+        const diffB = (b.difficulty || "Medium").toLowerCase();
+        const rank = { "easy": 1, "medium": 2, "hard": 3 };
+        const order = currentSortDirection; // "easy", "medium", "hard"
+        
+        let rankA = rank[diffA] || 2;
+        let rankB = rank[diffB] || 2;
+
+        if (order === "easy") {
+          return rankA - rankB;
+        } else if (order === "medium") {
+          const medRank = { "medium": 1, "hard": 2, "easy": 3 };
+          return (medRank[diffA] || 2) - (medRank[diffB] || 2);
+        } else if (order === "hard") {
+          const hardRank = { "hard": 1, "medium": 2, "easy": 3 };
+          return (hardRank[diffA] || 2) - (hardRank[diffB] || 2);
+        }
+        return 0;
+      }
+      default:
+        return 0;
+    }
+
+    if (currentSortColumn === "difficulty") return 0;
+
+    if (valA < valB) return currentSortDirection === "asc" ? -1 : 1;
+    if (valA > valB) return currentSortDirection === "asc" ? 1 : -1;
+    return 0;
   });
 }
 
-function toggleSortDirection() {
-  if (sheetSortDirection === "none") {
-    sheetSortDirection = "desc";
-  } else if (sheetSortDirection === "desc") {
-    sheetSortDirection = "asc";
+function handleColumnSort(columnName) {
+  if (currentSortColumn === columnName) {
+    if (columnName === "difficulty") {
+      if (currentSortDirection === "none") currentSortDirection = "easy";
+      else if (currentSortDirection === "easy") currentSortDirection = "medium";
+      else if (currentSortDirection === "medium") currentSortDirection = "hard";
+      else {
+        currentSortDirection = "none";
+        currentSortColumn = "none";
+      }
+    } else {
+      if (currentSortDirection === "none") currentSortDirection = (columnName === "problem" ? "desc" : "asc");
+      else if (currentSortDirection === "desc") currentSortDirection = "asc";
+      else if (currentSortDirection === "asc") {
+        if (columnName === "problem") {
+          currentSortDirection = "none";
+          currentSortColumn = "none";
+        } else {
+          currentSortDirection = "desc";
+        }
+      } else {
+        currentSortDirection = "none";
+        currentSortColumn = "none";
+      }
+    }
   } else {
-    sheetSortDirection = "none";
+    currentSortColumn = columnName;
+    currentSortDirection = columnName === "difficulty" ? "easy" : (columnName === "problem" ? "desc" : "asc");
+    sheetSortDirection = "none"; // override old sort
   }
   renderSheets();
 }
 
-function getSortIndicatorHtml() {
-  if (sheetSortDirection === "desc") return '<span style="color: var(--clr-primary); margin-left: 6px;">▼</span>';
-  if (sheetSortDirection === "asc") return '<span style="color: var(--clr-primary); margin-left: 6px;">▲</span>';
+function getHeaderSortIndicatorHtml(columnName) {
+  if (currentSortColumn !== columnName) {
+    return '<span style="opacity: 0.3; margin-left: 6px;">↕</span>';
+  }
+  if (columnName === "difficulty") {
+    const dir = currentSortDirection;
+    if (dir === "easy") return '<span style="color: var(--clr-primary); margin-left: 6px; font-weight: 800; font-size: 11px;">(E)</span>';
+    if (dir === "medium") return '<span style="color: var(--clr-primary); margin-left: 6px; font-weight: 800; font-size: 11px;">(M)</span>';
+    if (dir === "hard") return '<span style="color: var(--clr-primary); margin-left: 6px; font-weight: 800; font-size: 11px;">(H)</span>';
+    return '<span style="opacity: 0.3; margin-left: 6px;">↕</span>';
+  }
+  if (currentSortDirection === "asc") return '<span style="color: var(--clr-primary); margin-left: 6px;">▲</span>';
+  if (currentSortDirection === "desc") return '<span style="color: var(--clr-primary); margin-left: 6px;">▼</span>';
   return '<span style="opacity: 0.3; margin-left: 6px;">↕</span>';
+}
+
+function renderTableHead(table) {
+  table.innerHTML = `
+    <thead>
+      <tr style="border-bottom: 2px solid var(--clr-border); text-align: left; font-size: 12px; color: var(--clr-muted);">
+        <th class="sortable-status-header" style="width: 60px; text-align: center; font-weight: 800; cursor: pointer; user-select: none; white-space: nowrap;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+            <span>STATUS</span>${getHeaderSortIndicatorHtml("status")}
+          </div>
+        </th>
+        <th class="sortable-star-header" style="width: 60px; text-align: center; font-weight: 800; cursor: pointer; user-select: none; white-space: nowrap;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+            <span>STAR</span>${getHeaderSortIndicatorHtml("star")}
+          </div>
+        </th>
+        <th class="sortable-problem-header" style="font-weight: 800; cursor: pointer; user-select: none; white-space: nowrap;">
+          <div style="display: inline-flex; align-items: center; gap: 4px;">
+            <span>PROBLEM</span>${getHeaderSortIndicatorHtml("problem")}
+          </div>
+        </th>
+        <th class="sortable-practice-header" style="width: 100px; text-align: center; font-weight: 800; cursor: pointer; user-select: none; white-space: nowrap;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+            <span>PRACTICE</span>${getHeaderSortIndicatorHtml("practice")}
+          </div>
+        </th>
+        <th class="sortable-notes-header" style="width: 100px; text-align: center; font-weight: 800; cursor: pointer; user-select: none; white-space: nowrap;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+            <span>NOTES</span>${getHeaderSortIndicatorHtml("notes")}
+          </div>
+        </th>
+        <th class="sortable-github-header" style="width: 100px; text-align: center; font-weight: 800; cursor: pointer; user-select: none; white-space: nowrap;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+            <span>GITHUB</span>${getHeaderSortIndicatorHtml("github")}
+          </div>
+        </th>
+        <th class="sortable-difficulty-header" style="width: 120px; text-align: right; font-weight: 800; cursor: pointer; user-select: none; white-space: nowrap;">
+          <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; width: 100%;">
+            <span>DIFFICULTY</span>${getHeaderSortIndicatorHtml("difficulty")}
+          </div>
+        </th>
+      </tr>
+    </thead>
+  `;
+
+  const cols = ["status", "star", "problem", "practice", "notes", "github", "difficulty"];
+  cols.forEach(col => {
+    const th = table.querySelector(`.sortable-${col}-header`);
+    if (th) {
+      th.style.transition = "color 0.15s ease";
+      th.addEventListener("mouseenter", () => th.style.color = "var(--clr-text)");
+      th.addEventListener("mouseleave", () => th.style.color = "var(--clr-muted)");
+      th.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleColumnSort(col);
+      });
+    }
+  });
 }
 
 const DASHBOARD_TOPIC_PATTERNS = {
@@ -817,7 +990,8 @@ async function renderSheets() {
     history.forEach(h => {
       if (h.slug) {
         let slug = h.slug.trim().toLowerCase();
-        if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+        const url = h.url || "";
+        if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
           slug = slug.replace(/-[0-9]+$/, "");
         }
         if (!solvedMap[slug]) solvedMap[slug] = [];
@@ -862,11 +1036,27 @@ async function renderSheets() {
   const storedHistory = await chrome.storage.local.get(STORAGE_KEYS.history);
   const history = storedHistory[STORAGE_KEYS.history] || [];
 
+  // Calculate totals and completions for overall progress bar based on active filters
+  let totalProblems = 0;
+  let completedProblems = 0;
+  
+  const allProblems = [];
+  for (const [topicName, subtopics] of Object.entries(sheetData)) {
+    for (const [subtopicName, subproblems] of Object.entries(subtopics)) {
+      subproblems.forEach(p => {
+        const slug = p.slug?.trim().toLowerCase();
+        if (!slug) return;
+        allProblems.push({ ...p, topicName, subtopicName });
+      });
+    }
+  }
+
   const solvedMap = {};
   history.forEach(h => {
     if (h.slug) {
       let slug = h.slug.trim().toLowerCase();
-      if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+      const url = h.url || "";
+      if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
         slug = slug.replace(/-[0-9]+$/, "");
       }
       if (!solvedMap[slug]) {
@@ -876,18 +1066,6 @@ async function renderSheets() {
     }
   });
 
-  // Calculate totals and completions for overall progress bar based on active filters
-  let totalProblems = 0;
-  let completedProblems = 0;
-  
-  const allProblems = [];
-  for (const [topicName, subtopics] of Object.entries(sheetData)) {
-    for (const [subtopicName, subproblems] of Object.entries(subtopics)) {
-      subproblems.forEach(p => {
-        allProblems.push({ ...p, topicName, subtopicName });
-      });
-    }
-  }
 
   let easySolved = 0, easyTotal = 0;
   let mediumSolved = 0, mediumTotal = 0;
@@ -1237,7 +1415,7 @@ function renderAllSheetsCombinedView(sheetData, solvedMap) {
   }
 
   const filtered = filterSheetProblems(allProblems, solvedMap);
-  const sorted = sortProblemsByFrequency(filtered);
+  const sorted = sortProblems(filtered, solvedMap);
   
   if (sorted.length === 0) {
     const emptyDiv = document.createElement("div");
@@ -1255,26 +1433,7 @@ function renderAllSheetsCombinedView(sheetData, solvedMap) {
   table.style.marginBottom = "24px";
   table.style.marginTop = "12px";
   
-  table.innerHTML = `
-    <thead>
-      <tr style="border-bottom: 2px solid var(--clr-border); text-align: left; font-size: 12px; color: var(--clr-muted);">
-        <th style="width: 60px; text-align: center; font-weight: 800;">Status</th>
-        <th style="width: 60px; text-align: center; font-weight: 800;">Star</th>
-        <th class="sortable-problem-header" style="font-weight: 800; cursor: pointer; user-select: none;">Problem ${getSortIndicatorHtml()}</th>
-        <th style="width: 100px; text-align: center; font-weight: 800;">Practice</th>
-        <th style="width: 100px; text-align: center; font-weight: 800;">Notes</th>
-        <th style="width: 100px; text-align: center; font-weight: 800;">GitHub</th>
-        <th style="width: 120px; text-align: right; font-weight: 800;">Difficulty</th>
-      </tr>
-    </thead>
-  `;
-
-  const probHeader = table.querySelector(".sortable-problem-header");
-  if (probHeader) {
-    probHeader.addEventListener("click", () => {
-      toggleSortDirection();
-    });
-  }
+  renderTableHead(table);
 
   const tbody = document.createElement("tbody");
   sorted.forEach(problem => {
@@ -1306,7 +1465,7 @@ function renderFlatTableView(sheetData, solvedMap) {
     }
 
     const filtered = filterSheetProblems(topicProblems, solvedMap);
-    const sorted = sortProblemsByFrequency(filtered);
+    const sorted = sortProblems(filtered, solvedMap);
     if (sorted.length === 0) continue;
 
     totalRendered += sorted.length;
@@ -1328,26 +1487,7 @@ function renderFlatTableView(sheetData, solvedMap) {
     table.style.borderCollapse = "collapse";
     table.style.marginBottom = "24px";
     
-    table.innerHTML = `
-      <thead>
-        <tr style="border-bottom: 2px solid var(--clr-border); text-align: left; font-size: 12px; color: var(--clr-muted);">
-          <th style="width: 60px; text-align: center; font-weight: 800;">Status</th>
-          <th style="width: 60px; text-align: center; font-weight: 800;">Star</th>
-          <th class="sortable-problem-header" style="font-weight: 800; cursor: pointer; user-select: none;">Problem ${getSortIndicatorHtml()}</th>
-          <th style="width: 100px; text-align: center; font-weight: 800;">Practice</th>
-          <th style="width: 100px; text-align: center; font-weight: 800;">Notes</th>
-          <th style="width: 100px; text-align: center; font-weight: 800;">GitHub</th>
-          <th style="width: 120px; text-align: right; font-weight: 800;">Difficulty</th>
-        </tr>
-      </thead>
-    `;
-
-    const probHeader = table.querySelector(".sortable-problem-header");
-    if (probHeader) {
-      probHeader.addEventListener("click", () => {
-        toggleSortDirection();
-      });
-    }
+    renderTableHead(table);
 
     const tbody = document.createElement("tbody");
     sorted.forEach(problem => {
@@ -1420,39 +1560,35 @@ function renderAccordionGroupView(sheetData, solvedMap) {
       const rawProblems = subtopics[subkeys[0]];
       const problems = rawProblems.map(p => ({ ...p, topicName, subtopicName: subkeys[0] }));
       
-      // Filter list of problems
+      // Filter determines visibility but total count uses ALL problems
       const filteredProblems = filterSheetProblems(problems, solvedMap);
+      if (filteredProblems.length > 0 || !sheetSearchQuery && !Object.values(activeFilters).some(f => f.vals && f.vals.length > 0)) {
+        hasVisibleProblems = true;
+      }
       if (filteredProblems.length > 0) hasVisibleProblems = true;
 
-      // Count total/completed of matching problems
-      filteredProblems.forEach(p => {
-        topicTotal++;
-        if ((solvedMap[p.slug] || []).length > 0) topicCompleted++;
-      });
+      // Count total/completed using ALL problems (unfiltered)
+      topicTotal = problems.length;
+      topicCompleted = problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
 
       const table = document.createElement("table");
       table.className = "sheets-problems-table";
       table.style.width = "100%";
       table.style.borderCollapse = "collapse";
       
-      table.innerHTML = `
-        <thead>
-          <tr style="border-bottom: 2px solid var(--clr-border); text-align: left; font-size: 12px; color: var(--clr-muted);">
-            <th style="width: 60px; text-align: center; font-weight: 800;">Status</th>
-            <th style="width: 60px; text-align: center; font-weight: 800;">Star</th>
-            <th style="font-weight: 800;">Problem</th>
-            <th style="width: 100px; text-align: center; font-weight: 800;">Practice</th>
-            <th style="width: 100px; text-align: center; font-weight: 800;">Notes</th>
-            <th style="width: 100px; text-align: center; font-weight: 800;">GitHub</th>
-            <th style="width: 120px; text-align: right; font-weight: 800;">Difficulty</th>
-          </tr>
-        </thead>
-      `;
+      renderTableHead(table);
       
       const tbody = document.createElement("tbody");
-      problems.forEach(problem => {
-        const isVisible = filteredProblems.includes(problem);
-        const tr = createProblemRow(problem, solvedMap, isVisible);
+      const visibleProblems = problems.filter(p => filteredProblems.includes(p));
+      const hiddenProblems = problems.filter(p => !filteredProblems.includes(p));
+      const sortedVisible = sortProblems(visibleProblems, solvedMap);
+
+      sortedVisible.forEach(problem => {
+        const tr = createProblemRow(problem, solvedMap, true);
+        tbody.appendChild(tr);
+      });
+      hiddenProblems.forEach(problem => {
+        const tr = createProblemRow(problem, solvedMap, false);
         tbody.appendChild(tr);
       });
       table.appendChild(tbody);
@@ -1463,11 +1599,9 @@ function renderAccordionGroupView(sheetData, solvedMap) {
         const filteredProblems = filterSheetProblems(problems, solvedMap);
         if (filteredProblems.length > 0) hasVisibleProblems = true;
 
-        // Count total/completed of matching problems
-        filteredProblems.forEach(p => {
-          topicTotal++;
-          if ((solvedMap[p.slug] || []).length > 0) topicCompleted++;
-        });
+        // Count total/completed using ALL problems (unfiltered) for correct X/Y display
+        topicTotal += problems.length;
+        topicCompleted += problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
 
         const subtopicSection = document.createElement("div");
         subtopicSection.className = "sheet-subtopic-section";
@@ -1525,32 +1659,12 @@ function renderAccordionGroupView(sheetData, solvedMap) {
         table.style.width = "100%";
         table.style.borderCollapse = "collapse";
         
-        table.innerHTML = `
-          <thead>
-            <tr style="border-bottom: 2px solid var(--clr-border); text-align: left; font-size: 12px; color: var(--clr-muted);">
-              <th style="width: 60px; text-align: center; font-weight: 800;">Status</th>
-              <th style="width: 60px; text-align: center; font-weight: 800;">Star</th>
-              <th class="sortable-problem-header" style="font-weight: 800; cursor: pointer; user-select: none;">Problem ${getSortIndicatorHtml()}</th>
-              <th style="width: 100px; text-align: center; font-weight: 800;">Practice</th>
-              <th style="width: 100px; text-align: center; font-weight: 800;">Notes</th>
-              <th style="width: 100px; text-align: center; font-weight: 800;">GitHub</th>
-              <th style="width: 120px; text-align: right; font-weight: 800;">Difficulty</th>
-            </tr>
-          </thead>
-        `;
-
-        const probHeader = table.querySelector(".sortable-problem-header");
-        if (probHeader) {
-          probHeader.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggleSortDirection();
-          });
-        }
+        renderTableHead(table);
         
         const tbody = document.createElement("tbody");
         const visibleProblems = problems.filter(p => filteredProblems.includes(p));
         const hiddenProblems = problems.filter(p => !filteredProblems.includes(p));
-        const sortedVisible = sortProblemsByFrequency(visibleProblems);
+        const sortedVisible = sortProblems(visibleProblems, solvedMap);
         
         // Render sorted visible problems first, then hidden ones
         sortedVisible.forEach(problem => {
@@ -1745,7 +1859,34 @@ function createProblemRow(problem, solvedMap, isVisible) {
   });
   tdTitle.appendChild(link);
 
-  if (currentCrossSheetMap && slug && currentCrossSheetMap[slug]) {
+  // Cross-sheet / sheet membership badges
+  const selectedSheet = el.sheetSelect?.value;
+  const isAllCombined = selectedSheet === "all_imported_sheets";
+
+  if (isAllCombined && problem.sheetsIn && problem.sheetsIn.length > 0) {
+    // Use sheetsIn[] attached by getCombinedSheetsData — works for unique AND multi-sheet problems
+    const sheetsIn = problem.sheetsIn;
+    const badgeWrap = document.createElement("div");
+    badgeWrap.style.cssText = "display:flex; flex-wrap:wrap; gap:3px; margin-top:3px;";
+
+    if (sheetsIn.length === 1) {
+      // Unique problem — show the sheet name as a tag
+      const tag = document.createElement("span");
+      tag.style.cssText = "font-size:9.5px; padding:1px 6px; border-radius:8px; background:rgba(99,102,241,0.15); color:#a5b4fc; font-weight:600; white-space:nowrap;";
+      tag.textContent = sheetsIn[0];
+      tag.title = `Only in: ${sheetsIn[0]}`;
+      badgeWrap.appendChild(tag);
+    } else {
+      // Multiple sheets — show count badge with tooltip
+      const badge = document.createElement("span");
+      badge.className = "cross-sheet-badge";
+      badge.textContent = `📂 ${sheetsIn.length} Sheets`;
+      badge.title = `Appears in:\n${sheetsIn.map(n => `• ${n}`).join("\n")}`;
+      badgeWrap.appendChild(badge);
+    }
+    tdTitle.appendChild(badgeWrap);
+  } else if (!isAllCombined && currentCrossSheetMap && slug && currentCrossSheetMap[slug]) {
+    // Normal sheet view — show frequency badge for problems in multiple sheets
     const listNames = currentCrossSheetMap[slug];
     if (listNames.length > 1) {
       const badge = document.createElement("span");
@@ -1795,7 +1936,7 @@ function createProblemRow(problem, solvedMap, isVisible) {
     const representativeEntry = solves.find(s => s.notes && s.notes.trim() !== "") || solves[0] || {
       slug: slug,
       title: problem.title,
-      id: el.sheetSelect.value === "striver" ? "" : "0",
+      id: el.sheetSelect.value === "striver_a2z_sheet" ? "" : "0",
       approach: "oa",
       language: "python",
       notes: "",
@@ -1951,7 +2092,8 @@ async function pickRandomProblem() {
   history.forEach(h => {
     if (h.slug) {
       let slug = h.slug.trim().toLowerCase();
-      if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+      const url = h.url || "";
+      if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
         slug = slug.replace(/-[0-9]+$/, "");
       }
       if (!solvedMap[slug]) solvedMap[slug] = [];
@@ -1984,13 +2126,18 @@ async function resetSheetProgress() {
   const problems = await getActiveSheetProblems();
   if (problems.length === 0) return;
   
-  const sheetSlugs = new Set(problems.map(p => p.slug));
+  const sheetSlugs = new Set(
+    problems
+      .map(p => normalizeProblemSlug(p.slug, p.leetcodeUrl || p.url))
+      .filter(Boolean)
+  );
   
   // Fetch solves history
   const storedHistory = await chrome.storage.local.get(STORAGE_KEYS.history);
   let history = storedHistory[STORAGE_KEYS.history] || [];
   
-  const solvedCount = problems.filter(p => history.some(h => h.slug === p.slug)).length;
+  const historyMatches = history.filter(h => sheetSlugs.has(normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl)));
+  const solvedCount = new Set(historyMatches.map(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl))).size;
   if (solvedCount === 0) {
     alert("No progress to reset!");
     return;
@@ -1999,15 +2146,11 @@ async function resetSheetProgress() {
   const userConfirm = confirm(`This will delete progress of ${solvedCount} solved problems in this sheet. Are you absolutely sure?`);
   if (!userConfirm) return;
   
-  // Collect slugs to delete from firestore
-  const slugsToDelete = [];
-  history.forEach(h => {
-    if (sheetSlugs.has(h.slug)) {
-      slugsToDelete.push(h.slug);
-    }
-  });
+  const docIdsToDelete = [...new Set(historyMatches.map(h =>
+    `${h.slug}-${h.approach || "oa"}`.replace(/[^a-zA-Z0-9_-]/g, "")
+  ))];
   
-  history = history.filter(h => !sheetSlugs.has(h.slug));
+  history = history.filter(h => !sheetSlugs.has(normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl)));
   await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
   
   // Delete from Firestore
@@ -2016,8 +2159,7 @@ async function resetSheetProgress() {
     const authUser = authData.auth_user;
     if (authUser && authUser.uid && authUser.idToken) {
       const baseUrl = getFirestoreApiUrl();
-      for (const slug of slugsToDelete) {
-        const docId = `${slug}-oa`.replace(/[^a-zA-Z0-9_-]/g, "");
+      for (const docId of docIdsToDelete) {
         fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
           method: "DELETE",
           headers: {
@@ -2582,7 +2724,17 @@ async function migrateCustomSheets() {
   const customSheets = stored.customSheets || {};
   let registry = stored.customSheetsRegistry || {};
   let migrated = false;
-  
+
+  // Ensure platform catch-all sheets exist
+  if (!customSheets["gfg"]) {
+    customSheets["gfg"] = { name: "GFG", isPlatformSheet: true, data: { "General": { "Problems": [] } } };
+    migrated = true;
+  }
+  if (!customSheets["leetcode"]) {
+    customSheets["leetcode"] = { name: "LeetCode", isPlatformSheet: true, data: { "General": { "Problems": [] } } };
+    migrated = true;
+  }
+
   for (const [sheetKey, sheetObj] of Object.entries(customSheets)) {
     if (sheetObj && sheetObj.data) {
       let sheetMigrated = false;
@@ -3381,6 +3533,15 @@ function cleanDisplayName(name) {
   return clean.replace(/^[0-9]+\s*[.)-]?\s+/, "");
 }
 
+function normalizeProblemSlug(slug, url = "") {
+  let normalized = (slug || "").trim().toLowerCase();
+  if (!normalized) return "";
+  if ((url || "").includes("geeksforgeeks.org") || (url === "" && normalized.match(/-\d{5,}$/))) {
+    normalized = normalized.replace(/-[0-9]+$/, "");
+  }
+  return normalized;
+}
+
 
 async function renderCustomSheetsManager() {
   const manager = document.getElementById("customSheetsManager");
@@ -3400,7 +3561,9 @@ async function renderCustomSheetsManager() {
     "neetcode_150",
     "striver_a2z_sheet",
     "top_interview_150",
-    "gfg_160"
+    "gfg_160",
+    "gfg",
+    "leetcode"
   ];
   const keys = Object.keys(customSheets).filter(k => !staticKeys.includes(k));
   if (keys.length === 0) {
@@ -3515,7 +3678,8 @@ async function deleteCustomSheet(key) {
 
 // Add onChanged listener to dashboard.js to sync deletions in real-time
 chrome.storage.onChanged.addListener(async (changes, areaName) => {
-  if (areaName === "local" && changes.customSheets) {
+  if (areaName === "local" && (changes.customSheets || changes.customSheetsRegistry)) {
+    clearSheetCache(); // bust stale cache so new problems appear immediately
     await populateSheetDropdown();
     renderSheets();
   }
@@ -3613,10 +3777,11 @@ function setupBackupRestoreListeners() {
 async function toggleProblemCompletion(problem, completed) {
   const stored = await chrome.storage.local.get(STORAGE_KEYS.history);
   let history = stored[STORAGE_KEYS.history] || [];
+  const targetSlug = normalizeProblemSlug(problem.slug, problem.leetcodeUrl || problem.url);
 
   if (completed) {
     // Check if it already exists in history
-    const exists = history.some(h => h.slug === problem.slug);
+    const exists = history.some(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) === targetSlug);
     if (!exists) {
       // Create a local placeholder solve in history
       const nowStr = new Date().toISOString();
@@ -3643,8 +3808,9 @@ async function toggleProblemCompletion(problem, completed) {
       await syncCloudData();
     }
   } else {
+    const entriesToDelete = history.filter(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) === targetSlug);
     // Remove all saves of this problem from history
-    history = history.filter(h => h.slug !== problem.slug);
+    history = history.filter(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) !== targetSlug);
     await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
     // Trigger Firestore sync
     await syncCloudData();
@@ -3655,13 +3821,17 @@ async function toggleProblemCompletion(problem, completed) {
       const authUser = authData.auth_user;
       if (authUser && authUser.uid && authUser.idToken) {
         const baseUrl = getFirestoreApiUrl();
-        const docId = `${problem.slug}-oa`.replace(/[^a-zA-Z0-9_-]/g, "");
-        await fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Bearer ${authUser.idToken}`
-          }
-        });
+        const docIdsToDelete = [...new Set(entriesToDelete.map(entry =>
+          `${entry.slug}-${entry.approach || "oa"}`.replace(/[^a-zA-Z0-9_-]/g, "")
+        ))];
+        for (const docId of docIdsToDelete) {
+          await fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${authUser.idToken}`
+            }
+          });
+        }
       }
     } catch (e) {
       console.error("Failed to delete manual untick from Firestore:", e);
@@ -4196,7 +4366,7 @@ function renderFlatListProblems(solvedMap) {
       
       history.forEach(h => {
         if (!h.slug) return;
-        const slug = h.slug.trim().toLowerCase();
+        const slug = normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl);
         if (uniqueSlugs.has(slug)) return;
 
         let match = false;
@@ -4305,7 +4475,7 @@ function renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow
     return;
   }
 
-  const sorted = sortProblemsByFrequency(listProblems);
+  const sorted = sortProblems(listProblems, solvedMap);
 
   const table = document.createElement("table");
   table.className = "sheets-problems-table";
@@ -4313,26 +4483,7 @@ function renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow
   table.style.borderCollapse = "collapse";
   table.style.marginBottom = "24px";
   
-  table.innerHTML = `
-    <thead>
-      <tr style="border-bottom: 2px solid var(--clr-border); text-align: left; font-size: 12px; color: var(--clr-muted);">
-        <th style="width: 60px; text-align: center; font-weight: 800;">Status</th>
-        <th style="width: 60px; text-align: center; font-weight: 800;">Star</th>
-        <th class="sortable-problem-header" style="font-weight: 800; cursor: pointer; user-select: none;">Problem ${getSortIndicatorHtml()}</th>
-        <th style="width: 100px; text-align: center; font-weight: 800;">Practice</th>
-        <th style="width: 100px; text-align: center; font-weight: 800;">Notes</th>
-        <th style="width: 100px; text-align: center; font-weight: 800;">GitHub</th>
-        <th style="width: 120px; text-align: right; font-weight: 800;">Difficulty</th>
-      </tr>
-    </thead>
-  `;
-
-  const probHeader = table.querySelector(".sortable-problem-header");
-  if (probHeader) {
-    probHeader.addEventListener("click", () => {
-      toggleSortDirection();
-    });
-  }
+  renderTableHead(table);
 
   const tbody = document.createElement("tbody");
   sorted.forEach(problem => {
@@ -4717,4 +4868,3 @@ async function renderPOTDWidget() {
     container.innerHTML = `<div style="color:var(--clr-muted); font-size:12px; padding:12px; text-align:center; grid-column:1/-1;">Failed to load daily challenges. Please refresh or check connection.</div>`;
   }
 }
-

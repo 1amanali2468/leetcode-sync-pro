@@ -4,6 +4,21 @@ const ACTIVE_SHEET_KEY = "leetsyncActiveSheet";
 const sheetCache = {};
 let manifestCache = null;
 
+// Call this whenever customSheets storage changes to bust stale cache entries
+export function clearSheetCache(sheetId) {
+  if (sheetId) {
+    delete sheetCache[sheetId];
+  } else {
+    // Clear all custom sheet entries
+    for (const key of Object.keys(sheetCache)) {
+      if (key.startsWith("custom_") || key === "all_imported_sheets") {
+        delete sheetCache[key];
+      }
+    }
+  }
+}
+
+
 export async function getBuiltinManifest() {
   if (manifestCache) return manifestCache;
   try {
@@ -27,19 +42,33 @@ export function denormalizeSheetData(sheetData, registry) {
       if (Array.isArray(problems)) {
         problems.forEach(pRef => {
           let p = pRef;
-          if (typeof pRef === "string" && registry && registry[pRef]) {
-            p = registry[pRef];
+          if (typeof pRef === "string") {
+            if (registry && registry[pRef]) {
+              const reg = registry[pRef];
+              p = {
+                slug: pRef,
+                title: reg.t || pRef,
+                difficulty: reg.d || "Medium",
+                leetcodeUrl: reg.u || ""
+              };
+            } else {
+              // Registry fallback to prevent problems from disappearing in custom/imported sheets
+              const slug = pRef.trim().toLowerCase();
+              p = {
+                slug,
+                title: slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+                difficulty: "Medium",
+                leetcodeUrl: ""
+              };
+            }
           }
           if (p && p.slug) {
             let slug = p.slug.trim().toLowerCase();
             const url = p.leetcodeUrl || p.url || "";
-            if (url.includes("geeksforgeeks.org") || slug.match(/-[0-9]+$/)) {
+            if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
               slug = slug.replace(/-[0-9]+$/, "");
             }
-            result[topicName][subtopicName].push({
-              ...p,
-              slug: slug
-            });
+            result[topicName][subtopicName].push({ ...p, slug });
           }
         });
       }
@@ -67,13 +96,38 @@ export async function loadSheet(sheetId) {
     const customSheets = stored.customSheets || {};
     const registry = stored.customSheetsRegistry || {};
     const customSheetsData = {};
+
+    // Build name maps for sheet attribution
+    const builtinNames = {};
+    manifest.forEach(m => { builtinNames[m.id] = m.name; });
+    const customNames = {};
+
     for (const [key, obj] of Object.entries(customSheets)) {
       if (obj && obj.data) {
         customSheetsData[key] = denormalizeSheetData(obj.data, registry);
+        customNames[key] = obj.name || key;
       }
     }
 
-    const combined = getCombinedSheetsData(builtinMap, customSheetsData);
+    const combined = getCombinedSheetsData(builtinMap, customSheetsData, builtinNames, customNames);
+
+    // Debug breakdown — open DevTools console to see this
+    const total = combined["All Combined"]["All Problems"].length;
+    console.debug(`[LeetSync] All Combined: ${total} unique problems`);
+    const bySheet = {};
+    combined["All Combined"]["All Problems"].forEach(p => {
+      (p.sheetsIn || []).forEach(s => { bySheet[s] = (bySheet[s] || 0) + 1; });
+    });
+    console.debug("[LeetSync] Contribution per sheet (includes overlaps):", bySheet);
+    const uniquePerSheet = {};
+    combined["All Combined"]["All Problems"].forEach(p => {
+      if ((p.sheetsIn || []).length === 1) {
+        const s = p.sheetsIn[0];
+        uniquePerSheet[s] = (uniquePerSheet[s] || 0) + 1;
+      }
+    });
+    console.debug("[LeetSync] Problems UNIQUE to only one sheet:", uniquePerSheet);
+
     sheetCache["all_imported_sheets"] = combined;
     return combined;
   }
@@ -114,13 +168,13 @@ function sanitizeSheetData(sheet) {
         problems.forEach(p => {
           let slug = p.slug?.trim().toLowerCase() || "";
           if (slug.includes("$undefined") || slug === "undefined" || !slug) return;
-          
+
           let url = p.leetcodeUrl || p.url || "";
           if (url.includes("$undefined") || url.includes("undefined")) {
             url = `https://leetcode.com/problems/${slug}`;
           }
 
-          if (url.includes("geeksforgeeks.org") || slug.match(/-[0-9]+$/)) {
+          if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
             slug = slug.replace(/-[0-9]+$/, "");
           }
 
@@ -128,7 +182,7 @@ function sanitizeSheetData(sheet) {
             title: p.title || p.name || slug,
             difficulty: p.difficulty || "Medium",
             leetcodeUrl: url,
-            slug: slug
+            slug
           });
         });
       }
@@ -136,27 +190,55 @@ function sanitizeSheetData(sheet) {
   }
   return cleaned;
 }
-
-function getCombinedSheetsData(builtinSheetsMap, customSheetsMap) {
+function getCombinedSheetsData(builtinSheetsMap, customSheetsMap, builtinNames = {}, customNames = {}) {
   const combined = { "All Combined": { "All Problems": [] } };
   const globalSlugs = new Set();
+  
+  // Maps to find the canonical problem object already added
+  const slugToProblem = {}; // slug -> problemObject
+  const urlToProblem = {};  // url -> problemObject
 
-  const addProblems = (sheet) => {
+  const addProblems = (sheet, sheetName) => {
     if (!sheet) return;
     for (const [topic, subtopics] of Object.entries(sheet)) {
       for (const [subtopic, problems] of Object.entries(subtopics)) {
         if (Array.isArray(problems)) {
           problems.forEach(p => {
             const slug = p.slug?.trim().toLowerCase();
-            if (!slug || globalSlugs.has(slug)) return;
+            if (!slug) return;
 
-            globalSlugs.add(slug);
-            combined["All Combined"]["All Problems"].push({
-              title: p.title || p.name,
-              difficulty: p.difficulty || "Medium",
-              leetcodeUrl: p.leetcodeUrl,
-              slug: slug
-            });
+            const url = (p.leetcodeUrl || p.url || "").trim().toLowerCase().replace(/\/$/, "");
+            
+            // Check if this problem (by slug or by URL) was already added
+            let existingProblem = slugToProblem[slug];
+            if (!existingProblem && url && urlToProblem[url]) {
+              existingProblem = urlToProblem[url];
+            }
+
+            if (existingProblem) {
+              // Duplicate found! Just add the sheetName to its sheetsIn array
+              if (sheetName && !existingProblem.sheetsIn.includes(sheetName)) {
+                existingProblem.sheetsIn.push(sheetName);
+              }
+              // Also map this slug/URL to the existing problem so future lookups also find it
+              slugToProblem[slug] = existingProblem;
+              if (url) urlToProblem[url] = existingProblem;
+            } else {
+              // New unique problem! Create the canonical object
+              const newProblem = {
+                title: p.title || p.name,
+                difficulty: p.difficulty || "Medium",
+                leetcodeUrl: p.leetcodeUrl || p.url || "",
+                slug,
+                sheetsIn: sheetName ? [sheetName] : []
+              };
+              
+              combined["All Combined"]["All Problems"].push(newProblem);
+              
+              // Register in maps
+              slugToProblem[slug] = newProblem;
+              if (url) urlToProblem[url] = newProblem;
+            }
           });
         }
       }
@@ -164,18 +246,17 @@ function getCombinedSheetsData(builtinSheetsMap, customSheetsMap) {
   };
 
   // Add all loaded built-in sheets
-  for (const sheet of Object.values(builtinSheetsMap)) {
-    addProblems(sheet);
+  for (const [id, sheet] of Object.entries(builtinSheetsMap)) {
+    addProblems(sheet, builtinNames[id] || id);
   }
 
   // Add all custom sheets
-  for (const sheet of Object.values(customSheetsMap)) {
-    addProblems(sheet);
+  for (const [key, sheet] of Object.entries(customSheetsMap)) {
+    addProblems(sheet, customNames[key] || key);
   }
 
   return combined;
 }
-
 // Persist and populate select element options
 export async function populateSheetDropdown(selectEl, includeCombined) {
   if (!selectEl) return;
@@ -189,12 +270,17 @@ export async function populateSheetDropdown(selectEl, includeCombined) {
   const builtinOptions = manifest.map(m => ({ value: m.id, text: m.name }));
   builtinOptions.sort((a, b) => a.text.localeCompare(b.text));
 
-  // 2. Build custom options list and sort alphabetically
+  // 2. Build custom options list with platform-aware icons
   const customOptions = [];
+  const PLATFORM_SHEET_KEYS = new Set(["gfg", "leetcode"]);
   for (const [key, obj] of Object.entries(customSheets)) {
     // Prevent rendering if duplicates with static options
     if (manifest.some(m => m.id === key)) continue;
-    customOptions.push({ value: `custom_${key}`, text: `⭐ ${obj.name || key}` });
+    let icon;
+    if (key === "gfg") icon = "🟢";
+    else if (key === "leetcode") icon = "🔵";
+    else icon = "⭐";
+    customOptions.push({ value: `custom_${key}`, text: `${icon} ${obj.name || key}` });
   }
   customOptions.sort((a, b) => a.text.localeCompare(b.text));
 
@@ -263,7 +349,7 @@ export async function getCrossSheetMap() {
               if (!slug) return;
 
               const pUrl = (typeof p === "object" ? (p.leetcodeUrl || p.url) : "") || "";
-              if (pUrl.includes("geeksforgeeks.org") || slug.match(/-[0-9]+$/)) {
+              if (pUrl.includes("geeksforgeeks.org") || (pUrl === "" && slug.match(/-\d{5,}$/))) {
                 slug = slug.replace(/-[0-9]+$/, "");
               }
 

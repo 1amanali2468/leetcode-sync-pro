@@ -201,6 +201,120 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true;
   }
 
+  if (message?.type === "LEETSYNC_GET_SHEET_STATUS") {
+    (async () => {
+      try {
+        const slug = (message.payload?.slug || "").toLowerCase();
+        const platform = message.payload?.platform || "leetcode";
+        const isGFG = platform === "gfg";
+        const cleanSlug = isGFG ? slug.replace(/-?(\d+)$/, "") : slug;
+
+        // 1. Check built-in cross-sheet frequency map
+        const stored = await chrome.storage.local.get(["customSheets", "customSheetsRegistry"]);
+        const customSheets = stored.customSheets || {};
+        const matchedSheets = [];
+
+        // Read cross_sheet_frequency.json via fetch
+        try {
+          const url = chrome.runtime.getURL("data/builtin-sheets/cross_sheet_frequency.json");
+          const res = await fetch(url);
+          const baseMap = await res.json();
+          if (baseMap[cleanSlug] && Array.isArray(baseMap[cleanSlug])) {
+            matchedSheets.push(...baseMap[cleanSlug]);
+          }
+        } catch (e) { /* ignore */ }
+
+        // 2. Check custom sheets
+        for (const [sheetKey, sheetObj] of Object.entries(customSheets)) {
+          if (!sheetObj?.data) continue;
+          const sheetName = sheetObj.name || sheetKey;
+          const isSheetGFG = sheetKey === "gfg";
+          for (const subtopics of Object.values(sheetObj.data)) {
+            for (const problems of Object.values(subtopics)) {
+              if (Array.isArray(problems) && problems.some(p => {
+                let s = (typeof p === "string" ? p : p?.slug || "").toLowerCase();
+                const isProblemGFG = isGFG || isSheetGFG || (typeof p === "object" && (p.leetcodeUrl || p.url || "").includes("geeksforgeeks.org"));
+                if (isProblemGFG) {
+                  s = s.replace(/-?(\d+)$/, "");
+                }
+                return s === cleanSlug;
+              })) {
+                if (!matchedSheets.includes(sheetName)) matchedSheets.push(sheetName);
+                break;
+              }
+            }
+          }
+        }
+
+        sendResponse({ ok: true, sheets: matchedSheets });
+      } catch (e) {
+        sendResponse({ ok: false, error: e.message, sheets: [] });
+      }
+    })();
+    return true;
+  }
+
+  if (message?.type === "LEETSYNC_ADD_TO_SHEET") {
+    (async () => {
+      try {
+        const { sheetKey, sheetName, problem } = message.payload;
+        if (!sheetKey || !problem?.slug) { sendResponse({ ok: false, error: "Invalid payload" }); return; }
+
+        const stored = await chrome.storage.local.get(["customSheets", "customSheetsRegistry"]);
+        const customSheets = stored.customSheets || {};
+        let registry = stored.customSheetsRegistry || {};
+
+        // Create sheet if it doesn't exist
+        if (!customSheets[sheetKey]) {
+          const isPlatform = sheetKey === "gfg" || sheetKey === "leetcode";
+          customSheets[sheetKey] = {
+            name: sheetName || sheetKey,
+            isPlatformSheet: isPlatform,
+            data: { "General": { "Problems": [] } }
+          };
+        }
+
+        // Ensure structure
+        if (!customSheets[sheetKey].data) customSheets[sheetKey].data = {};
+        if (!customSheets[sheetKey].data["General"]) customSheets[sheetKey].data["General"] = {};
+        if (!customSheets[sheetKey].data["General"]["Problems"]) customSheets[sheetKey].data["General"]["Problems"] = [];
+
+        const problems = customSheets[sheetKey].data["General"]["Problems"];
+        const isGFG = problem.platform === "gfg" || (problem.url && problem.url.includes("geeksforgeeks.org"));
+        const cleanSlug = isGFG ? problem.slug.toLowerCase().replace(/-?(\d+)$/, "") : problem.slug.toLowerCase();
+
+        // Check not already present
+        const alreadyIn = problems.some(p => {
+          let s = (typeof p === "string" ? p : p?.slug || "").toLowerCase();
+          if (isGFG) {
+            s = s.replace(/-?(\d+)$/, "");
+          }
+          return s === cleanSlug;
+        });
+
+        if (!alreadyIn) {
+          // Store as slug string (normalized format)
+          problems.push(cleanSlug);
+
+          // Update registry
+          registry[cleanSlug] = {
+            t: problem.title || cleanSlug,
+            d: problem.difficulty || "Medium",
+            u: problem.url || (problem.platform === "gfg"
+              ? `https://www.geeksforgeeks.org/problems/${cleanSlug}/1`
+              : `https://leetcode.com/problems/${cleanSlug}/`)
+          };
+        }
+
+        await chrome.storage.local.set({ customSheets, customSheetsRegistry: registry });
+        sendResponse({ ok: true, alreadyExisted: alreadyIn });
+      } catch (e) {
+        sendResponse({ ok: false, error: e.message });
+      }
+    })();
+    return true;
+  }
+
   return false;
 });
 

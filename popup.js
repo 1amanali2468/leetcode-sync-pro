@@ -1,6 +1,6 @@
 // popup.js – Main popup controller
 import { FIREBASE_CONFIG, getFirestoreApiUrl } from "./firebase-config.js";
-import { loadSheet, populateSheetDropdown as populateSheetDropdownHelper, getCrossSheetMap } from "./sheet-loader.js";
+import { loadSheet, populateSheetDropdown as populateSheetDropdownHelper, getCrossSheetMap, clearSheetCache } from "./sheet-loader.js";
 // Tabs: Settings | Stats | History
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -846,7 +846,8 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
       applySettings(res[STORAGE_KEYS.settings] || {});
     });
   }
-  if (changes.customSheets) {
+  if (changes.customSheets || changes.customSheetsRegistry) {
+    clearSheetCache(); // bust stale custom sheet cache
     await populateSheetDropdownPopup();
     renderSheets();
   }
@@ -3549,6 +3550,15 @@ function parseReadmeMetadata(markdown, filePath, allFiles, githubInfo = {}) {
 // ── DSA Sheets Logic ─────────────────────────────────────────────────────────
 let currentSheetFilter = "all";
 
+function normalizeProblemSlug(slug, url = "") {
+  let normalized = (slug || "").trim().toLowerCase();
+  if (!normalized) return "";
+  if ((url || "").includes("geeksforgeeks.org")) {
+    normalized = normalized.replace(/-[0-9]+$/, "");
+  }
+  return normalized;
+}
+
 async function renderSheets() {
   const container = document.getElementById("sheetAccordionContainer");
   const progressText = document.getElementById("sheetProgressText");
@@ -3573,7 +3583,8 @@ async function renderSheets() {
   history.forEach(h => {
     if (h.slug) {
       let slug = h.slug.trim().toLowerCase();
-      if ((h.url && h.url.includes("geeksforgeeks.org")) || slug.match(/-[0-9]+$/)) {
+      const url = h.url || "";
+      if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
         slug = slug.replace(/-[0-9]+$/, "");
       }
       if (!solvedMap[slug]) {
@@ -3778,7 +3789,7 @@ async function renderSheets() {
           const representativeEntry = solves.find(s => s.slug === slug) || {
             slug: slug,
             title: problem.title,
-            id: selectedSheetName === "striver" ? "" : "0",
+            id: selectedSheetName === "striver_a2z_sheet" ? "" : "0",
             approach: "oa",
             language: "python",
             notes: "",
@@ -4032,7 +4043,7 @@ async function renderSheets() {
             const representativeEntry = solves.find(s => s.slug === slug) || {
               slug: slug,
               title: problem.title,
-              id: selectedSheetName === "striver" ? "" : "0",
+              id: selectedSheetName === "striver_a2z_sheet" ? "" : "0",
               approach: "oa",
               language: "python",
               notes: "",
@@ -4186,10 +4197,11 @@ function cleanDisplayName(name) {
 async function toggleProblemCompletion(problem, completed) {
   const stored = await chrome.storage.local.get(STORAGE_KEYS.history);
   let history = stored[STORAGE_KEYS.history] || [];
+  const targetSlug = normalizeProblemSlug(problem.slug, problem.leetcodeUrl || problem.url);
 
   if (completed) {
     // Check if it already exists in history
-    const exists = history.some(h => h.slug === problem.slug);
+    const exists = history.some(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) === targetSlug);
     if (!exists) {
       // Create a local placeholder solve in history
       const nowStr = new Date().toISOString();
@@ -4216,8 +4228,9 @@ async function toggleProblemCompletion(problem, completed) {
       await syncCloudData();
     }
   } else {
+    const entriesToDelete = history.filter(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) === targetSlug);
     // Remove all saves of this problem from history
-    history = history.filter(h => h.slug !== problem.slug);
+    history = history.filter(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) !== targetSlug);
     await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
     // Trigger Firestore sync
     await syncCloudData();
@@ -4228,13 +4241,17 @@ async function toggleProblemCompletion(problem, completed) {
       const authUser = authData.auth_user;
       if (authUser && authUser.uid && authUser.idToken) {
         const baseUrl = getFirestoreApiUrl();
-        const docId = `${problem.slug}-oa`.replace(/[^a-zA-Z0-9_-]/g, "");
-        await fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Bearer ${authUser.idToken}`
-          }
-        });
+        const docIdsToDelete = [...new Set(entriesToDelete.map(entry =>
+          `${entry.slug}-${entry.approach || "oa"}`.replace(/[^a-zA-Z0-9_-]/g, "")
+        ))];
+        for (const docId of docIdsToDelete) {
+          await fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${authUser.idToken}`
+            }
+          });
+        }
       }
     } catch (e) {
       console.error("Failed to delete manual untick from Firestore:", e);
@@ -4283,4 +4300,3 @@ async function toggleProblemBookmark(problem, bookmarked) {
   await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
   await syncCloudData();
 }
-
