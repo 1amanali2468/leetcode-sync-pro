@@ -841,6 +841,14 @@ function showModal(submission, details, timeSpentStr) {
           chrome.storage.local.get(["customSheets"], (st) => {
             const customSheets = st.customSheets || {};
 
+            // 0. Placeholder prompt option
+            const placeholderOpt = document.createElement("option");
+            placeholderOpt.value = "";
+            placeholderOpt.disabled = true;
+            placeholderOpt.selected = true;
+            placeholderOpt.textContent = "Select sheet...";
+            sel.appendChild(placeholderOpt);
+
             // 1. Platform default first
             const defOpt = document.createElement("option");
             defOpt.value = defaultSheetKey;
