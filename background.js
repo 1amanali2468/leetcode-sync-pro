@@ -274,27 +274,45 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           };
         }
 
-        // Ensure structure
+        // Ensure data exists
         if (!customSheets[sheetKey].data) customSheets[sheetKey].data = {};
-        if (!customSheets[sheetKey].data["General"]) customSheets[sheetKey].data["General"] = {};
-        if (!customSheets[sheetKey].data["General"]["Problems"]) customSheets[sheetKey].data["General"]["Problems"] = [];
 
-        const problems = customSheets[sheetKey].data["General"]["Problems"];
         const isGFG = problem.platform === "gfg" || (problem.url && problem.url.includes("geeksforgeeks.org"));
         const cleanSlug = isGFG ? problem.slug.toLowerCase().replace(/-?(\d+)$/, "") : problem.slug.toLowerCase();
 
-        // Check not already present
-        const alreadyIn = problems.some(p => {
-          let s = (typeof p === "string" ? p : p?.slug || "").toLowerCase();
-          if (isGFG) {
-            s = s.replace(/-?(\d+)$/, "");
+        // Check if the problem is already present in ANY topic/subtopic of the sheet to avoid duplicates
+        let alreadyIn = false;
+        for (const [tName, subtopics] of Object.entries(customSheets[sheetKey].data)) {
+          for (const [subName, plist] of Object.entries(subtopics || {})) {
+            if (Array.isArray(plist)) {
+              const found = plist.some(p => {
+                let s = (typeof p === "string" ? p : p?.slug || "").toLowerCase();
+                if (isGFG) {
+                  s = s.replace(/-?(\d+)$/, "");
+                }
+                return s === cleanSlug;
+              });
+              if (found) {
+                alreadyIn = true;
+                break;
+              }
+            }
           }
-          return s === cleanSlug;
-        });
+          if (alreadyIn) break;
+        }
 
         if (!alreadyIn) {
-          // Store as slug string (normalized format)
-          problems.push(cleanSlug);
+          const targetTopic = (problem.topic || "General").trim();
+          const targetSubtopic = "Problems";
+
+          if (!customSheets[sheetKey].data[targetTopic]) {
+            customSheets[sheetKey].data[targetTopic] = {};
+          }
+          if (!customSheets[sheetKey].data[targetTopic][targetSubtopic]) {
+            customSheets[sheetKey].data[targetTopic][targetSubtopic] = [];
+          }
+
+          customSheets[sheetKey].data[targetTopic][targetSubtopic].push(cleanSlug);
 
           // Update registry
           registry[cleanSlug] = {

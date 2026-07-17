@@ -810,9 +810,14 @@ function showModal(submission, details, timeSpentStr) {
           const msgEl = sheetSection.querySelector("#leetsync-sheet-add-msg");
           const newWrap = sheetSection.querySelector("#leetsync-sheet-new-wrap");
 
-          function doAdd(sheetKey, sheetName) {
+           function doAdd(sheetKey, sheetName) {
             msgEl.textContent = "⏳ Adding...";
             msgEl.style.color = "#94a3b8";
+
+            // Find selected topic from dropdown `#leetsync-topic-select`
+            const topicSelect = overlay.querySelector("#leetsync-topic-select");
+            const selectedTopic = topicSelect ? topicSelect.value.trim() : "";
+
             chrome.runtime.sendMessage({
               type: "LEETSYNC_ADD_TO_SHEET",
               payload: {
@@ -823,7 +828,8 @@ function showModal(submission, details, timeSpentStr) {
                   title: details.title || currentSlug,
                   difficulty: details.difficulty || "Medium",
                   url: window.location.href,
-                  platform: currentPlatform
+                  platform: currentPlatform,
+                  topic: selectedTopic || "General"
                 }
               }
             }, (res) => {
