@@ -718,84 +718,244 @@ export function renderFlatTableView(sheetData, solvedMap) {
 export function renderAccordionGroupView(sheetData, solvedMap) {
   const container = el.sheetAccordionContainer;
   if (!container) return;
+
+  const openTopics = new Set();
+  const openSubtopics = new Set();
+  container.querySelectorAll(".sheet-topic-accordion.open").forEach(acc => {
+    const name = acc.getAttribute("data-topic-name");
+    if (name) openTopics.add(name);
+  });
+  container.querySelectorAll(".sheet-subtopic-section").forEach(sec => {
+    const content = sec.querySelector(".sheet-subtopic-content");
+    if (content && content.style.display === "flex") {
+      const key = sec.getAttribute("data-subtopic-key");
+      if (key) openSubtopics.add(key);
+    }
+  });
+
   container.innerHTML = "";
 
-  let activeIndex = 0;
   for (const [topicName, subtopics] of Object.entries(sheetData)) {
+    // If topic pill selected, skip others
     if (state.selectedTopicPill !== "all" && topicName !== state.selectedTopicPill) continue;
 
-    // Filter problems first to check if they match filters
-    const topicProblems = [];
-    for (const [subtopicName, problems] of Object.entries(subtopics)) {
-      problems.forEach(p => {
-        topicProblems.push({ ...p, topicName, subtopicName });
-      });
-    }
-    const filteredTopicProblems = filterSheetProblems(topicProblems, solvedMap);
-    if (filteredTopicProblems.length === 0) continue; // skip empty accordion
-
-    const topicAccordion = document.createElement("div");
-    topicAccordion.className = "sheet-topic-accordion";
-
-    // Auto-expand first topic or if searching
-    const hasSearchQuery = !!state.sheetSearchQuery;
-    const isExp = hasSearchQuery || (state.selectedTopicPill !== "all") || (activeIndex === 0);
-    if (isExp) topicAccordion.classList.add("open");
-    activeIndex++;
-
-    // Calculate total and solved for this topic
+    // Filter problems and count matches first to check if we should render this accordion
     let topicTotal = 0;
-    let topicSolved = 0;
-    filteredTopicProblems.forEach(p => {
-      topicTotal++;
-      if ((solvedMap[p.slug] || []).length > 0) topicSolved++;
-    });
-
-    const header = document.createElement("div");
-    header.className = "sheet-topic-header glass";
-    header.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="sheet-topic-arrow" style="display: inline-block; font-size: 14px; font-weight: 800; transition: transform 0.2s ease; transform: rotate(${isExp ? "90" : "0"}deg);">▶</span>
-        <span style="font-weight: 800; font-size: 14.5px; color: var(--clr-text);">${cleanDisplayName(topicName)}</span>
-      </div>
-      <div class="sheet-topic-progress-pill" style="font-size: 11px; font-weight: 700; background: ${topicSolved === topicTotal ? "var(--clr-easy-bg)" : "rgba(255,255,255,0.05)"}; color: ${topicSolved === topicTotal ? "var(--clr-easy)" : "var(--clr-muted)"}; padding: 3px 10px; border-radius: 20px; transition: var(--transition);">
-        ${topicSolved}/${topicTotal} Solved
-      </div>
-    `;
+    let topicCompleted = 0;
+    let hasVisibleProblems = false;
 
     const subtopicContainer = document.createElement("div");
-    subtopicContainer.className = "sheet-subtopics-container";
-    subtopicContainer.style.display = isExp ? "flex" : "none";
+    subtopicContainer.className = "sheet-topic-content";
+    subtopicContainer.style.display = "none";
+    subtopicContainer.style.flexDirection = "column";
+    subtopicContainer.style.gap = "10px";
+    subtopicContainer.style.padding = "16px";
+    subtopicContainer.style.backgroundColor = "var(--clr-surface)";
+    subtopicContainer.style.border = "1px solid var(--clr-border)";
+    subtopicContainer.style.borderTop = "0";
+    subtopicContainer.style.borderBottomLeftRadius = "var(--radius)";
+    subtopicContainer.style.borderBottomRightRadius = "var(--radius)";
 
-    for (const [subtopicName, problems] of Object.entries(subtopics)) {
-      const subproblems = problems.map(p => ({ ...p, topicName, subtopicName }));
-      const filteredSubproblems = filterSheetProblems(subproblems, solvedMap);
-      if (filteredSubproblems.length === 0) continue;
+    const subkeys = Object.keys(subtopics);
+    const isSingleGeneral = subkeys.length === 1 && 
+      (subkeys[0].toLowerCase().includes("general") || 
+       subkeys[0].toLowerCase().includes("imported list") || 
+       subkeys[0].toLowerCase().includes("problems") || 
+       cleanDisplayName(subkeys[0]).trim() === "");
 
-      const subHeader = document.createElement("div");
-      subHeader.className = "sheet-subtopic-title";
-      subHeader.textContent = cleanDisplayName(subtopicName);
-      subtopicContainer.appendChild(subHeader);
+    if (isSingleGeneral) {
+      const rawProblems = subtopics[subkeys[0]];
+      const problems = rawProblems.map(p => ({ ...p, topicName, subtopicName: subkeys[0] }));
+      
+      // Filter determines visibility but total count uses ALL problems
+      const filteredProblems = filterSheetProblems(problems, solvedMap);
+      if (filteredProblems.length > 0 || !state.sheetSearchQuery && !Object.values(state.activeFilters).some(f => f.vals && f.vals.length > 0)) {
+        hasVisibleProblems = true;
+      }
+      if (filteredProblems.length > 0) hasVisibleProblems = true;
+
+      // Count total/completed using ALL problems (unfiltered)
+      topicTotal = problems.length;
+      topicCompleted = problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
 
       const table = document.createElement("table");
       table.className = "sheets-problems-table";
       table.style.width = "100%";
       table.style.borderCollapse = "collapse";
-      table.style.marginBottom = "16px";
-
+      
       renderTableHead(table);
-
+      
       const tbody = document.createElement("tbody");
-      const sorted = sortProblems(filteredSubproblems, solvedMap);
-      sorted.forEach(problem => {
+      const visibleProblems = problems.filter(p => filteredProblems.includes(p));
+      const hiddenProblems = problems.filter(p => !filteredProblems.includes(p));
+      const sortedVisible = sortProblems(visibleProblems, solvedMap);
+
+      sortedVisible.forEach(problem => {
         const tr = createProblemRow(problem, solvedMap, true);
         tbody.appendChild(tr);
       });
-
+      hiddenProblems.forEach(problem => {
+        const tr = createProblemRow(problem, solvedMap, false);
+        tbody.appendChild(tr);
+      });
       table.appendChild(tbody);
       subtopicContainer.appendChild(table);
+    } else {
+      for (const [subtopicName, rawProblems] of Object.entries(subtopics)) {
+        const problems = rawProblems.map(p => ({ ...p, topicName, subtopicName }));
+        const filteredProblems = filterSheetProblems(problems, solvedMap);
+        if (filteredProblems.length > 0) hasVisibleProblems = true;
+
+        // Count total/completed using ALL problems (unfiltered) for correct X/Y display
+        topicTotal += problems.length;
+        topicCompleted += problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
+
+        const subtopicSection = document.createElement("div");
+        subtopicSection.className = "sheet-subtopic-section";
+        subtopicSection.setAttribute("data-subtopic-key", `${topicName}::${subtopicName}`);
+        subtopicSection.style.borderLeft = "3px solid var(--clr-primary)";
+        subtopicSection.style.paddingLeft = "12px";
+        subtopicSection.style.marginTop = "8px";
+        subtopicSection.style.marginBottom = "8px";
+
+        // Hide subtopic accordion if it has no visible problems matching active filters
+        if (filteredProblems.length === 0) {
+          subtopicSection.style.display = "none";
+        }
+
+        const hasActiveFilters = state.sheetSearchQuery || 
+          ["difficulty", "status", "topic", "pattern", "collection", "list"].some(t => state.activeFilters[t].vals && state.activeFilters[t].vals.length > 0);
+        const isSubExp = openSubtopics.has(`${topicName}::${subtopicName}`) || (hasActiveFilters && filteredProblems.length > 0);
+
+        const subtopicHeader = document.createElement("div");
+        subtopicHeader.className = "sheet-subtopic-header";
+        subtopicHeader.style.display = "flex";
+        subtopicHeader.style.justifyContent = "space-between";
+        subtopicHeader.style.alignItems = "center";
+        subtopicHeader.style.padding = "8px 12px";
+        subtopicHeader.style.backgroundColor = isSubExp ? "rgba(56, 189, 248, 0.02)" : "rgba(255, 255, 255, 0.01)";
+        subtopicHeader.style.border = isSubExp ? "1px solid var(--clr-primary)" : "1px solid var(--clr-border)";
+        subtopicHeader.style.borderRadius = "var(--radius)";
+        subtopicHeader.style.cursor = "pointer";
+        subtopicHeader.style.userSelect = "none";
+        subtopicHeader.style.transition = "var(--transition)";
+        
+        const subtopicContent = document.createElement("div");
+        subtopicContent.className = "sheet-subtopic-content";
+        subtopicContent.style.display = isSubExp ? "flex" : "none";
+        subtopicContent.style.flexDirection = "column";
+        subtopicContent.style.width = "100%";
+        subtopicContent.style.marginTop = "8px";
+        subtopicContent.style.padding = "0 8px";
+
+        subtopicHeader.addEventListener("mouseover", () => {
+          subtopicHeader.style.borderColor = "var(--clr-primary)";
+          subtopicHeader.style.backgroundColor = "rgba(56, 189, 248, 0.02)";
+        });
+        subtopicHeader.addEventListener("mouseout", () => {
+          const isExp = subtopicContent.style.display === "flex";
+          subtopicHeader.style.borderColor = isExp ? "var(--clr-primary)" : "var(--clr-border)";
+          subtopicHeader.style.backgroundColor = isExp ? "rgba(56, 189, 248, 0.02)" : "rgba(255, 255, 255, 0.01)";
+        });
+        
+        let subtopicTotal = problems.length;
+        let subtopicCompleted = problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
+
+        const table = document.createElement("table");
+        table.className = "sheets-problems-table";
+        table.style.width = "100%";
+        table.style.borderCollapse = "collapse";
+        
+        renderTableHead(table);
+        
+        const tbody = document.createElement("tbody");
+        const visibleProblems = problems.filter(p => filteredProblems.includes(p));
+        const hiddenProblems = problems.filter(p => !filteredProblems.includes(p));
+        const sortedVisible = sortProblems(visibleProblems, solvedMap);
+        
+        // Render sorted visible problems first, then hidden ones
+        sortedVisible.forEach(problem => {
+          const tr = createProblemRow(problem, solvedMap, true);
+          tbody.appendChild(tr);
+        });
+        hiddenProblems.forEach(problem => {
+          const tr = createProblemRow(problem, solvedMap, false);
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        subtopicHeader.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="sheet-subtopic-arrow" style="font-size:9px; transition:transform 0.2s ease; color:var(--clr-muted);${isSubExp ? " transform: rotate(90deg);" : ""}">▶</span>
+            <span style="font-weight:700; font-size:12.5px; color:var(--clr-primary);">📂 ${cleanDisplayName(subtopicName)}</span>
+          </div>
+          <span class="sheet-subtopic-progress" style="font-size:11.5px; color:var(--clr-muted); font-weight:700;">${subtopicCompleted}/${subtopicTotal}</span>
+        `;
+        
+        subtopicHeader.addEventListener("click", () => {
+          const isExp = subtopicContent.style.display === "flex";
+          const arrow = subtopicHeader.querySelector(".sheet-subtopic-arrow");
+          if (isExp) {
+            subtopicContent.style.display = "none";
+            subtopicHeader.style.borderColor = "var(--clr-border)";
+            subtopicHeader.style.backgroundColor = "rgba(255, 255, 255, 0.01)";
+            if (arrow) arrow.style.transform = "rotate(0deg)";
+          } else {
+            subtopicContent.style.display = "flex";
+            subtopicHeader.style.borderColor = "var(--clr-primary)";
+            subtopicHeader.style.backgroundColor = "rgba(56, 189, 248, 0.02)";
+            if (arrow) arrow.style.transform = "rotate(90deg)";
+          }
+        });
+
+        subtopicSection.appendChild(subtopicHeader);
+        subtopicContent.appendChild(table);
+        subtopicSection.appendChild(subtopicContent);
+        subtopicContainer.appendChild(subtopicSection);
+      }
     }
 
+    // Hide accordion card if no problems matched query
+    if (!hasVisibleProblems) continue;
+
+    const hasActiveFilters = state.sheetSearchQuery || 
+      ["difficulty", "status", "topic", "pattern", "collection", "list"].some(t => state.activeFilters[t].vals && state.activeFilters[t].vals.length > 0);
+
+    const isExp = openTopics.has(topicName) || (hasActiveFilters && hasVisibleProblems);
+
+    const topicAccordion = document.createElement("div");
+    topicAccordion.className = "sheet-topic-accordion" + (isExp ? " open" : "");
+    topicAccordion.setAttribute("data-topic-name", topicName);
+    topicAccordion.style.marginBottom = "10px";
+
+    const header = document.createElement("div");
+    header.className = "sheet-topic-header";
+    header.style = "padding:14px 20px; display:flex; justify-content:space-between; align-items:center; background:var(--clr-surface-card); cursor:pointer; user-select:none; font-weight:800; font-size:14.5px; border-radius:var(--radius); border:1px solid var(--clr-border); transition:var(--transition);";
+    if (isExp) {
+      header.style.borderBottomLeftRadius = "0";
+      header.style.borderBottomRightRadius = "0";
+      header.style.borderColor = "var(--clr-primary)";
+    }
+    header.addEventListener("mouseover", () => header.style.borderColor = "var(--clr-primary)");
+    header.addEventListener("mouseout", () => {
+      const isExpanded = topicAccordion.classList.contains("open");
+      header.style.borderColor = isExpanded ? "var(--clr-primary)" : "var(--clr-border)";
+    });
+
+    header.innerHTML = `
+      <div class="sheet-topic-header-left" style="display:flex; align-items:center; gap:12px;">
+        <span class="sheet-topic-arrow" style="font-size:10px; transition:transform 0.2s ease; color:var(--clr-muted);${isExp ? " transform: rotate(90deg);" : ""}">▶</span>
+        <span>${cleanDisplayName(topicName)}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:12px; font-weight:700; color:var(--clr-primary);">${topicCompleted}/${topicTotal}</span>
+        <div style="width:120px; height:6px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; position:relative;">
+          <div style="width:${topicTotal > 0 ? (topicCompleted/topicTotal)*100 : 0}%; height:100%; background:var(--clr-primary); border-radius:10px; transition:width 0.3s ease;"></div>
+        </div>
+      </div>
+    `;
+
+    // Auto-open accordion if there is active filtering or restored state
     if (isExp) {
       subtopicContainer.style.display = "flex";
       header.style.borderBottomLeftRadius = "0";

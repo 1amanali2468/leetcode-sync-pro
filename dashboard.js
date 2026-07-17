@@ -2,7 +2,7 @@
 // All feature logic lives in ./dashboard_modules/*.js
 // This file: boot, navigation, and wiring only.
 
-import { loadSheet } from "./sheet-loader.js";
+import { loadSheet, clearSheetCache } from "./sheet-loader.js";
 import { STORAGE_KEYS, el, state } from "./dashboard_modules/state.js";
 
 import { renderOverview, setupHeatmapControls } from "./dashboard_modules/overview.js";
@@ -147,3 +147,19 @@ function setupNavigation() {
     });
   });
 }
+
+// Add onChanged listener to sync data in real-time when solves or sheets are added
+chrome.storage.onChanged.addListener(async (changes, areaName) => {
+  if (areaName === "local") {
+    if (changes.customSheets || changes.customSheetsRegistry) {
+      clearSheetCache();
+      await populateSheetDropdown();
+      renderSheets();
+    }
+    if (changes.leetsyncHistory) {
+      // Re-render everything to update streak count, donuts, recent solves, checkbox checkmarks, etc.
+      renderAll();
+    }
+  }
+});
+
