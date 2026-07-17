@@ -15,6 +15,19 @@
   function extractCode() {
     try {
       if (typeof monaco !== "undefined") {
+        if (typeof monaco.editor.getEditors === "function") {
+          const editors = monaco.editor.getEditors();
+          for (const ed of editors) {
+            if (typeof ed.hasWidgetFocus === "function" && ed.hasWidgetFocus()) {
+              const m = ed.getModel();
+              if (m) return m.getValue();
+            }
+          }
+          if (editors.length > 0) {
+            const m = editors[0].getModel();
+            if (m) return m.getValue();
+          }
+        }
         const models = monaco.editor.getModels();
         if (models && models.length > 0) {
           return models[0].getValue();

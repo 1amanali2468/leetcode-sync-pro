@@ -1270,7 +1270,7 @@ async function saveToHistory(entry) {
       }
     });
 
-    if (history.length > 200) history.pop();
+    if (history.length > 5000) history.pop();
     await chrome.storage.local.set({ leetsyncHistory: history });
   } catch (err) {
     console.error("Local history save failed:", err);
@@ -1692,6 +1692,30 @@ function populateTopicsAndPatternsForGFG(overlay, details) {
 // ── GFG Mutation Observer & Scraping Logic ───────────────────────────────────
 let gfgObserver = null;
 let gfgSubmissionProcessed = false;
+let gfgSubmitClicked = false;
+
+// Track clicks to identify if user clicked GFG submit button
+document.addEventListener("click", (e) => {
+  const target = e.target;
+  if (target) {
+    const isSubmit = target.id === "submit-btn" || 
+                     (target.textContent && target.textContent.trim().toLowerCase() === "submit") ||
+                     target.classList.contains("problems_submit_button") ||
+                     (typeof target.className === "string" && target.className.includes("submit"));
+    if (isSubmit) {
+      gfgSubmitClicked = true;
+      gfgSubmissionProcessed = false;
+    }
+  }
+});
+
+// Track Ctrl+Enter keyboard submission shortcuts
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    gfgSubmitClicked = true;
+    gfgSubmissionProcessed = false;
+  }
+});
 
 function initGFGObserver() {
   if (!isGFGProblemPage()) {
@@ -1708,12 +1732,13 @@ function initGFGObserver() {
     const text = document.body.innerText;
     const hasSuccess = text.includes("Problem Solved Successfully") || text.includes("Correct Answer");
     
-    if (hasSuccess) {
+    if (hasSuccess && gfgSubmitClicked) {
       if (!gfgSubmissionProcessed) {
         gfgSubmissionProcessed = true;
+        gfgSubmitClicked = false; // Reset click tracker
         handleGFGSuccess();
       }
-    } else {
+    } else if (!hasSuccess) {
       gfgSubmissionProcessed = false;
     }
   });

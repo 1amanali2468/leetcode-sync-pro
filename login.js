@@ -336,9 +336,9 @@ async function syncFromFirestore(uid, idToken) {
         
         // Also upload any local history solves that are NOT in cloud yet
         for (const localItem of localHistory) {
-          const cloudMatch = cloudHistory.find(c => c.slug === localItem.slug && c.approach === localItem.approach);
+          const cloudMatch = cloudHistory.find(c => c.slug === localItem.slug && c.approach === localItem.approach && (c.version || 1) === (localItem.version || 1));
           if (!cloudMatch) {
-            const safeId = `${localItem.slug}-${localItem.approach}`.replace(/[^a-zA-Z0-9_-]/g, "");
+            const safeId = `${localItem.slug}-${localItem.approach}-v${localItem.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "");
             const patchRes = await fetch(`${baseUrl}/users/${uid}/history/${safeId}`, {
               method: "PATCH",
               headers,
@@ -352,7 +352,7 @@ async function syncFromFirestore(uid, idToken) {
         if (localHistory.length > 0) {
           console.log(`Uploading ${localHistory.length} local history items to cloud...`);
           for (const localItem of localHistory) {
-            const safeId = `${localItem.slug}-${localItem.approach}`.replace(/[^a-zA-Z0-9_-]/g, "");
+            const safeId = `${localItem.slug}-${localItem.approach}-v${localItem.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "");
             const patchRes = await fetch(`${baseUrl}/users/${uid}/history/${safeId}`, {
               method: "PATCH",
               headers,

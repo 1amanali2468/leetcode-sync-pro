@@ -279,8 +279,14 @@ function buildReadmeBody(submission, saveOptions, existingContent = "", version 
 
   const collectionVal = saveOptions.collection || "N/A";
 
+  const approachId = (saveOptions.approach === "custom"
+    ? `custom-${saveOptions.customName.toLowerCase().replace(/[^a-z0-9]/g, "")}`
+    : saveOptions.approach.toLowerCase()
+  );
+
   const newBlock = [
     `### ${approachCode}`,
+    `<!-- leetsync:approach=${approachId} -->`,
     "",
     `| Metric | Value |`,
     `| :--- | :--- |`,
@@ -308,6 +314,17 @@ function buildReadmeBody(submission, saveOptions, existingContent = "", version 
     let replaced = false;
 
     const updated = blocks.map(block => {
+      // 1. Try stable marker match first
+      const markerMatch = block.match(/<!--\s*leetsync:approach=([a-z0-9-]+)\s*-->/i);
+      if (markerMatch) {
+        if (markerMatch[1].toLowerCase() === approachId.toLowerCase()) {
+          replaced = true;
+          return newBlock.replace(BLOCK_SEPARATOR, ""); // remove leading ###
+        }
+        return block;
+      }
+
+      // 2. Fallback to flexible matching for legacy blocks
       const firstLine = block.split("\n")[0].toLowerCase().trim();
       const codeLower = approachCode.toLowerCase().trim();
 

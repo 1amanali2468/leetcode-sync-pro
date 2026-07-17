@@ -1347,11 +1347,16 @@ export async function resetSheetProgress() {
   if (!userConfirm) return;
   
   const docIdsToDelete = [...new Set(historyMatches.map(h =>
-    `${h.slug}-${h.approach || "oa"}`.replace(/[^a-zA-Z0-9_-]/g, "")
+    `${h.slug}-${h.approach || "oa"}-v${h.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "")
   ))];
   
   history = history.filter(h => !sheetSlugs.has(normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl)));
   await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
+
+  // Push to local storage deletedSolves queue for tombstone background sync
+  const storedDeletes = await chrome.storage.local.get("deletedSolves");
+  const currentDeletes = storedDeletes.deletedSolves || [];
+  await chrome.storage.local.set({ deletedSolves: [...new Set([...currentDeletes, ...docIdsToDelete])] });
   
   try {
     const authData = await chrome.storage.local.get("auth_user");
@@ -1411,15 +1416,21 @@ export async function toggleProblemCompletion(problem, completed) {
     history = history.filter(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) !== targetSlug);
     await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
     await syncCloudData();
-    
+
+    const docIdsToDelete = [...new Set(entriesToDelete.map(entry =>
+      `${entry.slug}-${entry.approach || "oa"}-v${entry.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "")
+    ))];
+
+    // Push to local storage deletedSolves queue for tombstone background sync
+    const storedDeletes = await chrome.storage.local.get("deletedSolves");
+    const currentDeletes = storedDeletes.deletedSolves || [];
+    await chrome.storage.local.set({ deletedSolves: [...new Set([...currentDeletes, ...docIdsToDelete])] });
+
     try {
       const authData = await chrome.storage.local.get("auth_user");
       const authUser = authData.auth_user;
       if (authUser && authUser.uid && authUser.idToken) {
         const baseUrl = getFirestoreApiUrl();
-        const docIdsToDelete = [...new Set(entriesToDelete.map(entry =>
-          `${entry.slug}-${entry.approach || "oa"}`.replace(/[^a-zA-Z0-9_-]/g, "")
-        ))];
         for (const docId of docIdsToDelete) {
           await fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
             method: "DELETE",

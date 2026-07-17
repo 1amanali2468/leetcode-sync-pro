@@ -147,7 +147,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           }
         });
 
-        if (history.length > 200) history.pop();
+        if (history.length > 5000) history.pop();
         await chrome.storage.local.set({ leetsyncHistory: history });
 
         sendResponse({ ok: true });
@@ -740,7 +740,7 @@ function getDueRevisions(history) {
 
 chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName !== "local") return;
-  if (!changes.leetsyncHistory && !changes.githubSettings) return;
+  if (!changes.leetsyncHistory && !changes.githubSettings && !changes.deletedSolves) return;
 
   const authData = await chrome.storage.local.get("auth_user");
   const authUser = authData.auth_user;
@@ -749,12 +749,38 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
   const uid = authUser.uid;
   const baseUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/users/${uid}`;
 
-  // Get a valid (or freshly refreshed) Firebase ID token
+  // Get token only if we have active changes to sync
+  const hasHistoryOrSettings = changes.leetsyncHistory || changes.githubSettings;
+  const hasDeletions = changes.deletedSolves && (changes.deletedSolves.newValue || []).length > 0;
+  if (!hasHistoryOrSettings && !hasDeletions) return;
+
   const idToken = await getValidIdToken(authUser);
   if (!idToken) {
     console.warn("Could not obtain a valid Firebase ID token. Sync skipped.");
     return;
   }
+
+  // Tombstone Deletion Sync
+  if (changes.deletedSolves) {
+    const deletedIds = changes.deletedSolves.newValue || [];
+    if (deletedIds.length > 0) {
+      for (const docId of deletedIds) {
+        try {
+          await fetch(`${baseUrl}/history/${docId}`, {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${idToken}`
+            }
+          });
+          console.log(`Firestore tombstone deleted docId: ${docId}`);
+        } catch (err) {
+          console.error("Firestore tombstone delete failed:", docId, err);
+        }
+      }
+      await chrome.storage.local.set({ deletedSolves: [] });
+    }
+  }
+
 
   // 1. History Sync
   if (changes.leetsyncHistory) {
@@ -775,7 +801,7 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
 
     for (const entry of changedEntries) {
       try {
-        const docId = `${entry.slug}-${entry.approach}`.replace(/[^a-zA-Z0-9_-]/g, "");
+        const docId = `${entry.slug}-${entry.approach}-v${entry.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "");
         const firestoreDoc = convertToFirestoreFields(entry);
         
         await fetch(`${baseUrl}/history/${docId}`, {

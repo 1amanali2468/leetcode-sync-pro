@@ -1678,8 +1678,15 @@ async function renderHistory() {
       const appName = approachDisplayName(approach);
       
       if (confirm(`Delete history record for "${entry.title}" (${appName})?`)) {
-        const updated = history.filter((h) => !(h.slug === slug && h.approach === approach));
+        const version = entry.version || 1;
+        const updated = history.filter((h) => !(h.slug === slug && h.approach === approach && (h.version || 1) === version));
         await chrome.storage.local.set({ [STORAGE_KEYS.history]: updated });
+
+        // Push to local storage deletedSolves queue for tombstone background sync
+        const safeId = `${slug}-${approach}-v${version}`.replace(/[^a-zA-Z0-9_-]/g, "");
+        const storedDeletes = await chrome.storage.local.get("deletedSolves");
+        const currentDeletes = storedDeletes.deletedSolves || [];
+        await chrome.storage.local.set({ deletedSolves: [...new Set([...currentDeletes, safeId])] });
         
         // Also delete from Firestore if logged in
         const authData = await chrome.storage.local.get("auth_user");
@@ -1689,7 +1696,6 @@ async function renderHistory() {
           if (idToken) {
             const uid = authUser.uid;
             const baseUrl = getFirestoreApiUrl();
-            const safeId = `${slug}-${approach}`.replace(/[^a-zA-Z0-9_-]/g, "");
             
             try {
               await fetch(`${baseUrl}/users/${uid}/history/${safeId}`, {
@@ -2593,16 +2599,15 @@ async function syncCloudData() {
 
       await chrome.storage.local.set({ [STORAGE_KEYS.history]: merged });
       
-      // Also upload any local solves that are NOT in the cloud, or have newer local changes
       for (const localItem of localHistory) {
-        const cloudMatch = cloudHistory.find(c => c.slug === localItem.slug && c.approach === localItem.approach);
+        const cloudMatch = cloudHistory.find(c => c.slug === localItem.slug && c.approach === localItem.approach && (c.version || 1) === (localItem.version || 1));
         const needsUpload = !cloudMatch || 
                             new Date(localItem.savedAt || 0) > new Date(cloudMatch.savedAt || 0) ||
                             (localItem.notes || "") !== (cloudMatch.notes || "") ||
                             localItem.isFavorite !== cloudMatch.isFavorite;
 
         if (needsUpload) {
-          const safeId = `${localItem.slug}-${localItem.approach}`.replace(/[^a-zA-Z0-9_-]/g, "");
+          const safeId = `${localItem.slug}-${localItem.approach}-v${localItem.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "");
           await fetch(`${baseUrl}/users/${uid}/history/${safeId}`, {
             method: "PATCH",
             headers,
@@ -3117,7 +3122,7 @@ async function fetchGitHubRepoSolves() {
         statusText.textContent = `⏳ Syncing README ${i + 1}/${readmeFiles.length}: ${file.path}`;
 
         try {
-          const fileRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(file.path)}?ref=${branch}`, {
+          const fileRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${file.sha}`, {
             headers: {
               "Authorization": `token ${token}`,
               "Accept": "application/vnd.github.v3+json"
@@ -4242,7 +4247,7 @@ async function toggleProblemCompletion(problem, completed) {
       if (authUser && authUser.uid && authUser.idToken) {
         const baseUrl = getFirestoreApiUrl();
         const docIdsToDelete = [...new Set(entriesToDelete.map(entry =>
-          `${entry.slug}-${entry.approach || "oa"}`.replace(/[^a-zA-Z0-9_-]/g, "")
+          `${entry.slug}-${entry.approach || "oa"}-v${entry.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "")
         ))];
         for (const docId of docIdsToDelete) {
           await fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
