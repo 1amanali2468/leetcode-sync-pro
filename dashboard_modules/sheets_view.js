@@ -371,6 +371,22 @@ export async function renderSheets() {
 
   updateProgressWidget(completedProblems, totalProblems, easySolved, easyTotal, mediumSolved, mediumTotal, hardSolved, hardTotal, attemptingCount);
 
+  if (totalProblems === 0) {
+    const isPlatform = selectedSheetName.startsWith("custom_leetcode") || selectedSheetName.startsWith("custom_gfg") || selectedSheetName === "leetcode" || selectedSheetName === "gfg";
+    const msg = isPlatform
+      ? "No problems added to this custom sheet yet. Go to LeetCode/GeeksforGeeks and click 'Add to sheet' in the LeetSync Pro panel to add problems!"
+      : "No problems found in this sheet.";
+    container.innerHTML = `
+      <div style="text-align: center; padding: 48px; color: var(--clr-muted); font-weight: 700; border: 1px dashed var(--clr-border); border-radius: var(--radius); background: rgba(255,255,255,0.01); margin-top: 12px; font-size: 13.5px; font-family: sans-serif;">
+        ${msg}
+      </div>
+    `;
+    populateDynamicFilterDropdowns(sheetData, history);
+    populateTopicPills(sheetData, solvedMap);
+    renderMyListsSidebar();
+    return;
+  }
+
   populateDynamicFilterDropdowns(sheetData, history);
   populateTopicPills(sheetData, solvedMap);
   renderSheetsListOrGroup(sheetData, solvedMap);
