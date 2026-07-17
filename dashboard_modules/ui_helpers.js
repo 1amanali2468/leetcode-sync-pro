@@ -225,10 +225,9 @@ export function escapeHtml(str) {
 
 export function cleanDisplayName(name) {
   if (!name) return "";
-  return name
-    .replace(/^(\d+\.\s*)+/, "")
-    .replace(/[_-]+/g, " ")
-    .trim();
+  let clean = name.replace(/^(Step|Lec|Lecture)\s*[-:]?\s*\d+\s*[-:]?\s*/i, "");
+  clean = clean.replace(/^[0-9]+\s*[.)-]?\s+/, "");
+  return clean.replace(/[_-]+/g, " ").trim();
 }
 
 export function normalizeProblemSlug(slug, url = "") {
