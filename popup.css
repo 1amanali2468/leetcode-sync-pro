@@ -919,7 +919,8 @@ p, span { font-size: 12px; color: var(--clr-muted); }
 
 .calendar-weekdays {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
   text-align: center;
   font-size: 9px;
   font-weight: 800;
@@ -932,13 +933,14 @@ p, span { font-size: 12px; color: var(--clr-muted); }
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 5px;
   background: transparent;
 }
 
 .calendar-day {
   min-height: 48px;
+  min-width: 0;
   background: var(--clr-surface-card);
   border: 1px solid var(--clr-border);
   border-radius: 6px;
