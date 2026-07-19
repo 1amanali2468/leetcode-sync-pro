@@ -1661,6 +1661,7 @@ function populateTopicsAndPatternsForGFG(overlay, details) {
     opt.textContent = `🏷️ ${norm}`;
     if (idx === 0) opt.selected = true;
     topicSelect.appendChild(opt);
+
   });
 
   // Custom entry option
