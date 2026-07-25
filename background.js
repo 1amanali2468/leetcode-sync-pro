@@ -1,5 +1,7 @@
 import { saveSolutionToGitHub, updateSolutionNotesInGitHub } from "./github.js";
 import { FIREBASE_CONFIG } from "./firebase-config.js";
+import { mergeSolveWithStars } from "./history_manager.js";
+import "./background_sync.js";
 
 let pollingIntervalId = null;
 
@@ -130,6 +132,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           history.splice(dupIndex, 1);
         }
 
+        history = mergeSolveWithStars(history, entry);
         history.unshift(entry);
 
         history.forEach((h) => {
@@ -715,6 +718,7 @@ function isRevisionDue(entry) {
 function getDueRevisions(history) {
   const latestBySlug = {};
   history.forEach(entry => {
+    if (entry.isStarredOnly) return;
     if (!latestBySlug[entry.slug]) {
       latestBySlug[entry.slug] = entry;
     } else {
@@ -736,179 +740,4 @@ function getDueRevisions(history) {
   return dueList;
 }
 
-// ── Real-Time Cloud Firestore Sync Engine ─────────────────────────────────────
-
-chrome.storage.onChanged.addListener(async (changes, areaName) => {
-  if (areaName !== "local") return;
-  if (!changes.leetsyncHistory && !changes.githubSettings && !changes.deletedSolves) return;
-
-  const authData = await chrome.storage.local.get("auth_user");
-  const authUser = authData.auth_user;
-  if (!authUser || !authUser.uid) return;
-
-  const uid = authUser.uid;
-  const baseUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/users/${uid}`;
-
-  // Get token only if we have active changes to sync
-  const hasHistoryOrSettings = changes.leetsyncHistory || changes.githubSettings;
-  const hasDeletions = changes.deletedSolves && (changes.deletedSolves.newValue || []).length > 0;
-  if (!hasHistoryOrSettings && !hasDeletions) return;
-
-  const idToken = await getValidIdToken(authUser);
-  if (!idToken) {
-    console.warn("Could not obtain a valid Firebase ID token. Sync skipped.");
-    return;
-  }
-
-  // Tombstone Deletion Sync
-  if (changes.deletedSolves) {
-    const deletedIds = changes.deletedSolves.newValue || [];
-    if (deletedIds.length > 0) {
-      for (const docId of deletedIds) {
-        try {
-          await fetch(`${baseUrl}/history/${docId}`, {
-            method: "DELETE",
-            headers: {
-              "Authorization": `Bearer ${idToken}`
-            }
-          });
-          console.log(`Firestore tombstone deleted docId: ${docId}`);
-        } catch (err) {
-          console.error("Firestore tombstone delete failed:", docId, err);
-        }
-      }
-      await chrome.storage.local.set({ deletedSolves: [] });
-    }
-  }
-
-
-  // 1. History Sync
-  if (changes.leetsyncHistory) {
-    const newHistory = changes.leetsyncHistory.newValue || [];
-    const oldHistory = changes.leetsyncHistory.oldValue || [];
-
-    const changedEntries = newHistory.filter(newEntry => {
-      const oldEntry = oldHistory.find(h => h.slug === newEntry.slug && h.approach === newEntry.approach);
-      if (!oldEntry) return true; // Newly added solve!
-      
-      return newEntry.savedAt !== oldEntry.savedAt ||
-             newEntry.notes !== oldEntry.notes ||
-             newEntry.isFavorite !== oldEntry.isFavorite ||
-             newEntry.collection !== oldEntry.collection ||
-             newEntry.revisionCount !== oldEntry.revisionCount ||
-             newEntry.revisionCompleted !== oldEntry.revisionCompleted;
-    });
-
-    for (const entry of changedEntries) {
-      try {
-        const docId = `${entry.slug}-${entry.approach}-v${entry.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "");
-        const firestoreDoc = convertToFirestoreFields(entry);
-        
-        await fetch(`${baseUrl}/history/${docId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${idToken}`
-          },
-          body: JSON.stringify(firestoreDoc)
-        });
-      } catch (err) {
-        console.error("Firestore history sync failed:", entry.slug, err);
-      }
-    }
-  }
-
-  // 2. Settings Sync
-  if (changes.githubSettings) {
-    const newSettings = changes.githubSettings.newValue || {};
-    try {
-      // Strip secrets before syncing settings to cloud
-      const settingsToUpload = { ...newSettings };
-      delete settingsToUpload.token;
-      delete settingsToUpload.avatarUrl;
-
-      const firestoreDoc = convertToFirestoreFields(settingsToUpload);
-      await fetch(`${baseUrl}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${idToken}`
-        },
-        body: JSON.stringify(firestoreDoc)
-      });
-    } catch (err) {
-      console.error("Firestore settings sync failed:", err);
-    }
-  }
-});
-
-function getJwtExpiration(token) {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return 0;
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
-    return payload.exp * 1000;
-  } catch (e) {
-    return 0;
-  }
-}
-
-async function getValidIdToken(authUser) {
-  if (!authUser || !authUser.idToken || !authUser.refreshToken) {
-    return "";
-  }
-  
-  const exp = getJwtExpiration(authUser.idToken);
-  // If the token is valid for more than 5 minutes, use it
-  if (exp && (exp - Date.now() > 5 * 60 * 1000)) {
-    return authUser.idToken;
-  }
-  
-  // Refresh the token
-  try {
-    console.log("Firebase ID token expired or close to expiration. Refreshing...");
-    const res = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FIREBASE_CONFIG.apiKey}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(authUser.refreshToken)}`
-    });
-    
-    if (!res.ok) throw new Error("Failed to refresh token");
-    const data = await res.json();
-    
-    authUser.idToken = data.id_token;
-    authUser.refreshToken = data.refresh_token || authUser.refreshToken;
-    
-    // Save updated authState to storage
-    await chrome.storage.local.set({ auth_user: authUser });
-    console.log("Firebase ID token refreshed successfully.");
-    return authUser.idToken;
-  } catch (err) {
-    console.error("Token refresh failed:", err);
-    return "";
-  }
-}
-
-function convertToFirestoreFields(obj) {
-  const fields = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (value === undefined || value === null) continue;
-    if (typeof value === "string") {
-      fields[key] = { stringValue: value };
-    } else if (typeof value === "number") {
-      fields[key] = { doubleValue: value };
-    } else if (typeof value === "boolean") {
-      fields[key] = { booleanValue: value };
-    } else if (Array.isArray(value)) {
-      fields[key] = {
-        arrayValue: {
-          values: value.map(v => ({ stringValue: String(v) }))
-        }
-      };
-    }
-  }
-  return { fields };
-}
 

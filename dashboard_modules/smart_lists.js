@@ -2,6 +2,7 @@
 import { el, STORAGE_KEYS, state } from "./state.js";
 import { syncCloudData } from "./settings.js";
 import { normalizeProblemSlug, sortProblems, renderTableHead } from "./ui_helpers.js";
+import { toggleProblemFromList as toggleProblemFromListBase } from "../history_manager.js";
 
 // Decoupled callback refs — registered by dashboard.js at boot
 let _renderSheets = null;
@@ -178,41 +179,7 @@ export async function openStarPopover(problem, starBtn, solvedMap) {
 }
 
 export async function toggleProblemFromList(problem, listName, add) {
-  const stored = await chrome.storage.local.get(STORAGE_KEYS.history);
-  let history = stored[STORAGE_KEYS.history] || [];
-  let updated = false;
-
-  history = history.map(h => {
-    if (h.slug === problem.slug) {
-      updated = true;
-      let lists = h.starredLists || [];
-      if (h.isFavorite && !lists.map(l => l.toLowerCase()).includes("favorite")) {
-        lists.push("Favorite");
-      }
-      if (add) {
-        if (!lists.map(l => l.toLowerCase()).includes(listName.toLowerCase())) lists.push(listName);
-      } else {
-        lists = lists.filter(l => l.toLowerCase() !== listName.toLowerCase());
-      }
-      const isFavorite = lists.length > 0;
-      return { ...h, starredLists: lists, isFavorite };
-    }
-    return h;
-  });
-
-  if (!updated && add) {
-    const nowStr = new Date().toISOString();
-    const newEntry = {
-      id: "", title: problem.title, slug: problem.slug,
-      difficulty: problem.difficulty || "Medium", url: problem.leetcodeUrl || "",
-      savedAt: nowStr, approach: "oa", language: "python", notes: "",
-      githubUrl: "", isFavorite: true, starredLists: [listName],
-      revisionCount: 1, revisionCompleted: false, revisionCompletedAt: null, readmePath: ""
-    };
-    history.unshift(newEntry);
-  }
-
-  await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
+  await toggleProblemFromListBase(problem, listName, add);
   await syncCloudData();
 }
 

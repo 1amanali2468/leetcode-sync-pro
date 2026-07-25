@@ -99,6 +99,17 @@ Humne **Floating Stopwatch Timer (B)**, **Spaced Repetition Scheduler (C)**, **A
 * **Excel Column AutoFilter Support**: Enabled native MS Excel/Google Sheets AutoFilter markup on generated spreadsheets for both DSA Sheets and History Exports. Downloading files now locks sorting headers so users can dynamically filter and sort columns directly inside Excel.
 * **Problem Of The Day (POTD) Aggregator**: Integrated a daily challenge grid at the top of the dashboard. Fetches active daily questions from LeetCode and GeeksforGeeks, and supports Coding Ninjas (Naukri Code 360) as a single unified card (counting as 1 solve in total counts if any Code 360 problem is solved today). Caches responses in local storage dynamically per date (0ms startup latency after initial daily fetch). Automatically scans user's solve history to change cards state to "✅ Solved" immediately.
 
+### 6. Full Codebase Modularization
+* **Monolithic Code Split**: Refactored monolithic scripts into structured, lightweight ES modules:
+  * Created `popup_helpers.js` for pure formatting, validation, normalizations, and Firestore fields converters.
+  * Created `popup_stats.js` for streak metrics, stats counters, relative time labels, and Excel exports.
+  * Created `popup_history.js` for note editing modals and solve history renders.
+  * Created `popup_calendar.js` for calendar cell generation, details rendering, and revision date modifications.
+  * Created `popup_sheets.js` for DSA sheets selection grids, filter options, custom accordion rendering, and progress tracking.
+  * Created `popup_sync.js` for manual/auto syncing queues, GitHub repository loading, and README parsing.
+  * Refactored `popup.js` as a lightweight bootsrapper managing navigation events, DOM caching, and lifecycle listeners.
+  * Native ES Modules import/export scheme validates perfectly without requiring bundlers.
+
 ---
 
 ## 🛠️ Verification Steps

@@ -27,7 +27,7 @@ export async function renderRevisionSchedule() {
   el.revisionListToday.innerHTML = "";
   el.revisionListUpcoming.innerHTML = "";
 
-  const starred = history.filter(h => h.isFavorite);
+  const starred = history.filter(h => h.isFavorite && !h.isStarredOnly);
   
   let overdueCount = 0;
   let todayCount = 0;

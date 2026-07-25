@@ -15,6 +15,7 @@ export async function renderOverview() {
   const uniqueSlugs = new Set();
   
   history.forEach(h => {
+    if (h.isStarredOnly) return;
     if (!uniqueSlugs.has(h.slug)) {
       uniqueSlugs.add(h.slug);
       const diff = (h.difficulty || "medium").toLowerCase();
@@ -65,6 +66,7 @@ export function renderHeatmap(history) {
   // Index history by local date string YYYY-MM-DD
   const dateMap = {};
   history.forEach(h => {
+    if (h.isStarredOnly) return;
     if (h.savedAt) {
       const dStr = h.savedAt.split("T")[0];
       dateMap[dStr] = (dateMap[dStr] || 0) + 1;
@@ -122,7 +124,7 @@ export function renderHeatmap(history) {
 export function renderRecentSolvesList(history) {
   el.recentSolvesList.innerHTML = "";
   
-  const recent = history.slice(0, 10);
+  const recent = history.filter(h => !h.isStarredOnly).slice(0, 10);
   if (recent.length === 0) {
     el.recentSolvesList.innerHTML = `<tr><td colspan="6" class="empty-state">No solves found in your history yet!</td></tr>`;
     return;

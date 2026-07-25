@@ -1,5 +1,6 @@
-// login.js
 import { FIREBASE_CONFIG, FIREBASE_AUTH_API, getFirestoreApiUrl } from "./firebase-config.js";
+import { batchWriteToFirestore } from "./firestore_sync.js";
+
 
 // UI Elements
 const errorText = document.getElementById("errorText");
@@ -335,31 +336,23 @@ async function syncFromFirestore(uid, idToken) {
         console.log("Merged history successfully saved locally");
         
         // Also upload any local history solves that are NOT in cloud yet
+        const updates = [];
         for (const localItem of localHistory) {
           const cloudMatch = cloudHistory.find(c => c.slug === localItem.slug && c.approach === localItem.approach && (c.version || 1) === (localItem.version || 1));
           if (!cloudMatch) {
-            const safeId = `${localItem.slug}-${localItem.approach}-v${localItem.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "");
-            const patchRes = await fetch(`${baseUrl}/users/${uid}/history/${safeId}`, {
-              method: "PATCH",
-              headers,
-              body: JSON.stringify(convertToFirestoreFields(localItem))
-            });
-            console.log(`Uploaded missing solve ${localItem.slug} status:`, patchRes.status);
+            updates.push(localItem);
           }
+        }
+        if (updates.length > 0) {
+          await batchWriteToFirestore(uid, idToken, { updates });
+          console.log(`Uploaded ${updates.length} missing solves to cloud`);
         }
       } else {
         // First time login - upload all local history if any
         if (localHistory.length > 0) {
           console.log(`Uploading ${localHistory.length} local history items to cloud...`);
-          for (const localItem of localHistory) {
-            const safeId = `${localItem.slug}-${localItem.approach}-v${localItem.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "");
-            const patchRes = await fetch(`${baseUrl}/users/${uid}/history/${safeId}`, {
-              method: "PATCH",
-              headers,
-              body: JSON.stringify(convertToFirestoreFields(localItem))
-            });
-            console.log(`Uploaded solve ${localItem.slug} status:`, patchRes.status);
-          }
+          await batchWriteToFirestore(uid, idToken, { updates: localHistory });
+          console.log(`Uploaded all local history solves successfully`);
         }
       }
     } else {

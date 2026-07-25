@@ -38,7 +38,7 @@
     },
     {
       "matches": ["https://leetcode.com/*", "https://*.leetcode.com/*", "https://*.geeksforgeeks.org/*"],
-      "js": ["content.js"],
+      "js": ["content_utils.js", "content_ui.js", "content.js"],
       "run_at": "document_idle"
     }
   ]

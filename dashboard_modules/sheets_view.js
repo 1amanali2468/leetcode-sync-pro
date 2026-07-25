@@ -6,6 +6,7 @@ import { openNotesModal } from "./notes_modal.js";
 import { openStarPopover, renderMyListsSidebar, renderFlatListProblems, updateProgressWidget } from "./smart_lists.js";
 import { syncCloudData, exportActiveSheetToExcel } from "./settings.js";
 import { loadSheet, getCrossSheetMap } from "../sheet-loader.js";
+import { toggleProblemCompletion as toggleProblemCompletionBase, isProblemCompleted } from "../history_manager.js";
 
 let onSheetsChangeCallback = null;
 
@@ -349,7 +350,7 @@ export async function renderSheets() {
     totalProblems++;
     const slug = p.slug.trim().toLowerCase();
     const solves = solvedMap[slug] || [];
-    const isSolved = solves.length > 0;
+    const isSolved = isProblemCompleted(solves);
     
     const isAttempting = history.some(h => h.slug && h.slug.trim().toLowerCase() === slug) && !isSolved;
 
@@ -589,7 +590,7 @@ export function populateTopicPills(sheetData, solvedMap) {
     const filtered = filterSheetProblems(topicProblems, solvedMap);
     filtered.forEach(p => {
       topicCounts[topicName].total++;
-      const isSolved = (solvedMap[p.slug] || []).length > 0;
+      const isSolved = isProblemCompleted(solvedMap[p.slug] || []);
       if (isSolved) {
         topicCounts[topicName].completed++;
       }
@@ -609,7 +610,7 @@ export function populateTopicPills(sheetData, solvedMap) {
   const filteredAll = filterSheetProblems(allProblems, solvedMap);
   filteredAll.forEach(p => {
     allTotal++;
-    const isSolved = (solvedMap[p.slug] || []).length > 0;
+    const isSolved = isProblemCompleted(solvedMap[p.slug] || []);
     if (isSolved) allCompleted++;
   });
 
@@ -792,7 +793,7 @@ export function renderAccordionGroupView(sheetData, solvedMap) {
 
       // Count total/completed using ALL problems (unfiltered)
       topicTotal = problems.length;
-      topicCompleted = problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
+      topicCompleted = problems.filter(p => isProblemCompleted(solvedMap[p.slug] || [])).length;
 
       const table = document.createElement("table");
       table.className = "sheets-problems-table";
@@ -824,7 +825,7 @@ export function renderAccordionGroupView(sheetData, solvedMap) {
 
         // Count total/completed using ALL problems (unfiltered) for correct X/Y display
         topicTotal += problems.length;
-        topicCompleted += problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
+        topicCompleted += problems.filter(p => isProblemCompleted(solvedMap[p.slug] || [])).length;
 
         const subtopicSection = document.createElement("div");
         subtopicSection.className = "sheet-subtopic-section";
@@ -875,7 +876,7 @@ export function renderAccordionGroupView(sheetData, solvedMap) {
         });
         
         let subtopicTotal = problems.length;
-        let subtopicCompleted = problems.filter(p => (solvedMap[p.slug] || []).length > 0).length;
+        let subtopicCompleted = problems.filter(p => isProblemCompleted(solvedMap[p.slug] || [])).length;
 
         const table = document.createElement("table");
         table.className = "sheets-problems-table";
@@ -1015,7 +1016,7 @@ export function createProblemRow(problem, solvedMap, isVisible) {
 
   const slug = problem.slug.trim().toLowerCase();
   const solves = solvedMap[slug] || [];
-  const isCompleted = solves.length > 0;
+  const isCompleted = isProblemCompleted(solves);
   const hasNotes = solves.some(s => s.notes && s.notes.trim() !== "");
   const isBookmarked = solves.some(s => s.isFavorite);
   const githubUrl = solves.find(s => s.githubUrl)?.githubUrl || "";
@@ -1199,7 +1200,7 @@ export function filterSheetProblems(problems, solvedMap, overrideFilters) {
   return problems.filter(problem => {
     const slug = problem.slug;
     const solves = solvedMap[slug] || [];
-    const isCompleted = solves.length > 0;
+    const isCompleted = isProblemCompleted(solves);
     const isBookmarked = solves.some(s => s.isFavorite);
 
     if (state.sheetSearchQuery && !problem.title.toLowerCase().includes(state.sheetSearchQuery)) {
@@ -1382,105 +1383,11 @@ export async function resetSheetProgress() {
 }
 
 export async function toggleProblemCompletion(problem, completed) {
-  const stored = await chrome.storage.local.get(STORAGE_KEYS.history);
-  let history = stored[STORAGE_KEYS.history] || [];
-  const targetSlug = normalizeProblemSlug(problem.slug, problem.leetcodeUrl || problem.url);
-
-  if (completed) {
-    const exists = history.some(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) === targetSlug);
-    if (!exists) {
-      const nowStr = new Date().toISOString();
-      const newEntry = {
-        id: "",
-        title: problem.title,
-        slug: problem.slug,
-        difficulty: problem.difficulty || "Medium",
-        url: problem.leetcodeUrl || "",
-        savedAt: nowStr,
-        approach: "oa",
-        language: "python",
-        notes: "",
-        githubUrl: "",
-        isFavorite: false,
-        revisionCount: 1,
-        revisionCompleted: false,
-        revisionCompletedAt: null,
-        readmePath: ""
-      };
-      history.unshift(newEntry);
-      await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
-      await syncCloudData();
-    }
-  } else {
-    const entriesToDelete = history.filter(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) === targetSlug);
-    history = history.filter(h => normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) !== targetSlug);
-    await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
-    await syncCloudData();
-
-    const docIdsToDelete = [...new Set(entriesToDelete.map(entry =>
-      `${entry.slug}-${entry.approach || "oa"}-v${entry.version || 1}`.replace(/[^a-zA-Z0-9_-]/g, "")
-    ))];
-
-    // Push to local storage deletedSolves queue for tombstone background sync
-    const storedDeletes = await chrome.storage.local.get("deletedSolves");
-    const currentDeletes = storedDeletes.deletedSolves || [];
-    await chrome.storage.local.set({ deletedSolves: [...new Set([...currentDeletes, ...docIdsToDelete])] });
-
-    try {
-      const authData = await chrome.storage.local.get("auth_user");
-      const authUser = authData.auth_user;
-      if (authUser && authUser.uid && authUser.idToken) {
-        const baseUrl = getFirestoreApiUrl();
-        for (const docId of docIdsToDelete) {
-          await fetch(`${baseUrl}/users/${authUser.uid}/history/${docId}`, {
-            method: "DELETE",
-            headers: {
-              "Authorization": `Bearer ${authUser.idToken}`
-            }
-          });
-        }
-      }
-    } catch (e) {
-      console.error("Failed to delete manual untick from Firestore:", e);
-    }
-  }
+  await toggleProblemCompletionBase(problem, completed);
+  await syncCloudData();
 }
 
 export async function toggleProblemBookmark(problem, bookmarked) {
-  const stored = await chrome.storage.local.get(STORAGE_KEYS.history);
-  let history = stored[STORAGE_KEYS.history] || [];
-
-  let updated = false;
-  history = history.map(h => {
-    if (h.slug === problem.slug) {
-      updated = true;
-      return { ...h, isFavorite: bookmarked };
-    }
-    return h;
-  });
-
-  if (!updated && bookmarked) {
-    const nowStr = new Date().toISOString();
-    const newEntry = {
-      id: "",
-      title: problem.title,
-      slug: problem.slug,
-      difficulty: problem.difficulty || "Medium",
-      url: problem.leetcodeUrl || "",
-      savedAt: nowStr,
-      approach: "oa",
-      language: "python",
-      notes: "",
-      githubUrl: "",
-      isFavorite: true,
-      revisionCount: 1,
-      revisionCompleted: false,
-      revisionCompletedAt: null,
-      readmePath: ""
-    };
-    history.unshift(newEntry);
-  }
-
-  await chrome.storage.local.set({ [STORAGE_KEYS.history]: history });
+  await toggleProblemFromListBase(problem, "Favorite", bookmarked);
   await syncCloudData();
 }
