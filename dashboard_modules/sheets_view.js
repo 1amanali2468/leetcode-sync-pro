@@ -715,7 +715,7 @@ export function populateTopicPills(sheetData, solvedMap) {
   for (const [topicName, counts] of Object.entries(topicCounts)) {
     const pill = document.createElement("button");
     pill.className = "sheet-topic-pill" + (state.selectedTopicPill === topicName ? " active" : "");
-    pill.innerHTML = `${cleanDisplayName(topicName)} <span class="pill-count">${counts.completed}/${counts.total}</span>`;
+    pill.innerHTML = `${escapeHtml(cleanDisplayName(topicName))} <span class="pill-count">${counts.completed}/${counts.total}</span>`;
     pill.addEventListener("click", () => {
       state.selectedTopicPill = topicName;
       pillsContainer.querySelectorAll(".sheet-topic-pill").forEach(p => p.classList.remove("active"));

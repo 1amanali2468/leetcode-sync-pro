@@ -15,6 +15,14 @@ async function performSync(uid, idToken, updates, deletes, settingsToUpload, que
     try {
       await batchWriteToFirestore(uid, idToken, { updates, deletes });
       console.log(`Successfully synced ${updates.length} updates and ${deletes.length} deletes to Firestore.`);
+      
+      const storedDeletes = await chrome.storage.local.get("deletedSolves");
+      const currentDeletes = storedDeletes.deletedSolves || [];
+      if (currentDeletes.length > 0) {
+        const remainingDeletes = currentDeletes.filter(id => !deletes.includes(id));
+        await chrome.storage.local.set({ deletedSolves: remainingDeletes });
+      }
+      
       queue.updates = [];
       queue.deletes = [];
       queueChanged = true;

@@ -1,11 +1,59 @@
 import { saveSolutionToGitHub, updateSolutionNotesInGitHub } from "./github.js";
 import { FIREBASE_CONFIG } from "./firebase-config.js";
-import { mergeSolveWithStars, mergeNewSolveIntoHistory } from "./history_manager.js";
+import { mergeSolveWithStars, mergeNewSolveIntoHistory, applyToggleList, applyToggleBookmark, applyToggleCompletion, applyDeleteEntry } from "./history_manager.js";
 import { loadSheet } from "./sheet-loader.js";
 import { processPendingSync } from "./background_sync.js";
 import { todayStr, getRevisionDueDate, isRevisionDue, getDueRevisions } from "./shared_revision.js";
 
+const historyWriteQueue = [];
+let isWritingHistory = false;
+
+async function processHistoryQueue() {
+  if (isWritingHistory) return;
+  isWritingHistory = true;
+  while (historyWriteQueue.length > 0) {
+    const task = historyWriteQueue.shift();
+    try {
+      await task();
+    } catch (e) {
+      console.error("Error in history queue:", e);
+    }
+  }
+  isWritingHistory = false;
+}
+
+function queueHistoryUpdate(updaterFn) {
+  return new Promise((resolve, reject) => {
+    historyWriteQueue.push(async () => {
+      try {
+        const stored = await chrome.storage.local.get("leetsyncHistory");
+        let history = stored.leetsyncHistory || [];
+        const result = updaterFn(history);
+        
+        let newHistory = history;
+        if (result && result.history) {
+          newHistory = result.history;
+          if (result.deletes && result.deletes.length > 0) {
+            const storedDeletes = await chrome.storage.local.get("deletedSolves");
+            const currentDeletes = storedDeletes.deletedSolves || [];
+            await chrome.storage.local.set({ deletedSolves: [...new Set([...currentDeletes, ...result.deletes])] });
+          }
+        } else if (Array.isArray(result)) {
+          newHistory = result;
+        }
+        
+        await chrome.storage.local.set({ leetsyncHistory: newHistory });
+        resolve(newHistory);
+      } catch (err) {
+        reject(err);
+      }
+    });
+    processHistoryQueue();
+  });
+}
+
 let pollingIntervalId = null;
+var githubSyncTimeout = null;
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "LEETSYNC_SAVE_TO_GITHUB") {
@@ -27,18 +75,33 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 
   if (message?.type === "LEETSYNC_SAVE_TO_HISTORY") {
-    const { entry } = message.payload;
-    chrome.storage.local.get("leetsyncHistory").then(async (stored) => {
-      try {
-        const history = stored.leetsyncHistory || [];
-        const updatedHistory = mergeNewSolveIntoHistory(history, entry);
-        await chrome.storage.local.set({ leetsyncHistory: updatedHistory });
-        sendResponse({ ok: true, history: updatedHistory });
-      } catch (err) {
-        console.error("Failed to save history centrally:", err);
-        sendResponse({ ok: false, error: err.message });
-      }
-    });
+    queueHistoryUpdate(history => mergeNewSolveIntoHistory(history, message.payload.entry))
+      .then(updatedHistory => sendResponse({ ok: true, history: updatedHistory }))
+      .catch(err => sendResponse({ ok: false, error: err.message }));
+    return true;
+  }
+
+  if (message?.type === "LEETSYNC_UPDATE_HISTORY") {
+    const { action, payload } = message;
+    let updaterFn;
+    
+    if (action === "TOGGLE_LIST") {
+      updaterFn = history => applyToggleList(history, payload.problem, payload.listName, payload.add);
+    } else if (action === "TOGGLE_BOOKMARK") {
+      updaterFn = history => applyToggleBookmark(history, payload.problem, payload.add);
+    } else if (action === "TOGGLE_COMPLETION") {
+      updaterFn = history => applyToggleCompletion(history, payload.problem, payload.completed);
+    } else if (action === "DELETE_ENTRY") {
+      updaterFn = history => applyDeleteEntry(history, payload.docId);
+    }
+    
+    if (updaterFn) {
+      queueHistoryUpdate(updaterFn)
+        .then(updatedHistory => sendResponse({ ok: true, history: updatedHistory }))
+        .catch(err => sendResponse({ ok: false, error: err.message }));
+    } else {
+      sendResponse({ ok: false, error: "Unknown action" });
+    }
     return true;
   }
 
@@ -712,11 +775,16 @@ async function enqueuePendingGithubSync(submission, saveOptions, settings) {
 }
 
 export async function processPendingGithubSync() {
-  const data = await chrome.storage.local.get("pendingGithubSync");
-  const queue = data.pendingGithubSync || [];
-  if (queue.length === 0) return;
+  if (githubSyncTimeout) clearTimeout(githubSyncTimeout);
 
-  console.log(`Processing ${queue.length} pending solutions in GitHub sync queue...`);
+  githubSyncTimeout = setTimeout(async () => {
+    githubSyncTimeout = null;
+    try {
+      const data = await chrome.storage.local.get("pendingGithubSync");
+      const queue = data.pendingGithubSync || [];
+      if (queue.length === 0) return;
+
+      console.log(`Processing ${queue.length} pending solutions in GitHub sync queue...`);
   const remaining = [];
   const storedHistory = await chrome.storage.local.get("leetsyncHistory");
   const history = storedHistory.leetsyncHistory || [];
@@ -751,12 +819,16 @@ export async function processPendingGithubSync() {
     await chrome.storage.local.set({ leetsyncHistory: history });
   }
 
-  if (remaining.length === 0) {
-    await chrome.storage.local.remove("pendingGithubSync");
-    console.log("All pending GitHub solutions synced successfully and queue cleared.");
-  } else {
-    await chrome.storage.local.set({ pendingGithubSync: remaining });
-  }
+      if (remaining.length === 0) {
+        await chrome.storage.local.remove("pendingGithubSync");
+        console.log("All pending GitHub solutions synced successfully and queue cleared.");
+      } else {
+        await chrome.storage.local.set({ pendingGithubSync: remaining });
+      }
+    } catch (e) {
+      console.error("Error in processPendingGithubSync wrapper:", e);
+    }
+  }, 3000);
 }
 
 
