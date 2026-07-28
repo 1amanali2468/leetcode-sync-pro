@@ -226,6 +226,7 @@ export function mergeNewSolveIntoHistory(history, entry) {
   const dupIndex = history.findIndex(
     (h) => (h.slug === targetSlug || normalizeProblemSlug(h.slug, h.url) === targetSlug) &&
            h.approach === entry.approach &&
+           (h.version || 1) === (entry.version || 1) &&
            (h.savedAt ? h.savedAt.split("T")[0] : "") === entryDateStr
   );
 

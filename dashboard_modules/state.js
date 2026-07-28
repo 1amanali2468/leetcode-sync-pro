@@ -2,7 +2,7 @@
 
 export const STORAGE_KEYS = {
   history: "leetsyncHistory",
-  settings: "leetsyncSettings",
+  settings: "githubSettings",
   streak:  "leetsyncStreak"
 };
 

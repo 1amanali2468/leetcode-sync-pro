@@ -243,6 +243,17 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true;
   }
 
+  if (message?.type === "SYNC_FIRESTORE_DATA") {
+    processPendingSync().then(() => sendResponse({ ok: true })).catch(e => sendResponse({ ok: false, error: e.message }));
+    return true;
+  }
+
+  if (message?.type === "FETCH_GITHUB_SOLVES") {
+    // Cannot run DOM-heavy GitHub import in service worker. Return error so user knows to use popup.
+    sendResponse({ ok: false, error: "Please use the 'Sync' button in the extension popup to fetch GitHub solves. Background fetch is not supported." });
+    return true;
+  }
+
   if (message?.type === "LEETSYNC_ADD_TO_SHEET") {
     (async () => {
       try {
@@ -766,10 +777,10 @@ export async function processPendingGithubSync() {
     try {
       const { submission, saveOptions, settings } = item;
       const result = await saveSolutionToGitHub({ settings, submission, saveOptions });
-      if (result && result.ok) {
+      if (result && (result.solutionUrl || result.solutionPath)) {
         console.log(`Successfully synced queued solution to GitHub: ${submission.title}`);
-        const githubUrl = result.result?.solutionUrl || "";
-        const readmePath = result.result?.readmePath || "";
+        const githubUrl = result.solutionUrl || "";
+        const readmePath = result.readmePath || "";
         
         const idx = history.findIndex(h => h.slug === (submission.titleSlug || submission.slug) && h.approach === (saveOptions.approach === "custom" ? saveOptions.customName : saveOptions.approach) && (h.version || 1) === (saveOptions.version || 1));
         if (idx !== -1) {

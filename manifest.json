@@ -10,7 +10,6 @@
     "128": "icon.png"
   },
   "host_permissions": [
-    "<all_urls>",
     "https://leetcode.com/*",
     "https://*.leetcode.com/*",
     "https://*.geeksforgeeks.org/*",

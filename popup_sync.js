@@ -282,11 +282,11 @@ export async function fetchGitHubRepoSolves() {
   const statusText = document.getElementById("repoFetchStatus");
   const btn = document.getElementById("btnFetchGitHubRepoSolves");
 
-  if (!statusText || !btn) return;
-
-  statusText.textContent = "⏳ Fetching settings...";
-  statusText.style.color = "var(--clr-primary)";
-  btn.disabled = true;
+  if (statusText) {
+    statusText.textContent = "⏳ Fetching settings...";
+    statusText.style.color = "var(--clr-primary)";
+  }
+  if (btn) btn.disabled = true;
 
   try {
     const stored = await chrome.storage.local.get(["auth_user", "githubSettings", STORAGE_KEYS.history]);
@@ -515,21 +515,25 @@ export async function fetchGitHubRepoSolves() {
 
     await chrome.storage.local.set({ [STORAGE_KEYS.history]: mergedHistory });
 
-    statusText.textContent = `⏳ Merging with Firestore cloud database...`;
+    if (statusText) statusText.textContent = `⏳ Merging with Firestore cloud database...`;
     await syncCloudData();
 
-    statusText.textContent = `✅ Sync Complete! Imported/Synced ${importedHistory.length} items.`;
-    statusText.style.color = "#22c55e";
+    if (statusText) {
+      statusText.textContent = `✅ Sync Complete! Imported/Synced ${importedHistory.length} items.`;
+      statusText.style.color = "#22c55e";
+    }
 
     renderHistory();
     renderStats();
     renderCalendar();
 
   } catch (err) {
-    statusText.textContent = `❌ Sync Failed: ${err.message}`;
-    statusText.style.color = "#dc2626";
+    if (statusText) {
+      statusText.textContent = `❌ Sync Failed: ${err.message}`;
+      statusText.style.color = "#dc2626";
+    }
   } finally {
-    btn.disabled = false;
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -602,7 +606,8 @@ export function parseReadmeMetadata(markdown, filePath, allFiles, githubInfo = {
       const patternMatch = block.match(/Pattern(?:\s*Used)?\s*\|\s*`([^`]+)`/i);
 
       let notes = "";
-      const notesMatch = block.match(/####?\s*(?:📝\s*)?Notes/i);
+      // Use [^\\w\\s]+ to safely match any emoji/icon without encoding corruption
+      const notesMatch = block.match(/####?\s*(?:[^\w\s]+\s*)?Notes/i);
       if (notesMatch) {
         const idx = notesMatch.index;
         const dividerText = notesMatch[0];

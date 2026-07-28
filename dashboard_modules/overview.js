@@ -1,6 +1,7 @@
 // dashboard_modules/overview.js - Dashboard Overview Screen Controller
 import { el, STORAGE_KEYS, state } from "./state.js";
 import { openNotesModal } from "./notes_modal.js";
+import { escapeHtml } from "./ui_helpers.js";
 
 export async function renderOverview() {
   const data = await chrome.storage.local.get([STORAGE_KEYS.history, STORAGE_KEYS.streak]);
@@ -135,7 +136,7 @@ export function renderRecentSolvesList(history) {
 
     // Title
     const tdTitle = document.createElement("td");
-    tdTitle.innerHTML = `<strong>${entry.title || "Unknown"}</strong>`;
+    tdTitle.innerHTML = `<strong>${escapeHtml(entry.title || "Unknown")}</strong>`;
     tr.appendChild(tdTitle);
 
     // Language

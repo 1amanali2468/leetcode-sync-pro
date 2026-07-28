@@ -523,10 +523,9 @@ function getGFGTopics() {
 
 // ── History Storage Helper ────────────────────────────────────────────────────
 async function saveToHistory(entry) {
-  // Try via background message (centralized, serialized write)
-  const tryViaMessage = () => new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
-      reject(new Error("Background message timeout – falling back to direct storage."));
+      reject(new Error("Background message timeout."));
     }, 5000);
 
     chrome.runtime.sendMessage(
@@ -543,33 +542,4 @@ async function saveToHistory(entry) {
       }
     );
   });
-
-  try {
-    return await tryViaMessage();
-  } catch (msgErr) {
-    // Fallback: direct storage write if background is unreachable
-    console.warn("saveToHistory fallback to direct storage:", msgErr.message);
-    try {
-      const stored = await chrome.storage.local.get("leetsyncHistory");
-      const history = stored.leetsyncHistory || [];
-      const targetSlug = entry.slug ? entry.slug.trim().toLowerCase().replace(/-?\d+$/, "").replace(/-+$/, "") : "";
-      if (targetSlug) entry.slug = targetSlug;
-      const todayStr = (entry.savedAt || new Date().toISOString()).split("T")[0];
-      const dupIdx = history.findIndex(h =>
-        h.slug === entry.slug && h.approach === entry.approach &&
-        (h.savedAt ? h.savedAt.split("T")[0] : "") === todayStr
-      );
-      if (dupIdx !== -1) {
-        entry.isFavorite = entry.isFavorite || history[dupIdx].isFavorite;
-        history.splice(dupIdx, 1);
-      }
-      history.unshift(entry);
-      if (history.length > 5000) history.pop();
-      await chrome.storage.local.set({ leetsyncHistory: history });
-      return history;
-    } catch (storageErr) {
-      console.error("Local history save failed (direct fallback):", storageErr);
-      throw storageErr;
-    }
-  }
 }

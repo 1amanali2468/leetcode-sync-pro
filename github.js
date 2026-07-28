@@ -540,7 +540,8 @@ export async function updateSolutionNotesInGitHub(payload) {
     // Check if this block corresponds to our approach code (e.g. "OPTIMAL APPROACH (OA)")
     if (block.trimStart().startsWith(targetApproachCode) || block.includes(`(${targetApproachCode})`)) {
       found = true;
-      const notesMatch = block.match(/####?\s*(?:📝\s*)?Notes/i);
+      // Use [^\\w\\s]+ to safely match any emoji/icon without encoding corruption
+      const notesMatch = block.match(/####?\s*(?:[^\w\s]+\s*)?Notes/i);
       if (notesMatch) {
         const dividerIndex = notesMatch.index;
         const dividerText = notesMatch[0];
