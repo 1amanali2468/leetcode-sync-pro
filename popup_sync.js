@@ -192,13 +192,33 @@ export async function syncCloudData() {
       console.error(`Failed to fetch settings from Firestore: ${settingsRes.status}`);
     }
 
-    const historyRes = await fetch(`${baseUrl}/users/${uid}/history?pageSize=300`, { headers });
-    if (historyRes.ok) {
-      const historyDoc = await historyRes.json();
-      const cloudHistory = (historyDoc.documents || []).map(doc => {
-        return convertFromFirestoreFields(doc.fields || {});
-      });
+    const cloudHistory = [];
+    let pageToken = "";
+    let fetchSuccess = true;
 
+    do {
+      const url = `${baseUrl}/users/${uid}/history?pageSize=300` + (pageToken ? `&pageToken=${pageToken}` : "");
+      const historyRes = await fetch(url, { headers });
+
+      if (historyRes.ok) {
+        const historyDoc = await historyRes.json();
+        const docs = (historyDoc.documents || []).map(doc => {
+          return convertFromFirestoreFields(doc.fields || {});
+        });
+        cloudHistory.push(...docs);
+        pageToken = historyDoc.nextPageToken || "";
+      } else {
+        console.error(`Failed to fetch history page from Firestore: ${historyRes.status}`);
+        fetchSuccess = false;
+        if (statusText) {
+          statusText.textContent = `❌ Error (History: ${historyRes.status})`;
+          statusText.style.color = "#dc2626";
+        }
+        break;
+      }
+    } while (pageToken);
+
+    if (fetchSuccess) {
       const localHistory = storedData[STORAGE_KEYS.history] || [];
 
       const merged = [...localHistory];
@@ -236,19 +256,12 @@ export async function syncCloudData() {
         await batchWriteToFirestore(uid, idToken, { updates });
       }
 
-      
       renderHistory();
       renderStats();
       renderCalendar();
       if (statusText) {
         statusText.textContent = "✅ Connected & Synced";
         statusText.style.color = "#22c55e";
-      }
-    } else {
-      console.error(`Failed to fetch history from Firestore: ${historyRes.status}`);
-      if (statusText) {
-        statusText.textContent = `❌ Error (History: ${historyRes.status})`;
-        statusText.style.color = "#dc2626";
       }
     }
   } catch (err) {

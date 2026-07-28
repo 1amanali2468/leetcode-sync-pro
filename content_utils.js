@@ -164,14 +164,41 @@ function getDifficultyFromDOM() {
 }
 
 function getLanguage() {
-  // LeetCode v2 editor language dropdown indicator
+  // 1. LeetCode v2 editor language dropdown indicator
   const trigger = document.querySelector("button[id^='headlessui-listbox-button']");
   if (trigger) {
     const text = trigger.innerText?.trim();
     if (text) return normalizeLanguage(text);
   }
 
-  // Fallbacks
+  // 2. GFG Specific dropdown selectors
+  if (isGFGProblemPage()) {
+    const gfgEl = document.querySelector("[class*='language_dropdown'], [class*='language-dropdown'], [class*='problems_language_dropdown'], [class*='language_select'], [class*='problems_language_select']");
+    if (gfgEl) {
+      const text = gfgEl.innerText?.trim();
+      if (text) {
+        const cleanText = text.split("\n")[0].trim();
+        if (cleanText) return normalizeLanguage(cleanText);
+      }
+    }
+
+    // Fallback: Scan editor header elements for language names
+    const editorHeader = document.querySelector("[class*='problems_editor_header'], [class*='editor_header'], .problems_editor_header");
+    if (editorHeader) {
+      const els = editorHeader.querySelectorAll("span, div, button");
+      for (const el of els) {
+        const text = el.innerText?.trim();
+        if (text) {
+          const norm = text.toLowerCase();
+          if (norm === "c++" || norm === "java" || norm === "python" || norm === "python3" || norm.includes("javascript") || norm.includes("js")) {
+            return normalizeLanguage(text);
+          }
+        }
+      }
+    }
+  }
+
+  // 3. General Fallbacks
   const select = document.querySelector("select");
   if (select) {
     return normalizeLanguage(select.value);

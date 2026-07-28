@@ -2,7 +2,7 @@ import { saveSolutionToGitHub, updateSolutionNotesInGitHub } from "./github.js";
 import { FIREBASE_CONFIG } from "./firebase-config.js";
 import { mergeSolveWithStars } from "./history_manager.js";
 import { loadSheet } from "./sheet-loader.js";
-import "./background_sync.js";
+import { processPendingSync } from "./background_sync.js";
 
 let pollingIntervalId = null;
 
@@ -543,6 +543,7 @@ async function fetchLeetCodeProblemDetails(titleSlug) {
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "streak-reminder") {
     checkStreakAndNotify();
+    processPendingSync().catch(err => console.error("Alarm retry sync failed:", err));
   }
 });
 
@@ -646,10 +647,12 @@ function dayOffset(n) {
 // Setup the alarm on install & startup
 chrome.runtime.onInstalled.addListener(() => {
   setupStreakReminderAlarm();
+  processPendingSync().catch(err => console.error("Startup pending sync failed:", err));
 });
 
 chrome.runtime.onStartup.addListener(() => {
   setupStreakReminderAlarm();
+  processPendingSync().catch(err => console.error("Startup pending sync failed:", err));
 });
 
 function setupStreakReminderAlarm() {
@@ -665,6 +668,7 @@ function setupStreakReminderAlarm() {
 
 resumePolling();
 setupStreakReminderAlarm();
+processPendingSync().catch(err => console.error("Initial pending sync failed:", err));
 
 function todayStr() {
   const d = new Date();

@@ -363,7 +363,7 @@ function approachFullName(code) {
 }
 
 function languageToExtension(language = "") {
-  const normalized = language.toLowerCase();
+  let normalized = language.toLowerCase().trim();
   const map = {
     c: "c",
     "c++": "cpp",
@@ -387,7 +387,16 @@ function languageToExtension(language = "") {
     typescript: "ts"
   };
 
-  return map[normalized] || "txt";
+  if (map[normalized]) return map[normalized];
+
+  // Try partial/includes matches for custom variants (e.g. "Javascript (Node.js)" or "Python3")
+  if (normalized.includes("c++") || normalized.includes("cpp")) return "cpp";
+  if (normalized.includes("javascript") || normalized.includes("js")) return "js";
+  if (normalized.includes("python") || normalized.includes("py")) return "py";
+  if (normalized.includes("c#") || normalized.includes("csharp")) return "cs";
+  if (normalized.includes("java")) return "java";
+
+  return "txt";
 }
 
 function sanitizePath(path) {

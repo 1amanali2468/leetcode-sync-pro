@@ -300,15 +300,31 @@ async function syncFromFirestore(uid, idToken) {
     }
 
     // 2. Sync history
-    const historyRes = await fetch(`${baseUrl}/users/${uid}/history?pageSize=300`, { headers });
-    console.log("History fetch status:", historyRes.status);
+    const cloudHistory = [];
+    let pageToken = "";
+    let fetchSuccess = true;
 
-    if (historyRes.ok) {
-      const historyDoc = await historyRes.json();
-      const cloudHistory = (historyDoc.documents || []).map(doc => {
-        return convertFromFirestoreFields(doc.fields || {});
-      });
-      console.log(`Downloaded ${cloudHistory.length} history documents`);
+    do {
+      const url = `${baseUrl}/users/${uid}/history?pageSize=300` + (pageToken ? `&pageToken=${pageToken}` : "");
+      const historyRes = await fetch(url, { headers });
+      console.log("History fetch status:", historyRes.status);
+
+      if (historyRes.ok) {
+        const historyDoc = await historyRes.json();
+        const docs = (historyDoc.documents || []).map(doc => {
+          return convertFromFirestoreFields(doc.fields || {});
+        });
+        cloudHistory.push(...docs);
+        pageToken = historyDoc.nextPageToken || "";
+      } else {
+        console.error(`Failed to fetch history page from Firestore: ${historyRes.status}`);
+        fetchSuccess = false;
+        break;
+      }
+    } while (pageToken);
+
+    if (fetchSuccess) {
+      console.log(`Downloaded ${cloudHistory.length} history documents total`);
 
       const stored = await chrome.storage.local.get("leetsyncHistory");
       const localHistory = stored.leetsyncHistory || [];
@@ -356,8 +372,7 @@ async function syncFromFirestore(uid, idToken) {
         }
       }
     } else {
-      const errorJson = await historyRes.json().catch(() => ({}));
-      throw new Error(`History sync failed: ${historyRes.status} ${JSON.stringify(errorJson)}`);
+      throw new Error("History sync failed. Check console logs for details.");
     }
   } catch (err) {
     console.error("Failed to sync history with Firestore:", err);

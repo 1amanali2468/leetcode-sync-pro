@@ -230,31 +230,7 @@ export function cleanDisplayName(name) {
   return clean.replace(/[_-]+/g, " ").trim();
 }
 
-export function normalizeProblemSlug(slug, url = "") {
-  if (!slug && url) {
-    try {
-      const u = new URL(url);
-      if (u.hostname.includes("geeksforgeeks.org")) {
-        const parts = u.pathname.split("/").filter(Boolean);
-        if (parts.length > 0) return parts[parts.length - 1];
-      } else if (u.hostname.includes("leetcode.com")) {
-        const parts = u.pathname.split("/").filter(Boolean);
-        const idx = parts.indexOf("problems");
-        if (idx !== -1 && parts[idx + 1]) return parts[idx + 1];
-      }
-    } catch (e) {}
-  }
-  if (!slug) return "";
-  let s = slug.trim().toLowerCase().replace(/\/$/, "");
-  const parts = s.split("/").filter(Boolean);
-  if (parts.length > 0) {
-    s = parts[parts.length - 1];
-  }
-  if (!url || !url.toLowerCase().includes("leetcode.com")) {
-    s = s.replace(/-?\d+$/, "").replace(/-+$/, "");
-  }
-  return s;
-}
+export { normalizeProblemSlug } from "../history_manager.js";
 
 export function classifyDifficulty(diffVal) {
   if (!diffVal) return "medium";

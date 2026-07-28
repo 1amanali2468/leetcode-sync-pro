@@ -29,14 +29,7 @@ export function isSafeUrl(url) {
   }
 }
 
-export function normalizeProblemSlug(slug, url = "") {
-  let normalized = (slug || "").trim().toLowerCase();
-  if (!normalized) return "";
-  if ((url || "").includes("geeksforgeeks.org")) {
-    normalized = normalized.replace(/-?\d+$/, "").replace(/-+$/, "");
-  }
-  return normalized;
-}
+export { normalizeProblemSlug } from "./history_manager.js";
 
 export function cleanDisplayName(name) {
   if (!name) return "";

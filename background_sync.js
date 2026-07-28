@@ -4,6 +4,85 @@
 import { FIREBASE_CONFIG } from "./firebase-config.js";
 import { batchWriteToFirestore, convertToFirestoreFields } from "./firestore_sync.js";
 
+// Helper to perform the actual sync operations
+async function performSync(uid, idToken, updates, deletes, settingsToUpload, queue) {
+  const baseUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/users/${uid}`;
+  let queueChanged = false;
+
+  // 1. Sync History (Updates & Deletes)
+  if (updates.length > 0 || deletes.length > 0) {
+    try {
+      await batchWriteToFirestore(uid, idToken, { updates, deletes });
+      console.log(`Successfully synced ${updates.length} updates and ${deletes.length} deletes to Firestore.`);
+      queue.updates = [];
+      queue.deletes = [];
+      queueChanged = true;
+    } catch (err) {
+      console.error("Firestore batch sync failed, keeping in queue:", err);
+      queue.updates = updates;
+      queue.deletes = deletes;
+      queueChanged = true;
+    }
+  }
+
+  // 2. Sync Settings
+  if (settingsToUpload && Object.keys(settingsToUpload).length > 0) {
+    try {
+      const uploadPayload = { ...settingsToUpload };
+      delete uploadPayload.token;
+      delete uploadPayload.avatarUrl;
+
+      const firestoreDoc = convertToFirestoreFields(uploadPayload);
+      const res = await fetch(`${baseUrl}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${idToken}`
+        },
+        body: JSON.stringify(firestoreDoc)
+      });
+      if (res.ok) {
+        console.log("Successfully synced settings to Firestore.");
+        queue.settings = null;
+        queueChanged = true;
+      } else {
+        throw new Error(`PATCH returned status ${res.status}`);
+      }
+    } catch (err) {
+      console.error("Firestore settings sync failed, keeping in queue:", err);
+      queue.settings = settingsToUpload;
+      queueChanged = true;
+    }
+  }
+
+  if (queueChanged) {
+    if (queue.updates.length === 0 && queue.deletes.length === 0 && !queue.settings) {
+      await chrome.storage.local.remove("pendingFirestoreSync");
+    } else {
+      await chrome.storage.local.set({ pendingFirestoreSync: queue });
+    }
+  }
+}
+
+// Function to process the pending sync queue
+export async function processPendingSync() {
+  const authData = await chrome.storage.local.get("auth_user");
+  const authUser = authData.auth_user;
+  if (!authUser || !authUser.uid) return;
+
+  const pendingData = await chrome.storage.local.get("pendingFirestoreSync");
+  const queue = pendingData.pendingFirestoreSync;
+  if (!queue) return;
+
+  if (queue.updates?.length > 0 || queue.deletes?.length > 0 || queue.settings) {
+    console.log("Processing pending Firestore sync queue...");
+    const idToken = await getValidIdToken(authUser);
+    if (!idToken) return;
+
+    await performSync(authUser.uid, idToken, queue.updates || [], queue.deletes || [], queue.settings, queue);
+  }
+}
+
 // Register real-time sync listeners
 chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName !== "local") return;
@@ -13,29 +92,11 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
   const authUser = authData.auth_user;
   if (!authUser || !authUser.uid) return;
 
-  const uid = authUser.uid;
-  const baseUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/users/${uid}`;
+  const pendingData = await chrome.storage.local.get("pendingFirestoreSync");
+  const queue = pendingData.pendingFirestoreSync || { updates: [], deletes: [], settings: null };
 
-  const hasHistoryOrSettings = changes.leetsyncHistory || changes.githubSettings;
-  const hasDeletions = changes.deletedSolves && (changes.deletedSolves.newValue || []).length > 0;
-  if (!hasHistoryOrSettings && !hasDeletions) return;
-
-  const idToken = await getValidIdToken(authUser);
-  if (!idToken) {
-    console.warn("Could not obtain a valid Firebase ID token. Sync skipped.");
-    return;
-  }
-
-  const updates = [];
-  const deletes = [];
-
-  // Tombstone Deletion Sync
-  if (changes.deletedSolves) {
-    const deletedIds = changes.deletedSolves.newValue || [];
-    if (deletedIds.length > 0) {
-      deletes.push(...deletedIds);
-    }
-  }
+  const updates = [...(queue.updates || [])];
+  const deletes = [...(queue.deletes || [])];
 
   // 1. History Sync
   if (changes.leetsyncHistory) {
@@ -54,40 +115,52 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
              newEntry.revisionCompleted !== oldEntry.revisionCompleted;
     });
 
-    updates.push(...changedEntries);
-  }
-
-  if (updates.length > 0 || deletes.length > 0) {
-    try {
-      await batchWriteToFirestore(uid, idToken, { updates, deletes });
-      if (deletes.length > 0) {
-        await chrome.storage.local.set({ deletedSolves: [] });
+    changedEntries.forEach(newUp => {
+      const idx = updates.findIndex(u => u.slug === newUp.slug && u.approach === newUp.approach);
+      if (idx !== -1) {
+        updates[idx] = newUp;
+      } else {
+        updates.push(newUp);
       }
-    } catch (err) {
-      console.error("Firestore batch sync failed:", err);
-    }
+    });
   }
 
-  // 2. Settings Sync
-  if (changes.githubSettings) {
-    const newSettings = changes.githubSettings.newValue || {};
-    try {
-      const settingsToUpload = { ...newSettings };
-      delete settingsToUpload.token;
-      delete settingsToUpload.avatarUrl;
+  // 2. Tombstone Deletion Sync
+  if (changes.deletedSolves) {
+    const deletedIds = changes.deletedSolves.newValue || [];
+    deletedIds.forEach(dId => {
+      if (!deletes.includes(dId)) {
+        deletes.push(dId);
+      }
+      const uIdx = updates.findIndex(u => u.id === dId);
+      if (uIdx !== -1) updates.splice(uIdx, 1);
+    });
+  }
 
-      const firestoreDoc = convertToFirestoreFields(settingsToUpload);
-      await fetch(`${baseUrl}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${idToken}`
-        },
-        body: JSON.stringify(firestoreDoc)
-      });
-    } catch (err) {
-      console.error("Firestore settings sync failed:", err);
-    }
+  // 3. Settings Sync
+  let settingsToUpload = queue.settings;
+  if (changes.githubSettings) {
+    settingsToUpload = changes.githubSettings.newValue || {};
+  }
+
+  if (updates.length === 0 && deletes.length === 0 && (!settingsToUpload || Object.keys(settingsToUpload).length === 0)) {
+    return;
+  }
+
+  const idToken = await getValidIdToken(authUser);
+  if (!idToken) {
+    console.warn("Could not obtain a valid Firebase ID token. Queuing sync for later retry.");
+    queue.updates = updates;
+    queue.deletes = deletes;
+    queue.settings = settingsToUpload;
+    await chrome.storage.local.set({ pendingFirestoreSync: queue });
+    return;
+  }
+
+  await performSync(authUser.uid, idToken, updates, deletes, settingsToUpload, queue);
+
+  if (changes.deletedSolves && deletes.length > 0) {
+    await chrome.storage.local.set({ deletedSolves: [] });
   }
 });
 
@@ -136,4 +209,3 @@ async function getValidIdToken(authUser) {
     return "";
   }
 }
-
