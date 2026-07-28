@@ -1,4 +1,6 @@
 import { FIREBASE_CONFIG, FIREBASE_AUTH_API, getFirestoreApiUrl } from "./firebase-config.js";
+import { mergeSolveWithStars } from "./history_manager.js";
+import { convertFromFirestoreFields, convertToFirestoreFields } from "./firestore_core.js";
 import { batchWriteToFirestore } from "./firestore_sync.js";
 
 
@@ -382,42 +384,4 @@ async function syncFromFirestore(uid, idToken) {
   }
 }
 
-function convertToFirestoreFields(obj) {
-  const fields = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (value === undefined || value === null) continue;
-    if (typeof value === "string") {
-      fields[key] = { stringValue: value };
-    } else if (typeof value === "number") {
-      fields[key] = { doubleValue: value };
-    } else if (typeof value === "boolean") {
-      fields[key] = { booleanValue: value };
-    } else if (Array.isArray(value)) {
-      fields[key] = {
-        arrayValue: {
-          values: value.map(v => ({ stringValue: String(v) }))
-        }
-      };
-    }
-  }
-  return { fields };
-}
 
-function convertFromFirestoreFields(fields) {
-  const obj = {};
-  for (const [key, valObj] of Object.entries(fields)) {
-    if (valObj.hasOwnProperty("stringValue")) {
-      obj[key] = valObj.stringValue;
-    } else if (valObj.hasOwnProperty("doubleValue")) {
-      obj[key] = Number(valObj.doubleValue);
-    } else if (valObj.hasOwnProperty("integerValue")) {
-      obj[key] = Number(valObj.integerValue);
-    } else if (valObj.hasOwnProperty("booleanValue")) {
-      obj[key] = valObj.booleanValue;
-    } else if (valObj.hasOwnProperty("arrayValue")) {
-      const values = valObj.arrayValue.values || [];
-      obj[key] = values.map(v => v.stringValue || "");
-    }
-  }
-  return obj;
-}

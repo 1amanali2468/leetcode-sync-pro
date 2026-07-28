@@ -942,17 +942,12 @@ function populateTopicsAndPatternsForGFG(overlay, details) {
 
 async function enqueuePendingGithubSync(submission, saveOptions, settings) {
   try {
-    const data = await chrome.storage.local.get("pendingGithubSync");
-    const queue = data.pendingGithubSync || [];
-    queue.push({
-      submission,
-      saveOptions,
-      settings,
-      queuedAt: new Date().toISOString()
+    chrome.runtime.sendMessage({
+      type: "LEETSYNC_QUEUE_GITHUB_SYNC",
+      payload: { submission, saveOptions, settings }
     });
-    await chrome.storage.local.set({ pendingGithubSync: queue });
-    console.log("Successfully queued submission in pendingGithubSync.");
+    console.log("Successfully sent LEETSYNC_QUEUE_GITHUB_SYNC message.");
   } catch (e) {
-    console.error("Failed to queue submission in pendingGithubSync:", e);
+    console.error("Failed to send LEETSYNC_QUEUE_GITHUB_SYNC message:", e);
   }
 }

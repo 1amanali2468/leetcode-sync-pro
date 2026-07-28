@@ -3,6 +3,7 @@ import { FIREBASE_CONFIG } from "./firebase-config.js";
 import { mergeSolveWithStars, mergeNewSolveIntoHistory } from "./history_manager.js";
 import { loadSheet } from "./sheet-loader.js";
 import { processPendingSync } from "./background_sync.js";
+import { todayStr, getRevisionDueDate, isRevisionDue, getDueRevisions } from "./shared_revision.js";
 
 let pollingIntervalId = null;
 
@@ -13,6 +14,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         sendResponse({ ok: true, result });
         processPendingGithubSync().catch(err => console.error("Queue retry failed:", err));
       })
+      .catch((error) => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
+  if (message?.type === "LEETSYNC_QUEUE_GITHUB_SYNC") {
+    const { submission, saveOptions, settings } = message.payload;
+    enqueuePendingGithubSync(submission, saveOptions, settings)
+      .then(() => sendResponse({ ok: true }))
       .catch((error) => sendResponse({ ok: false, error: error.message }));
     return true;
   }
@@ -682,68 +691,8 @@ setupStreakReminderAlarm();
 processPendingSync().catch(err => console.error("Initial pending sync failed:", err));
 processPendingGithubSync().catch(err => console.error("Initial pending GitHub sync failed:", err));
 
-function todayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
-function getRevisionDueDate(entry) {
-  if (entry.customRevisionDueDate) {
-    const d = new Date(entry.customRevisionDueDate);
-    if (!isNaN(d.getTime())) return d;
-  }
-  if (!entry.savedAt) return null;
-  const d = new Date(entry.savedAt);
-  const rev = entry.revisionCount || 1;
-  let offset = 3;
-  if (rev === 2) offset = 7;
-  else if (rev === 3) offset = 15;
-  else if (rev >= 4) offset = 30;
 
-  d.setDate(d.getDate() + offset);
-  return d;
-}
-
-function isRevisionDue(entry) {
-  const dueDate = getRevisionDueDate(entry);
-  if (!dueDate) return false;
-  
-  const today = todayStr();
-  const isCompleted = !!entry.revisionCompleted;
-  const completedAt = entry.revisionCompletedAt || "";
-
-  if (isCompleted) {
-    return completedAt === today;
-  }
-
-  const compareStr = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}-${String(dueDate.getDate()).padStart(2, '0')}`;
-  return today >= compareStr;
-}
-
-function getDueRevisions(history) {
-  const latestBySlug = {};
-  history.forEach(entry => {
-    if (entry.isStarredOnly) return;
-    if (!latestBySlug[entry.slug]) {
-      latestBySlug[entry.slug] = entry;
-    } else {
-      const d1 = new Date(entry.savedAt);
-      const d2 = new Date(latestBySlug[entry.slug].savedAt);
-      if (d1 > d2) {
-        latestBySlug[entry.slug] = entry;
-      }
-    }
-  });
-
-  const dueList = [];
-  for (const slug in latestBySlug) {
-    const entry = latestBySlug[slug];
-    if (isRevisionDue(entry)) {
-      dueList.push(entry);
-    }
-  }
-  return dueList;
-}
 
 async function enqueuePendingGithubSync(submission, saveOptions, settings) {
   try {

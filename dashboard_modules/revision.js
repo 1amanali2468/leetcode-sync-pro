@@ -2,22 +2,7 @@
 import { el, STORAGE_KEYS } from "./state.js";
 import { syncCloudData } from "./settings.js";
 
-export function getRevisionDueDate(entry) {
-  if (entry.customRevisionDueDate) {
-    const d = new Date(entry.customRevisionDueDate);
-    if (!isNaN(d.getTime())) return d;
-  }
-  if (!entry.savedAt) return null;
-  const d = new Date(entry.savedAt);
-  const rev = entry.revisionCount || 1;
-  let offset = 3;
-  if (rev === 2) offset = 7;
-  else if (rev === 3) offset = 15;
-  else if (rev >= 4) offset = 30;
-
-  d.setDate(d.getDate() + offset);
-  return d;
-}
+import { getRevisionDueDate } from "../shared_revision.js";
 
 export async function renderRevisionSchedule() {
   const data = await chrome.storage.local.get(STORAGE_KEYS.history);

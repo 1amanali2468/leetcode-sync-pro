@@ -50,7 +50,7 @@ export async function saveSettings() {
 
 export async function disconnect() {
   if (!confirm("Are you sure you want to disconnect? This will log you out and clear local cache.")) return;
-  await chrome.storage.local.remove(["auth_user", "githubSettings", "leetsyncSettings", "github_token", "github_profile"]);
+  await chrome.storage.local.remove(["auth_user", "githubSettings", "github_token", "github_profile"]);
   alert("Disconnected! Reloading page...");
   window.location.reload();
 }

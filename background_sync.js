@@ -2,7 +2,8 @@
 // Loaded as an ES module by background.js.
 
 import { FIREBASE_CONFIG } from "./firebase-config.js";
-import { batchWriteToFirestore, convertToFirestoreFields } from "./firestore_sync.js";
+import { batchWriteToFirestore } from "./firestore_sync.js";
+import { convertToFirestoreFields } from "./firestore_core.js";
 
 // Helper to perform the actual sync operations
 async function performSync(uid, idToken, updates, deletes, settingsToUpload, queue) {

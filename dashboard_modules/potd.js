@@ -53,7 +53,7 @@ export async function renderPOTDWidget() {
           }
           return gfgSolves.some(h => {
             const hSlug = (h.slug || "").trim().toLowerCase();
-            return hSlug === slug || hSlug.replace(/-[0-9]+$/, "") === slug.replace(/-[0-9]+$/, "");
+            return hSlug === slug || hSlug.replace(/-*(\d+)$/, "").replace(/-+$/, "") === slug.replace(/-*(\d+)$/, "").replace(/-+$/, "");
           });
         },
         getTitle: (info) => {

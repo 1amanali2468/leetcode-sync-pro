@@ -89,7 +89,10 @@ async function getExistingFile(settings, path) {
   const branchQuery = settings.branch ? `?ref=${encodeURIComponent(settings.branch)}` : "";
   const response = await fetch(
     `${GITHUB_API}/repos/${settings.owner}/${settings.repo}/contents/${encodePath(path)}${branchQuery}`,
-    { headers: githubHeaders(settings.token) }
+    { 
+      headers: githubHeaders(settings.token),
+      cache: "no-store" 
+    }
   );
 
   if (response.status === 404) {

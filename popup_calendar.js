@@ -2,8 +2,9 @@
 // Loaded as an ES module by popup.js.
 
 import { el, STORAGE_KEYS } from "./popup.js";
+import { todayStr, getRevisionDueDate, isRevisionDue, getDueRevisions } from "./shared_revision.js";
 import { escapeHtml, isSafeUrl, approachDisplayName } from "./popup_helpers.js";
-import { getLocalDateString, todayStr, renderStats } from "./popup_stats.js";
+import { getLocalDateString, renderStats } from "./popup_stats.js";
 
 export const calendarState = {
   selectedDate: new Date(),
@@ -357,74 +358,7 @@ export async function setRevision(slug, days) {
   renderCalendar();
 }
 
-export function getRevisionDueDate(entry) {
-  if (entry.customRevisionDueDate) {
-    const d = new Date(entry.customRevisionDueDate);
-    if (!isNaN(d.getTime())) return d;
-  }
-  if (!entry.savedAt) return null;
-  const d = new Date(entry.lastRevisionAt || entry.savedAt);
-  const rev = entry.revisionCount || 1;
-  let offset = 3;
-  if (rev === 2) offset = 7;
-  else if (rev === 3) offset = 15;
-  else if (rev >= 4) offset = 30;
 
-  d.setDate(d.getDate() + offset);
-  return d;
-}
-
-export function isRevisionDue(entry) {
-  const today = todayStr();
-  let isCompleted = !!entry.revisionCompleted;
-  let completedAt = entry.revisionCompletedAt || "";
-
-  if (isCompleted && completedAt !== today) {
-    entry.revisionCompleted = false;
-    entry.revisionCompletedAt = null;
-    isCompleted = false;
-    completedAt = "";
-    updateProblemRevisionSettings(entry.slug, {
-      revisionCompleted: false,
-      revisionCompletedAt: null
-    });
-  }
-
-  const dueDate = getRevisionDueDate(entry);
-  if (!dueDate) return false;
-
-  if (isCompleted) {
-    return completedAt === today;
-  }
-
-  const compareStr = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}-${String(dueDate.getDate()).padStart(2, '0')}`;
-  return today >= compareStr;
-}
-
-export function getDueRevisions(history) {
-  const latestBySlug = {};
-  history.forEach(entry => {
-    if (entry.isStarredOnly) return;
-    if (!latestBySlug[entry.slug]) {
-      latestBySlug[entry.slug] = entry;
-    } else {
-      const d1 = new Date(entry.savedAt);
-      const d2 = new Date(latestBySlug[entry.slug].savedAt);
-      if (d1 > d2) {
-        latestBySlug[entry.slug] = entry;
-      }
-    }
-  });
-
-  const dueList = [];
-  for (const slug in latestBySlug) {
-    const entry = latestBySlug[slug];
-    if (isRevisionDue(entry)) {
-      dueList.push(entry);
-    }
-  }
-  return dueList;
-}
 
 export async function updateProblemRevisionSettings(slug, settings) {
   const stored = await chrome.storage.local.get(STORAGE_KEYS.history);

@@ -349,7 +349,7 @@ export async function getCrossSheetMap() {
 
               const pUrl = (typeof p === "object" ? (p.leetcodeUrl || p.url) : "") || "";
               if (pUrl.includes("geeksforgeeks.org") || (pUrl === "" && slug.match(/-\d{5,}$/))) {
-                slug = slug.replace(/-[0-9]+$/, "");
+                slug = slug.replace(/-*(\d+)$/, "").replace(/-+$/, "");
               }
 
               if (!baseMap[slug]) {

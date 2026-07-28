@@ -148,6 +148,8 @@ function setupNavigation() {
   });
 }
 
+let renderDebounceTimer = null;
+
 // Add onChanged listener to sync data in real-time when solves or sheets are added
 chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName === "local") {
@@ -157,8 +159,11 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
       renderSheets();
     }
     if (changes.leetsyncHistory) {
-      // Re-render everything to update streak count, donuts, recent solves, checkbox checkmarks, etc.
-      renderAll();
+      if (renderDebounceTimer) clearTimeout(renderDebounceTimer);
+      renderDebounceTimer = setTimeout(() => {
+        // Re-render everything to update streak count, donuts, recent solves, checkbox checkmarks, etc.
+        renderAll();
+      }, 300);
     }
   }
 });

@@ -21,38 +21,7 @@ export const filterState = {
   collections: [],
   collectionMode: ""
 };
-
-export const POPUP_TOPIC_NAMES = [
-  "Array", "String", "Hash Table", "Dynamic Programming", "Math", "Sorting", "Greedy",
-  "Depth-First Search", "Breadth-First Search", "Binary Search", "Matrix", "Two Pointers",
-  "Bit Manipulation", "Stack", "Heap (Priority Queue)", "Backtracking", "Graph", "Tree",
-  "Linked List", "Sliding Window", "Trie", "Union Find"
-];
-
-export const POPUP_TOPIC_PATTERNS = {
-  "array":                 ["Two Pointers", "Sliding Window", "Prefix Sum", "Kadane's Algorithm", "Binary Search", "Sorting", "HashMap", "Monotonic Stack", "Greedy"],
-  "string":               ["Sliding Window", "Two Pointers", "HashMap", "KMP", "Rabin-Karp", "Palindrome", "Anagram / Frequency Map"],
-  "hash table":           ["HashMap", "Counting / Frequency Map", "Two Sum Pattern", "Grouping", "Caching"],
-  "dynamic programming":  ["0/1 Knapsack", "Unbounded Knapsack", "LCS", "LIS", "Matrix DP", "State Machine DP", "Interval DP", "Digit DP", "Bitmask DP"],
-  "math":                 ["Prime Sieve", "GCD / LCM", "Modular Arithmetic", "Combinatorics", "Fast Exponentiation", "Number Theory"],
-  "sorting":              ["Merge Sort", "Quick Sort", "Counting Sort", "Custom Comparator", "Topological Sort"],
-  "greedy":               ["Activity Selection", "Interval Scheduling", "Fractional Knapsack", "Huffman Coding", "Always Best Choice"],
-  "depth-first search":   ["DFS", "Backtracking", "Cycle Detection", "Connected Components", "Path Finding", "Topological Sort"],
-  "breadth-first search": ["BFS", "Multi-source BFS", "0-1 BFS", "Level Order Traversal", "Shortest Path"],
-  "binary search":        ["Binary Search on Answer", "Lower / Upper Bound", "Rotated Array Search", "Peak Finding"],
-  "matrix":               ["DFS on Grid", "BFS on Grid", "Spiral Traversal", "2D Prefix Sum"],
-  "two pointers":         ["Two Pointers", "Fast & Slow Pointers", "Sliding Window", "Merge"],
-  "bit manipulation":     ["Bitmask DP", "XOR Tricks", "Brian Kernighan", "Bit Counting", "Power of Two Check"],
-  "stack":                ["Monotonic Stack", "Next Greater Element", "Valid Parentheses", "Expression Evaluation"],
-  "heap (priority queue)":["Top-K Elements", "Merge K Sorted Lists", "Dijkstra", "Median Finder"],
-  "backtracking":         ["Combination", "Permutation", "Subset", "N-Queens", "Sudoku Solver"],
-  "graph":                ["DFS", "BFS", "Dijkstra", "Bellman-Ford", "Floyd-Warshall", "Union Find", "Topological Sort", "MST (Kruskal/Prim)"],
-  "tree":                 ["DFS", "BFS / Level Order", "Binary Search Tree", "LCA", "Tree DP", "Segment Tree"],
-  "linked list":          ["Fast & Slow Pointers", "Reversal", "Merge", "Cycle Detection", "Two Pointers"],
-  "sliding window":       ["Fixed Window", "Variable Window", "Two Pointers"],
-  "trie":                 ["Insert / Search", "Prefix Search", "Word Search", "XOR Trie"],
-  "union find":           ["Union Find (DSU)", "Kruskal's MST", "Connected Components", "Cycle Detection"],
-};
+import { TOPIC_NAMES as POPUP_TOPIC_NAMES, TOPIC_PATTERNS as POPUP_TOPIC_PATTERNS } from "./shared_constants.js";
 
 // ── DOM References ────────────────────────────────────────────────────────────
 export const el = {
@@ -186,7 +155,7 @@ async function init() {
   const logoutBtn = document.getElementById("btnLogout");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async () => {
-      await chrome.storage.local.remove(["auth_user", "githubSettings", "leetsyncSettings", "github_token", "github_profile"]);
+      await chrome.storage.local.remove(["auth_user", "githubSettings", "github_token", "github_profile"]);
       window.location.reload();
     });
   }

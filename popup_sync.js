@@ -33,7 +33,7 @@ export async function getSettings() {
 
 export async function disconnectGitHub() {
   if (!confirm("Disconnect from GitHub?")) return;
-  await chrome.storage.local.remove(["auth_user", "githubSettings", "leetsyncSettings", "github_token", "github_profile"]);
+  await chrome.storage.local.remove(["auth_user", "githubSettings", "github_token", "github_profile"]);
   window.location.reload();
 }
 
@@ -310,9 +310,10 @@ export async function fetchGitHubRepoSolves() {
     statusText.textContent = "⏳ Fetching repository file list...";
     const treeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`, {
       headers: {
-        "Authorization": `token ${token}`,
+        "Authorization": `Bearer ${token}`,
         "Accept": "application/vnd.github.v3+json"
-      }
+      },
+      cache: "no-store"
     });
 
     if (!treeRes.ok) {
@@ -336,9 +337,10 @@ export async function fetchGitHubRepoSolves() {
         try {
           const fileRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${file.sha}`, {
             headers: {
-              "Authorization": `token ${token}`,
+              "Authorization": `Bearer ${token}`,
               "Accept": "application/vnd.github.v3+json"
-            }
+            },
+            cache: "no-store"
           });
 
           if (fileRes.ok) {

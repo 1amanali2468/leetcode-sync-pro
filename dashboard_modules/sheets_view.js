@@ -352,7 +352,7 @@ export async function renderSheets() {
         let slug = h.slug.trim().toLowerCase();
         const url = h.url || "";
         if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
-          slug = slug.replace(/-[0-9]+$/, "");
+          slug = slug.replace(/-*(\d+)$/, "").replace(/-+$/, "");
         }
         if (!solvedMap[slug]) solvedMap[slug] = [];
         solvedMap[slug].push(h);
@@ -415,7 +415,7 @@ export async function renderSheets() {
       let slug = h.slug.trim().toLowerCase();
       const url = h.url || "";
       if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
-        slug = slug.replace(/-[0-9]+$/, "");
+        slug = slug.replace(/-*(\d+)$/, "").replace(/-+$/, "");
       }
       if (!solvedMap[slug]) {
         solvedMap[slug] = [];
@@ -1385,7 +1385,7 @@ export async function pickRandomProblem() {
       let slug = h.slug.trim().toLowerCase();
       const url = h.url || "";
       if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
-        slug = slug.replace(/-[0-9]+$/, "");
+        slug = slug.replace(/-*(\d+)$/, "").replace(/-+$/, "");
       }
       if (!solvedMap[slug]) solvedMap[slug] = [];
       solvedMap[slug].push(h);

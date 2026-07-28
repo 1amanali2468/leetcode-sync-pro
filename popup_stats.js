@@ -3,7 +3,8 @@
 
 import { el, STORAGE_KEYS, filterState } from "./popup.js";
 import { escapeHtml, isSafeUrl, approachDisplayName } from "./popup_helpers.js";
-import { getDueRevisions, updateProblemRevisionSettings, renderCalendar } from "./popup_calendar.js";
+import { updateProblemRevisionSettings, renderCalendar } from "./popup_calendar.js";
+import { getDueRevisions } from "./shared_revision.js";
 
 export function getLocalDateString(savedAt) {
   if (!savedAt) return "";

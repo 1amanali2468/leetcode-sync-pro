@@ -3,29 +3,7 @@
 
 import { FIREBASE_CONFIG } from "./firebase-config.js";
 
-/**
- * Converts a flat JavaScript object into the Firestore REST JSON Document structure.
- */
-export function convertToFirestoreFields(obj) {
-  const fields = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (value === undefined || value === null) continue;
-    if (typeof value === "string") {
-      fields[key] = { stringValue: value };
-    } else if (typeof value === "number") {
-      fields[key] = { doubleValue: value };
-    } else if (typeof value === "boolean") {
-      fields[key] = { booleanValue: value };
-    } else if (Array.isArray(value)) {
-      fields[key] = {
-        arrayValue: {
-          values: value.map(v => ({ stringValue: String(v) }))
-        }
-      };
-    }
-  }
-  return { fields };
-}
+import { convertToFirestoreFields } from "./firestore_core.js";
 
 /**
  * Performs a batched transaction write (updates and deletes) to Firestore
