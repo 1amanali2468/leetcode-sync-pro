@@ -326,10 +326,11 @@ function parseGFGUrl() {
     const match = rawSlug.match(/-?(\d+)$/);
     if (match) {
       const id = match[1];
-      const slug = rawSlug.slice(0, rawSlug.length - match[0].length).toLowerCase();
+      let slug = rawSlug.slice(0, rawSlug.length - match[0].length).toLowerCase();
+      slug = slug.replace(/-+$/, "");
       return { id, slug };
     }
-    return { id: "", slug: rawSlug.toLowerCase() };
+    return { id: "", slug: rawSlug.toLowerCase().replace(/-+$/, "") };
   }
   return { id: "", slug: "unknown-problem" };
 }
@@ -497,7 +498,7 @@ function getGFGTopics() {
 async function saveToHistory(entry) {
   try {
     const stored = await chrome.storage.local.get("leetsyncHistory");
-    const history = stored.leetsyncHistory || [];
+    let history = stored.leetsyncHistory || [];
     
     const slugEntries = history.filter((h) => h.slug === entry.slug);
     let maxRev = 0;

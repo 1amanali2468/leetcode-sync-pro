@@ -5,7 +5,7 @@ import { renderStats, exportCSV } from "./popup_stats.js";
 import { renderHistory } from "./popup_history.js";
 import { renderCalendar, calendarState } from "./popup_calendar.js";
 import { renderSheets, setupSheetsListeners, renderCollectionOptions } from "./popup_sheets.js";
-import { syncCloudData, createNewRepository, disconnectGitHub, persistSettings, loadGitHubRepositories } from "./popup_sync.js";
+import { syncCloudData, createNewRepository, disconnectGitHub, persistSettings, loadGitHubRepositories, fetchGitHubRepoSolves } from "./popup_sync.js";
 
 export const STORAGE_KEYS = {
   settings: "githubSettings",

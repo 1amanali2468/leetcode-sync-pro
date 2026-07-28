@@ -20,9 +20,8 @@ export function clearSheetCache(sheetId) {
 
 
 export async function getBuiltinManifest() {
-  if (manifestCache) return manifestCache;
   try {
-    const url = chrome.runtime.getURL("data/builtin-sheets/manifest.json");
+    const url = chrome.runtime.getURL("data/builtin-sheets/manifest.json?t=" + Date.now());
     const res = await fetch(url);
     manifestCache = await res.json();
     return manifestCache;
@@ -66,7 +65,7 @@ export function denormalizeSheetData(sheetData, registry) {
             let slug = p.slug.trim().toLowerCase();
             const url = p.leetcodeUrl || p.url || "";
             if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
-              slug = slug.replace(/-[0-9]+$/, "");
+              slug = slug.replace(/-?\d+$/, "").replace(/-+$/, "");
             }
             result[topicName][subtopicName].push({ ...p, slug });
           }
@@ -145,7 +144,7 @@ export async function loadSheet(sheetId) {
 
   // Handle standard built-in sheets
   try {
-    const url = chrome.runtime.getURL(`data/builtin-sheets/${sheetId}.json`);
+    const url = chrome.runtime.getURL(`data/builtin-sheets/${sheetId}.json?t=` + Date.now());
     const res = await fetch(url);
     const data = await res.json();
     sheetCache[sheetId] = sanitizeSheetData(data);
@@ -175,7 +174,7 @@ function sanitizeSheetData(sheet) {
           }
 
           if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
-            slug = slug.replace(/-[0-9]+$/, "");
+            slug = slug.replace(/-?(\d+)$/, "").replace(/-+$/, "");
           }
 
           cleaned[topic][subtopic].push({

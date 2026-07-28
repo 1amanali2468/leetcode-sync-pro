@@ -33,7 +33,7 @@ export function normalizeProblemSlug(slug, url = "") {
   let normalized = (slug || "").trim().toLowerCase();
   if (!normalized) return "";
   if ((url || "").includes("geeksforgeeks.org")) {
-    normalized = normalized.replace(/-[0-9]+$/, "");
+    normalized = normalized.replace(/-?\d+$/, "").replace(/-+$/, "");
   }
   return normalized;
 }

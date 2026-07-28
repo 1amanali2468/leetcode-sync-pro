@@ -8,6 +8,28 @@ import { syncCloudData, exportActiveSheetToExcel } from "./settings.js";
 import { loadSheet, getCrossSheetMap } from "../sheet-loader.js";
 import { toggleProblemCompletion as toggleProblemCompletionBase, isProblemCompleted } from "../history_manager.js";
 
+function getScrollStates(container) {
+  const states = [];
+  states.push({ element: window, top: window.scrollY, left: window.scrollX });
+  let parent = container;
+  while (parent) {
+    states.push({ element: parent, top: parent.scrollTop, left: parent.scrollLeft });
+    parent = parent.parentElement;
+  }
+  return states;
+}
+
+function restoreScrollStates(states) {
+  states.forEach(s => {
+    if (s.element === window) {
+      window.scrollTo(s.left, s.top);
+    } else {
+      s.element.scrollTop = s.top;
+      s.element.scrollLeft = s.left;
+    }
+  });
+}
+
 let onSheetsChangeCallback = null;
 
 export function registerSheetsChangeCallback(cb) {
@@ -260,6 +282,8 @@ export async function renderSheets() {
 
   if (!container || !sheetSelect) return;
 
+  const scrollStates = getScrollStates(container);
+
   const selectedSheetName = sheetSelect.value;
 
   if (state.selectedSidebarList) {
@@ -279,6 +303,7 @@ export async function renderSheets() {
     });
     renderFlatListProblems(solvedMap);
     renderMyListsSidebar();
+    restoreScrollStates(scrollStates);
     return;
   }
 
@@ -300,6 +325,7 @@ export async function renderSheets() {
     
     if (document.querySelector(".sheet-controls-row")) document.querySelector(".sheet-controls-row").style.display = "none";
     if (el.sheetTopicPills) el.sheetTopicPills.style.display = "none";
+    restoreScrollStates(scrollStates);
     return;
   }
 
@@ -385,6 +411,7 @@ export async function renderSheets() {
     populateDynamicFilterDropdowns(sheetData, history);
     populateTopicPills(sheetData, solvedMap);
     renderMyListsSidebar();
+    restoreScrollStates(scrollStates);
     return;
   }
 
@@ -392,6 +419,7 @@ export async function renderSheets() {
   populateTopicPills(sheetData, solvedMap);
   renderSheetsListOrGroup(sheetData, solvedMap);
   renderMyListsSidebar();
+  restoreScrollStates(scrollStates);
 }
 
 export function bindMultiselectSearch(type, optionsContainer, items) {

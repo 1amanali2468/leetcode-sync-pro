@@ -1,6 +1,7 @@
 import { saveSolutionToGitHub, updateSolutionNotesInGitHub } from "./github.js";
 import { FIREBASE_CONFIG } from "./firebase-config.js";
 import { mergeSolveWithStars } from "./history_manager.js";
+import { loadSheet } from "./sheet-loader.js";
 import "./background_sync.js";
 
 let pollingIntervalId = null;
@@ -18,7 +19,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     chrome.storage.local.get(["githubSettings", "leetsyncHistory"]).then(async (stored) => {
       try {
         const settings = stored.githubSettings || {};
-        const history = stored.leetsyncHistory || [];
+        let history = stored.leetsyncHistory || [];
 
         // 1. Reconstruct title slug & sanitize
         const slug = payload.title.toLowerCase().trim()
@@ -212,43 +213,31 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const isGFG = platform === "gfg";
         const cleanSlug = isGFG ? slug.replace(/-?(\d+)$/, "") : slug;
 
-        // 1. Check built-in cross-sheet frequency map
-        const stored = await chrome.storage.local.get(["customSheets", "customSheetsRegistry"]);
-        const customSheets = stored.customSheets || {};
-        const matchedSheets = [];
-
-        // Read cross_sheet_frequency.json via fetch
-        try {
-          const url = chrome.runtime.getURL("data/builtin-sheets/cross_sheet_frequency.json");
-          const res = await fetch(url);
-          const baseMap = await res.json();
-          if (baseMap[cleanSlug] && Array.isArray(baseMap[cleanSlug])) {
-            matchedSheets.push(...baseMap[cleanSlug]);
-          }
-        } catch (e) { /* ignore */ }
-
-        // 2. Check custom sheets
-        for (const [sheetKey, sheetObj] of Object.entries(customSheets)) {
-          if (!sheetObj?.data) continue;
-          const sheetName = sheetObj.name || sheetKey;
-          const isSheetGFG = sheetKey === "gfg";
-          for (const subtopics of Object.values(sheetObj.data)) {
-            for (const problems of Object.values(subtopics)) {
-              if (Array.isArray(problems) && problems.some(p => {
-                let s = (typeof p === "string" ? p : p?.slug || "").toLowerCase();
-                const isProblemGFG = isGFG || isSheetGFG || (typeof p === "object" && (p.leetcodeUrl || p.url || "").includes("geeksforgeeks.org"));
-                if (isProblemGFG) {
-                  s = s.replace(/-?(\d+)$/, "");
+        const combined = await loadSheet("all_imported_sheets");
+        const allProblems = combined["All Combined"]["All Problems"] || [];
+        
+        const match = allProblems.find(p => {
+          const pSlug = (p.slug || "").toLowerCase();
+          if (pSlug === cleanSlug) return true;
+          const pUrl = (p.leetcodeUrl || p.url || "").toLowerCase();
+          if (pUrl) {
+            try {
+              const u = new URL(pUrl);
+              const pathParts = u.pathname.split("/").filter(Boolean);
+              if (pathParts.length > 0) {
+                let lastPart = pathParts[pathParts.length - 1];
+                if (lastPart === "1" && pathParts.length > 1) {
+                  lastPart = pathParts[pathParts.length - 2];
                 }
-                return s === cleanSlug;
-              })) {
-                if (!matchedSheets.includes(sheetName)) matchedSheets.push(sheetName);
-                break;
+                const normLastPart = lastPart.replace(/-?(\d+)$/, "");
+                if (normLastPart === cleanSlug) return true;
               }
-            }
+            } catch (e) {}
           }
-        }
+          return false;
+        });
 
+        const matchedSheets = match ? (match.sheetsIn || []) : [];
         sendResponse({ ok: true, sheets: matchedSheets });
       } catch (e) {
         sendResponse({ ok: false, error: e.message, sheets: [] });

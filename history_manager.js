@@ -21,7 +21,7 @@ export function normalizeProblemSlug(slug, url = "") {
     s = parts[parts.length - 1];
   }
   if (!url || !url.toLowerCase().includes("leetcode.com")) {
-    s = s.replace(/-\d{5,}$/, "");
+    s = s.replace(/-?\d+$/, "").replace(/-+$/, "");
   }
   return s;
 }

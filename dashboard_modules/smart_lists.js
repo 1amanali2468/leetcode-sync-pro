@@ -2,7 +2,7 @@
 import { el, STORAGE_KEYS, state } from "./state.js";
 import { syncCloudData } from "./settings.js";
 import { normalizeProblemSlug, sortProblems, renderTableHead } from "./ui_helpers.js";
-import { toggleProblemFromList as toggleProblemFromListBase } from "../history_manager.js";
+import { toggleProblemFromList as toggleProblemFromListBase, isProblemCompleted } from "../history_manager.js";
 
 // Decoupled callback refs — registered by dashboard.js at boot
 let _renderSheets = null;
@@ -384,7 +384,7 @@ export async function renderMyListsSidebar() {
 export function renderFlatListProblems(solvedMap) {
   const container = el.sheetAccordionContainer;
   if (!container) return;
-  container.innerHTML = "";
+  const scrollStates = getScrollStates(container);
 
   const sheetSelectCard = document.getElementById("sheetSelectCard");
   if (sheetSelectCard) sheetSelectCard.style.display = "none";
@@ -402,7 +402,7 @@ export function renderFlatListProblems(solvedMap) {
       const selectedSheetName = el.sheetSelect.value;
       if (_loadSheet) {
         _loadSheet(selectedSheetName).then(sheetData => {
-          evaluateAndRenderSmartList(sheetData, solvedMap, rules, sheetSelectCard, controlsRow, topicPills);
+          evaluateAndRenderSmartList(sheetData, solvedMap, rules, sheetSelectCard, controlsRow, topicPills, scrollStates);
         });
       }
     });
@@ -434,12 +434,12 @@ export function renderFlatListProblems(solvedMap) {
         }
       });
 
-      renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow, topicPills, false);
+      renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow, topicPills, false, scrollStates);
     });
   }
 }
 
-export function evaluateAndRenderSmartList(sheetData, solvedMap, rules, sheetSelectCard, controlsRow, topicPills) {
+export function evaluateAndRenderSmartList(sheetData, solvedMap, rules, sheetSelectCard, controlsRow, topicPills, scrollStates) {
   const allProblems = [];
   for (const [topicName, subtopics] of Object.entries(sheetData)) {
     for (const [subtopicName, subproblems] of Object.entries(subtopics)) {
@@ -447,19 +447,20 @@ export function evaluateAndRenderSmartList(sheetData, solvedMap, rules, sheetSel
     }
   }
   const listProblems = _filterSheetProblems ? _filterSheetProblems(allProblems, solvedMap, rules) : allProblems;
-  renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow, topicPills, true);
+  renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow, topicPills, true, scrollStates);
 }
 
-export function renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow, topicPills, isSmart) {
+export function renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, controlsRow, topicPills, isSmart, scrollStates) {
   const container = el.sheetAccordionContainer;
   if (!container) return;
+  container.innerHTML = "";
 
   let completedProblems = 0, easySolved = 0, easyTotal = 0;
   let mediumSolved = 0, mediumTotal = 0, hardSolved = 0, hardTotal = 0, attemptingCount = 0;
 
   listProblems.forEach(p => {
     const slug = p.slug.trim().toLowerCase();
-    const isCompleted = (solvedMap[slug] || []).length > 0;
+    const isCompleted = isProblemCompleted(solvedMap[slug] || []);
     if (isCompleted) completedProblems++; else attemptingCount++;
     const diff = (p.difficulty || "Medium").toLowerCase();
     if (diff === "easy") { easyTotal++; if (isCompleted) easySolved++; }
@@ -501,6 +502,7 @@ export function renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, cont
     emptyDiv.style = "text-align: center; padding: 48px; color: var(--clr-muted); font-weight: 700; border: 1px dashed var(--clr-border); border-radius: var(--radius); background: rgba(255,255,255,0.01); margin-top: 12px;";
     emptyDiv.textContent = isSmart ? "No questions match this smart list's rules." : "This list is empty. Add questions using the star icon in problem sheets!";
     container.appendChild(emptyDiv);
+    restoreScrollStates(scrollStates);
     return;
   }
 
@@ -520,6 +522,7 @@ export function renderFlatTableUI(listProblems, solvedMap, sheetSelectCard, cont
 
   table.appendChild(tbody);
   container.appendChild(table);
+  restoreScrollStates(scrollStates);
 }
 
 export async function deleteSmartListGlobally(listName) {
@@ -595,4 +598,26 @@ export function updateProgressWidget(solvedCount, totalCount, easySolved, easyTo
     const pct = totalCount > 0 ? (solvedCount / totalCount) : 0;
     fillPath.style.strokeDashoffset = 188.5 * (1 - pct);
   }
+}
+
+function getScrollStates(container) {
+  const states = [];
+  states.push({ element: window, top: window.scrollY, left: window.scrollX });
+  let parent = container;
+  while (parent) {
+    states.push({ element: parent, top: parent.scrollTop, left: parent.scrollLeft });
+    parent = parent.parentElement;
+  }
+  return states;
+}
+
+function restoreScrollStates(states) {
+  states.forEach(s => {
+    if (s.element === window) {
+      window.scrollTo(s.left, s.top);
+    } else {
+      s.element.scrollTop = s.top;
+      s.element.scrollLeft = s.left;
+    }
+  });
 }
