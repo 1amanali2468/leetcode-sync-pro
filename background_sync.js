@@ -125,8 +125,7 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
     });
   }
 
-  // 2. Tombstone Deletion Sync
-  if (changes.deletedSolves) {
+  if (changes.deletedSolves && (changes.deletedSolves.newValue || []).length > 0) {
     const deletedIds = changes.deletedSolves.newValue || [];
     deletedIds.forEach(dId => {
       if (!deletes.includes(dId)) {
@@ -159,7 +158,7 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
 
   await performSync(authUser.uid, idToken, updates, deletes, settingsToUpload, queue);
 
-  if (changes.deletedSolves && deletes.length > 0) {
+  if (changes.deletedSolves && (changes.deletedSolves.newValue || []).length > 0) {
     await chrome.storage.local.set({ deletedSolves: [] });
   }
 });

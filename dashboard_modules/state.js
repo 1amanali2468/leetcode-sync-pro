@@ -114,6 +114,7 @@ export const el = {
 
   // DSA Controls & Pills
   sheetSearchInput:     document.getElementById("sheetSearchInput"),
+  sheetSearchClear:     document.getElementById("sheetSearchClear"),
   sheetTopicPills:      document.getElementById("sheetTopicPills"),
   btnSheetFilterDropdown: document.getElementById("btnSheetFilterDropdown"),
   btnSheetViewToggle:   document.getElementById("btnSheetViewToggle"),

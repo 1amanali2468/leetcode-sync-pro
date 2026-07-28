@@ -32,6 +32,45 @@ function restoreScrollStates(states) {
 
 let onSheetsChangeCallback = null;
 
+// ── URL-slug helper for GFG / LeetCode problems ───────────────────────────────
+// Extracts a clean problem slug from a full GFG or LeetCode URL.
+// This is needed because some sheet JSON entries have title-based slugs
+// (e.g. "given-matrix-o-x-replace-o-x-surrounded-x") while the GFG page URL
+// gives a different slug (e.g. "replace-os-with-xs").
+// By extracting the slug from the URL we can do a secondary lookup in solvedMap.
+function extractUrlSlug(url) {
+  if (!url) return "";
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split("/").filter(Boolean);
+    if (u.hostname.includes("geeksforgeeks.org")) {
+      const idx = parts.indexOf("problems");
+      if (idx !== -1 && parts[idx + 1]) {
+        // Strip trailing /1, trailing numbers (with or without dash), trailing dashes
+        let seg = parts[idx + 1];
+        if (seg === "1" && parts[idx + 2]) seg = parts[idx + 2];
+        return seg.replace(/-*(\d+)$/, "").replace(/-+$/, "").toLowerCase();
+      }
+    } else if (u.hostname.includes("leetcode.com")) {
+      const idx = parts.indexOf("problems");
+      if (idx !== -1 && parts[idx + 1]) return parts[idx + 1].toLowerCase();
+    }
+  } catch (e) {}
+  return "";
+}
+
+// Primary lookup: solvedMap[p.slug]
+// Secondary lookup: solvedMap[extractUrlSlug(p.leetcodeUrl || p.url)]
+// This bridges the gap when sheet slug ≠ GFG URL slug.
+function lookupSolves(solvedMap, problem) {
+  const slug = (problem.slug || "").trim().toLowerCase();
+  if (solvedMap[slug] && solvedMap[slug].length > 0) return solvedMap[slug];
+  const urlSlug = extractUrlSlug(problem.leetcodeUrl || problem.url || "");
+  if (urlSlug && solvedMap[urlSlug] && solvedMap[urlSlug].length > 0) return solvedMap[urlSlug];
+  return [];
+}
+
+
 export function registerSheetsChangeCallback(cb) {
   onSheetsChangeCallback = cb;
 }
@@ -46,7 +85,25 @@ export function setupSheetTabListeners() {
   if (el.sheetSearchInput) {
     el.sheetSearchInput.addEventListener("input", (e) => {
       state.sheetSearchQuery = e.target.value.toLowerCase().trim();
+      if (el.sheetSearchClear) {
+        if (e.target.value.length > 0) {
+          el.sheetSearchClear.classList.add("visible");
+        } else {
+          el.sheetSearchClear.classList.remove("visible");
+        }
+      }
       renderSheets();
+    });
+  }
+
+  if (el.sheetSearchClear) {
+    el.sheetSearchClear.addEventListener("click", () => {
+      if (el.sheetSearchInput) {
+        el.sheetSearchInput.value = "";
+        state.sheetSearchQuery = "";
+        el.sheetSearchClear.classList.remove("visible");
+        renderSheets();
+      }
     });
   }
 
@@ -375,10 +432,10 @@ export async function renderSheets() {
   allProblems.forEach(p => {
     totalProblems++;
     const slug = p.slug.trim().toLowerCase();
-    const solves = solvedMap[slug] || [];
+    const solves = lookupSolves(solvedMap, p);
     const isSolved = isProblemCompleted(solves);
     
-    const isAttempting = history.some(h => h.slug && h.slug.trim().toLowerCase() === slug) && !isSolved;
+    const isAttempting = lookupSolves(solvedMap, p).length > 0 && !isSolved;
 
     if (isSolved) completedProblems++;
     if (isAttempting) attemptingCount++;
@@ -618,7 +675,7 @@ export function populateTopicPills(sheetData, solvedMap) {
     const filtered = filterSheetProblems(topicProblems, solvedMap);
     filtered.forEach(p => {
       topicCounts[topicName].total++;
-      const isSolved = isProblemCompleted(solvedMap[p.slug] || []);
+      const isSolved = isProblemCompleted(lookupSolves(solvedMap, p));
       if (isSolved) {
         topicCounts[topicName].completed++;
       }
@@ -638,7 +695,7 @@ export function populateTopicPills(sheetData, solvedMap) {
   const filteredAll = filterSheetProblems(allProblems, solvedMap);
   filteredAll.forEach(p => {
     allTotal++;
-    const isSolved = isProblemCompleted(solvedMap[p.slug] || []);
+    const isSolved = isProblemCompleted(lookupSolves(solvedMap, p));
     if (isSolved) allCompleted++;
   });
 
@@ -821,7 +878,7 @@ export function renderAccordionGroupView(sheetData, solvedMap) {
 
       // Count total/completed using ALL problems (unfiltered)
       topicTotal = problems.length;
-      topicCompleted = problems.filter(p => isProblemCompleted(solvedMap[p.slug] || [])).length;
+      topicCompleted = problems.filter(p => isProblemCompleted(lookupSolves(solvedMap, p))).length;
 
       const table = document.createElement("table");
       table.className = "sheets-problems-table";
@@ -853,7 +910,7 @@ export function renderAccordionGroupView(sheetData, solvedMap) {
 
         // Count total/completed using ALL problems (unfiltered) for correct X/Y display
         topicTotal += problems.length;
-        topicCompleted += problems.filter(p => isProblemCompleted(solvedMap[p.slug] || [])).length;
+        topicCompleted += problems.filter(p => isProblemCompleted(lookupSolves(solvedMap, p))).length;
 
         const subtopicSection = document.createElement("div");
         subtopicSection.className = "sheet-subtopic-section";
@@ -904,7 +961,7 @@ export function renderAccordionGroupView(sheetData, solvedMap) {
         });
         
         let subtopicTotal = problems.length;
-        let subtopicCompleted = problems.filter(p => isProblemCompleted(solvedMap[p.slug] || [])).length;
+        let subtopicCompleted = problems.filter(p => isProblemCompleted(lookupSolves(solvedMap, p))).length;
 
         const table = document.createElement("table");
         table.className = "sheets-problems-table";
@@ -1043,7 +1100,7 @@ export function createProblemRow(problem, solvedMap, isVisible) {
   const GITHUB_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>`;
 
   const slug = problem.slug.trim().toLowerCase();
-  const solves = solvedMap[slug] || [];
+  const solves = lookupSolves(solvedMap, problem);
   const isCompleted = isProblemCompleted(solves);
   const hasNotes = solves.some(s => s.notes && s.notes.trim() !== "");
   const isBookmarked = solves.some(s => s.isFavorite);
@@ -1227,7 +1284,7 @@ export function filterSheetProblems(problems, solvedMap, overrideFilters) {
   const targetFilters = overrideFilters || state.activeFilters;
   return problems.filter(problem => {
     const slug = problem.slug;
-    const solves = solvedMap[slug] || [];
+    const solves = lookupSolves(solvedMap, problem);
     const isCompleted = isProblemCompleted(solves);
     const isBookmarked = solves.some(s => s.isFavorite);
 

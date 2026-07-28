@@ -523,81 +523,53 @@ function getGFGTopics() {
 
 // ── History Storage Helper ────────────────────────────────────────────────────
 async function saveToHistory(entry) {
-  try {
-    const stored = await chrome.storage.local.get("leetsyncHistory");
-    let history = stored.leetsyncHistory || [];
-    
-    const slugEntries = history.filter((h) => h.slug === entry.slug);
-    let maxRev = 0;
-    let existingCustomDueDate = null;
+  // Try via background message (centralized, serialized write)
+  const tryViaMessage = () => new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error("Background message timeout – falling back to direct storage."));
+    }, 5000);
 
-    slugEntries.forEach((h) => {
-      if (h.revisionCount && h.revisionCount > maxRev) {
-        maxRev = h.revisionCount;
+    chrome.runtime.sendMessage(
+      { type: "LEETSYNC_SAVE_TO_HISTORY", payload: { entry } },
+      (response) => {
+        clearTimeout(timeoutId);
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else if (response && response.ok) {
+          resolve(response.history);
+        } else {
+          reject(new Error(response?.error || "Failed to save history via background"));
+        }
       }
-      if (h.customRevisionDueDate) {
-        existingCustomDueDate = h.customRevisionDueDate;
-      }
-    });
-
-    const newRevCount = maxRev + 1;
-    const nowStr = new Date().toISOString();
-    const todayStrVal = nowStr.split("T")[0];
-
-    entry.revisionCount = newRevCount;
-    entry.lastRevisionAt = nowStr;
-
-    if (existingCustomDueDate) {
-      entry.customRevisionDueDate = existingCustomDueDate;
-      entry.revisionCompleted = true;
-      entry.revisionCompletedAt = todayStrVal;
-    }
-
-    const entryDateStr = entry.savedAt ? entry.savedAt.split("T")[0] : todayStrVal;
-    const dupIndex = history.findIndex(
-      (h) => h.slug === entry.slug && 
-             h.approach === entry.approach && 
-             (h.savedAt ? h.savedAt.split("T")[0] : "") === entryDateStr
     );
+  });
 
-    if (dupIndex !== -1) {
-      entry.isFavorite = entry.isFavorite || history[dupIndex].isFavorite;
-      history.splice(dupIndex, 1);
+  try {
+    return await tryViaMessage();
+  } catch (msgErr) {
+    // Fallback: direct storage write if background is unreachable
+    console.warn("saveToHistory fallback to direct storage:", msgErr.message);
+    try {
+      const stored = await chrome.storage.local.get("leetsyncHistory");
+      const history = stored.leetsyncHistory || [];
+      const targetSlug = entry.slug ? entry.slug.trim().toLowerCase().replace(/-?\d+$/, "").replace(/-+$/, "") : "";
+      if (targetSlug) entry.slug = targetSlug;
+      const todayStr = (entry.savedAt || new Date().toISOString()).split("T")[0];
+      const dupIdx = history.findIndex(h =>
+        h.slug === entry.slug && h.approach === entry.approach &&
+        (h.savedAt ? h.savedAt.split("T")[0] : "") === todayStr
+      );
+      if (dupIdx !== -1) {
+        entry.isFavorite = entry.isFavorite || history[dupIdx].isFavorite;
+        history.splice(dupIdx, 1);
+      }
+      history.unshift(entry);
+      if (history.length > 5000) history.pop();
+      await chrome.storage.local.set({ leetsyncHistory: history });
+      return history;
+    } catch (storageErr) {
+      console.error("Local history save failed (direct fallback):", storageErr);
+      throw storageErr;
     }
-
-    const existingEntries = history.filter(h => h.slug === entry.slug);
-    existingEntries.forEach(ex => {
-      if (ex.isFavorite) entry.isFavorite = true;
-      if (ex.starredLists && ex.starredLists.length > 0) {
-        if (!entry.starredLists) entry.starredLists = [];
-        ex.starredLists.forEach(list => {
-          if (!entry.starredLists.includes(list)) entry.starredLists.push(list);
-        });
-      }
-    });
-    history = history.filter(h => !(h.slug === entry.slug && h.isStarredOnly));
-
-    history.unshift(entry);
-
-    history.forEach((h) => {
-      if (h.slug === entry.slug) {
-        h.revisionCount = newRevCount;
-        h.lastRevisionAt = nowStr;
-        if (existingCustomDueDate) {
-          h.customRevisionDueDate = existingCustomDueDate;
-          h.revisionCompleted = true;
-          h.revisionCompletedAt = todayStrVal;
-        }
-        if (h.approach === entry.approach) {
-          h.notes = entry.notes;
-        }
-      }
-    });
-
-    if (history.length > 5000) history.pop();
-    await chrome.storage.local.set({ leetsyncHistory: history });
-  } catch (err) {
-    console.error("Local history save failed:", err);
-    throw err;
   }
 }

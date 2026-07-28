@@ -13,6 +13,34 @@ import { toggleProblemCompletion as toggleProblemCompletionBase, toggleProblemFr
 export let currentSheetFilter = "all";
 export let currentCrossSheetMap = null;
 
+// URL-slug fallback helpers (mirrors sheets_view.js) ─────────────────────────
+function extractUrlSlug(url) {
+  if (!url) return "";
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split("/").filter(Boolean);
+    if (u.hostname.includes("geeksforgeeks.org")) {
+      const idx = parts.indexOf("problems");
+      if (idx !== -1 && parts[idx + 1]) {
+        let seg = parts[idx + 1];
+        if (seg === "1" && parts[idx + 2]) seg = parts[idx + 2];
+        return seg.replace(/-*(\d+)$/, "").replace(/-+$/, "").toLowerCase();
+      }
+    } else if (u.hostname.includes("leetcode.com")) {
+      const idx = parts.indexOf("problems");
+      if (idx !== -1 && parts[idx + 1]) return parts[idx + 1].toLowerCase();
+    }
+  } catch (e) {}
+  return "";
+}
+function lookupSolves(solvedMap, problem) {
+  const slug = (problem.slug || "").trim().toLowerCase();
+  if (solvedMap[slug] && solvedMap[slug].length > 0) return solvedMap[slug];
+  const urlSlug = extractUrlSlug(problem.leetcodeUrl || problem.url || "");
+  if (urlSlug && solvedMap[urlSlug] && solvedMap[urlSlug].length > 0) return solvedMap[urlSlug];
+  return [];
+}
+
 export function renderCollectionOptions(history) {
   const collectionOptionsDiv = document.getElementById("historyFilterCollectionOptions");
   if (!collectionOptionsDiv) return;
@@ -179,7 +207,7 @@ export async function renderSheets() {
       const tbody = document.createElement("tbody");
       problems.forEach(problem => {
         const slug = problem.slug;
-        const solves = solvedMap[slug] || [];
+        const solves = lookupSolves(solvedMap, problem);
         const isCompleted = isProblemCompleted(solves);
         const hasNotes = solves.some(s => s.notes && s.notes.trim() !== "");
         const isBookmarked = solves.some(s => s.isFavorite);
@@ -431,7 +459,7 @@ export async function renderSheets() {
 
         problems.forEach(problem => {
           const slug = problem.slug;
-          const solves = solvedMap[slug] || [];
+          const solves = lookupSolves(solvedMap, problem);
           const isCompleted = isProblemCompleted(solves);
           const hasNotes = solves.some(s => s.notes && s.notes.trim() !== "");
           const isBookmarked = solves.some(s => s.isFavorite);

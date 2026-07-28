@@ -1,6 +1,15 @@
 // content_ui.js – Handles UI elements, styling, modals, and dropdown overlays for content scripts.
 // Runs in the same isolated world context as content_utils.js and content.js.
 
+function escapeHtml(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function injectStyles() {
   if (document.getElementById("leetsync-styles")) return;
   const style = document.createElement("style");
@@ -248,7 +257,10 @@ function showModal(submission, details, timeSpentStr) {
   const overlay = document.createElement("div");
   overlay.id = "leetsync-modal-overlay";
 
-  const diffClass = (details.difficulty || "medium").toLowerCase();
+  const diffClass = escapeHtml((details.difficulty || "medium").toLowerCase());
+  const cleanTitle = escapeHtml(details.title || "");
+  const cleanNum = details.questionFrontendId ? escapeHtml(details.questionFrontendId) + ". " : "";
+  const cleanDiff = escapeHtml(details.difficulty || "Medium");
 
   overlay.innerHTML = `
     <div class="leetsync-modal">
@@ -260,8 +272,8 @@ function showModal(submission, details, timeSpentStr) {
       <div class="leetsync-modal-body">
         <div class="leetsync-prob-info" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <span class="leetsync-prob-title">${details.questionFrontendId ? details.questionFrontendId + ". " : ""}${details.title}</span>
-            <span class="leetsync-badge ${diffClass}">${details.difficulty}</span>
+            <span class="leetsync-prob-title">${cleanNum}${cleanTitle}</span>
+            <span class="leetsync-badge ${diffClass}">${cleanDiff}</span>
           </div>
           <button type="button" id="leetsync-fav-btn" class="leetsync-fav-btn" title="Toggle Favorite" style="background: none; border: none; cursor: pointer; font-size: 20px; padding: 0 4px; line-height: 1; transition: transform 0.2s;">🤍</button>
         </div>
@@ -400,14 +412,17 @@ function showModal(submission, details, timeSpentStr) {
     chrome.runtime.sendMessage(
       { type: "LEETSYNC_GET_SHEET_STATUS", payload: { slug: currentSlug, platform: currentPlatform } },
       (resp) => {
-        const sheets = (resp?.sheets || []).filter(s => s !== defaultSheetName);
-        const allSheets = resp?.sheets || [];
+        if (chrome.runtime.lastError) {
+          console.warn("[LeetSync] Sheet status fetch error:", chrome.runtime.lastError.message);
+          return;
+        }
+        const allSheets = (resp?.sheets || []);
 
         if (allSheets.length > 0) {
           sheetSection.innerHTML = `
             <div style="font-size:11.5px; color:var(--clr-muted,#94a3b8); line-height:1.6;">
               <span style="font-weight:700; color:var(--clr-text,#f1f5f9);">📋 In sheets:</span>
-              ${allSheets.map(s => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:2px 7px; border-radius:10px; background:rgba(99,102,241,0.18); color:#a5b4fc; font-size:10.5px; font-weight:600;">${s}</span>`).join("")}
+              ${allSheets.map(s => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:2px 7px; border-radius:10px; background:rgba(99,102,241,0.18); color:#a5b4fc; font-size:10.5px; font-weight:600;">${escapeHtml(s)}</span>`).join("")}
             </div>`;
         } else {
           sheetSection.innerHTML = `

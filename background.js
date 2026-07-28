@@ -1,6 +1,6 @@
 import { saveSolutionToGitHub, updateSolutionNotesInGitHub } from "./github.js";
 import { FIREBASE_CONFIG } from "./firebase-config.js";
-import { mergeSolveWithStars } from "./history_manager.js";
+import { mergeSolveWithStars, mergeNewSolveIntoHistory } from "./history_manager.js";
 import { loadSheet } from "./sheet-loader.js";
 import { processPendingSync } from "./background_sync.js";
 
@@ -14,6 +14,22 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         processPendingGithubSync().catch(err => console.error("Queue retry failed:", err));
       })
       .catch((error) => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
+  if (message?.type === "LEETSYNC_SAVE_TO_HISTORY") {
+    const { entry } = message.payload;
+    chrome.storage.local.get("leetsyncHistory").then(async (stored) => {
+      try {
+        const history = stored.leetsyncHistory || [];
+        const updatedHistory = mergeNewSolveIntoHistory(history, entry);
+        await chrome.storage.local.set({ leetsyncHistory: updatedHistory });
+        sendResponse({ ok: true, history: updatedHistory });
+      } catch (err) {
+        console.error("Failed to save history centrally:", err);
+        sendResponse({ ok: false, error: err.message });
+      }
+    });
     return true;
   }
 
@@ -92,17 +108,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         }
 
         // 3. Save to history locally
-        const slugEntries = history.filter((h) => h.slug === slug);
-        let maxRev = 0;
-        let existingCustomDueDate = null;
-        slugEntries.forEach((h) => {
-          if (h.revisionCount && h.revisionCount > maxRev) maxRev = h.revisionCount;
-          if (h.customRevisionDueDate) existingCustomDueDate = h.customRevisionDueDate;
-        });
-
-        const newRevCount = maxRev + 1;
         const nowStr = new Date().toISOString();
-
         const entry = {
           id: "",
           title: payload.title,
@@ -121,48 +127,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           collection: payload.collection || "",
           timeSpent: payload.timeSpent || "",
           readmePath: readmePath,
-          version: version,
-          revisionCount: newRevCount,
-          lastRevisionAt: nowStr
+          version: version
         };
 
-        if (existingCustomDueDate) {
-          entry.customRevisionDueDate = existingCustomDueDate;
-          entry.revisionCompleted = true;
-          entry.revisionCompletedAt = entryDateStr;
-        }
-
-        const dupIndex = history.findIndex(
-          (h) => h.slug === slug && 
-                 h.approach === payload.approach && 
-                 (h.savedAt ? h.savedAt.split("T")[0] : "") === entryDateStr
-        );
-
-        if (dupIndex !== -1) {
-          entry.isFavorite = entry.isFavorite || history[dupIndex].isFavorite;
-          history.splice(dupIndex, 1);
-        }
-
-        history = mergeSolveWithStars(history, entry);
-        history.unshift(entry);
-
-        history.forEach((h) => {
-          if (h.slug === slug) {
-            h.revisionCount = newRevCount;
-            h.lastRevisionAt = nowStr;
-            if (existingCustomDueDate) {
-              h.customRevisionDueDate = existingCustomDueDate;
-              h.revisionCompleted = true;
-              h.revisionCompletedAt = entryDateStr;
-            }
-            if (h.approach === payload.approach) {
-              h.notes = payload.notes;
-            }
-          }
-        });
-
-        if (history.length > 5000) history.pop();
-        await chrome.storage.local.set({ leetsyncHistory: history });
+        const updatedHistory = mergeNewSolveIntoHistory(history, entry);
+        await chrome.storage.local.set({ leetsyncHistory: updatedHistory });
 
         sendResponse({ ok: true, queued });
       } catch (err) {
@@ -221,13 +190,28 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         const slug = (message.payload?.slug || "").toLowerCase();
         const platform = message.payload?.platform || "leetcode";
         const isGFG = platform === "gfg";
-        const cleanSlug = isGFG ? slug.replace(/-?(\d+)$/, "") : slug;
+        // Strip trailing numbers & dashes for GFG slugs
+        // Use -* (zero or more dashes) since GFG sometimes appends numbers without a dash
+        const cleanSlug = isGFG
+          ? slug.replace(/-*(\d+)$/, "").replace(/-+$/, "")
+          : slug;
+
+        console.log(`[LeetSync DEBUG] Sheet status: slug="${slug}", platform="${platform}", cleanSlug="${cleanSlug}"`);
 
         const combined = await loadSheet("all_imported_sheets");
-        const allProblems = combined["All Combined"]["All Problems"] || [];
-        
+        const allProblems = combined?.["All Combined"]?.["All Problems"] || [];
+
+        console.log(`[LeetSync DEBUG] Loaded ${allProblems.length} combined problems`);
+
+        if (allProblems.length === 0) {
+          console.warn("[LeetSync DEBUG] No problems loaded — manifest/fetch may have failed");
+          sendResponse({ ok: true, sheets: [] });
+          return;
+        }
+
         const match = allProblems.find(p => {
-          const pSlug = (p.slug || "").toLowerCase();
+          // pSlug: strip trailing numbers (with or without dash) for GFG problems
+          const pSlug = (p.slug || "").toLowerCase().replace(/-*(\d+)$/, "").replace(/-+$/, "");
           if (pSlug === cleanSlug) return true;
           const pUrl = (p.leetcodeUrl || p.url || "").toLowerCase();
           if (pUrl) {
@@ -239,7 +223,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                 if (lastPart === "1" && pathParts.length > 1) {
                   lastPart = pathParts[pathParts.length - 2];
                 }
-                const normLastPart = lastPart.replace(/-?(\d+)$/, "");
+                // Use -* to handle both "slug-12345" and "slug12345" GFG URL formats
+                const normLastPart = lastPart.replace(/-*(\d+)$/, "").replace(/-+$/, "");
                 if (normLastPart === cleanSlug) return true;
               }
             } catch (e) {}
@@ -248,8 +233,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         });
 
         const matchedSheets = match ? (match.sheetsIn || []) : [];
+        console.log(`[LeetSync DEBUG] Match result: ${match ? `"${match.slug}" in [${matchedSheets.join(", ")}]` : "NO MATCH"}`);
         sendResponse({ ok: true, sheets: matchedSheets });
       } catch (e) {
+        console.error("[LeetSync] LEETSYNC_GET_SHEET_STATUS error:", e);
         sendResponse({ ok: false, error: e.message, sheets: [] });
       }
     })();

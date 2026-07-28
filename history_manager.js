@@ -189,3 +189,81 @@ export function mergeSolveWithStars(history, entry) {
   const newHistory = history.filter(h => !(normalizeProblemSlug(h.slug, h.url || h.leetcodeUrl) === targetSlug && h.isStarredOnly));
   return newHistory;
 }
+
+export function mergeNewSolveIntoHistory(history, entry) {
+  // Normalize incoming entry's slug to clean form before persisting
+  const targetSlug = normalizeProblemSlug(entry.slug, entry.url);
+  entry.slug = targetSlug || entry.slug;
+
+  // Use direct slug comparison (consistent with original behaviour) for existing entries
+  const slugEntries = history.filter((h) => h.slug === targetSlug || normalizeProblemSlug(h.slug, h.url) === targetSlug);
+  let maxRev = 0;
+  let existingCustomDueDate = null;
+
+  slugEntries.forEach((h) => {
+    if (h.revisionCount && h.revisionCount > maxRev) {
+      maxRev = h.revisionCount;
+    }
+    if (h.customRevisionDueDate) {
+      existingCustomDueDate = h.customRevisionDueDate;
+    }
+  });
+
+  const newRevCount = maxRev + 1;
+  const nowStr = new Date().toISOString();
+  const todayStrVal = nowStr.split("T")[0];
+
+  entry.revisionCount = newRevCount;
+  entry.lastRevisionAt = nowStr;
+
+  if (existingCustomDueDate) {
+    entry.customRevisionDueDate = existingCustomDueDate;
+    entry.revisionCompleted = true;
+    entry.revisionCompletedAt = todayStrVal;
+  }
+
+  const entryDateStr = entry.savedAt ? entry.savedAt.split("T")[0] : todayStrVal;
+  const dupIndex = history.findIndex(
+    (h) => (h.slug === targetSlug || normalizeProblemSlug(h.slug, h.url) === targetSlug) &&
+           h.approach === entry.approach &&
+           (h.savedAt ? h.savedAt.split("T")[0] : "") === entryDateStr
+  );
+
+  if (dupIndex !== -1) {
+    entry.isFavorite = entry.isFavorite || history[dupIndex].isFavorite;
+    history.splice(dupIndex, 1);
+  }
+
+  const existingEntries = history.filter(h => h.slug === targetSlug || normalizeProblemSlug(h.slug, h.url) === targetSlug);
+  existingEntries.forEach(ex => {
+    if (ex.isFavorite) entry.isFavorite = true;
+    if (ex.starredLists && ex.starredLists.length > 0) {
+      if (!entry.starredLists) entry.starredLists = [];
+      ex.starredLists.forEach(list => {
+        if (!entry.starredLists.includes(list)) entry.starredLists.push(list);
+      });
+    }
+  });
+
+  let cleanHistory = history.filter(h => !((h.slug === targetSlug || normalizeProblemSlug(h.slug, h.url) === targetSlug) && h.isStarredOnly));
+
+  cleanHistory.unshift(entry);
+
+  cleanHistory.forEach((h) => {
+    if (h.slug === targetSlug || normalizeProblemSlug(h.slug, h.url) === targetSlug) {
+      h.revisionCount = newRevCount;
+      h.lastRevisionAt = nowStr;
+      if (existingCustomDueDate) {
+        h.customRevisionDueDate = existingCustomDueDate;
+        h.revisionCompleted = true;
+        h.revisionCompletedAt = todayStrVal;
+      }
+      if (h.approach === entry.approach) {
+        h.notes = entry.notes;
+      }
+    }
+  });
+
+  if (cleanHistory.length > 5000) cleanHistory.pop();
+  return cleanHistory;
+}

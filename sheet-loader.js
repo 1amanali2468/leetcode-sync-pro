@@ -65,7 +65,7 @@ export function denormalizeSheetData(sheetData, registry) {
             let slug = p.slug.trim().toLowerCase();
             const url = p.leetcodeUrl || p.url || "";
             if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
-              slug = slug.replace(/-?\d+$/, "").replace(/-+$/, "");
+              slug = slug.replace(/-*(\d+)$/, "").replace(/-+$/, "");
             }
             result[topicName][subtopicName].push({ ...p, slug });
           }
@@ -174,7 +174,7 @@ function sanitizeSheetData(sheet) {
           }
 
           if (url.includes("geeksforgeeks.org") || (url === "" && slug.match(/-\d{5,}$/))) {
-            slug = slug.replace(/-?(\d+)$/, "").replace(/-+$/, "");
+            slug = slug.replace(/-*(\d+)$/, "").replace(/-+$/, "");
           }
 
           cleaned[topic][subtopic].push({

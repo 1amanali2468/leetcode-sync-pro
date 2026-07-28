@@ -131,7 +131,7 @@
         "title": "Longest Subarray Sum Divisible K",
         "slug": "longest-subarray-sum-divisible-k",
         "difficulty": "Easy",
-        "leetcodeUrl": "https://www.geeksforgeeks.org/longest-subarray-sum-divisible-k/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/longest-subarray-with-sum-divisible-by-k1259/1"
       },
       {
         "title": "Print All Possible Combinations Of R Elements In A Given Array Of Size N",
@@ -325,7 +325,7 @@
         "title": "Given Matrix O X Replace O X Surrounded X",
         "slug": "given-matrix-o-x-replace-o-x-surrounded-x",
         "difficulty": "Easy",
-        "leetcodeUrl": "https://www.geeksforgeeks.org/given-matrix-o-x-replace-o-x-surrounded-x/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/replace-os-with-xs0052/1"
       },
       {
         "title": "Find Common Element Rows Row Wise Sorted Matrix",
