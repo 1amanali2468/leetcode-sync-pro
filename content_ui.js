@@ -680,10 +680,7 @@ function showModal(submission, details, timeSpentStr) {
       const stored = await chrome.storage.local.get("githubSettings");
       const settings = stored.githubSettings;
 
-      if (!settings || !settings.token || !settings.owner || !settings.repo) {
-        resetBtn("Setup your GitHub settings in extension popup first.");
-        return;
-      }
+      const hasGithubSettings = settings && settings.token && settings.owner && settings.repo;
 
       const topicSelect = overlay.querySelector("#leetsync-topic-select");
       const selectedTopic = topicSelect ? topicSelect.value : "";
@@ -787,6 +784,14 @@ function showModal(submission, details, timeSpentStr) {
 
       if (!localSaved) {
         resetBtn(`⚠️ Local history save failed: ${localError}`);
+        return;
+      }
+
+      if (!hasGithubSettings) {
+        resMsg.textContent = "✅ Saved locally. Connect GitHub in extension popup to sync.";
+        resMsg.className = "leetsync-result success";
+        saveBtn.textContent = "Saved Local!";
+        setTimeout(closeModal, 2000);
         return;
       }
 

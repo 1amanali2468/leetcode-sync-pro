@@ -19,7 +19,6 @@ export function registerSettingsChangeCallback(cb) {
 export function setupSettingsListeners() {
   if (!el.btnSaveSettings) return;
   el.btnSaveSettings.addEventListener("click", saveSettings);
-  el.btnFetchSolves.addEventListener("click", fetchSolves);
   el.btnDisconnect.addEventListener("click", disconnect);
   if (el.btnImportCustomSheet) {
     el.btnImportCustomSheet.addEventListener("click", handleCustomSheetImport);
@@ -47,24 +46,7 @@ export async function saveSettings() {
   alert("Settings saved successfully!");
 }
 
-export async function fetchSolves() {
-  el.btnFetchSolves.disabled = true;
-  el.btnFetchSolves.textContent = "Fetching...";
-  
-  chrome.runtime.sendMessage({ type: "FETCH_GITHUB_SOLVES" }, (response) => {
-    el.btnFetchSolves.disabled = false;
-    el.btnFetchSolves.textContent = "Fetch Solves";
 
-    if (chrome.runtime.lastError || (response && !response.ok)) {
-      alert("Solve import failed: " + (response?.error || "Unknown error"));
-    } else {
-      alert("Solve import triggered successfully!");
-      if (onSettingsChangeCallback) {
-        onSettingsChangeCallback();
-      }
-    }
-  });
-}
 
 export async function disconnect() {
   if (!confirm("Are you sure you want to disconnect? This will log you out and clear local cache.")) return;

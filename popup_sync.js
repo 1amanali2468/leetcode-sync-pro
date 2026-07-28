@@ -223,7 +223,7 @@ export async function syncCloudData() {
 
       const merged = [...localHistory];
       cloudHistory.forEach(cloudItem => {
-        const idx = merged.findIndex(h => h.slug === cloudItem.slug && h.approach === cloudItem.approach);
+        const idx = merged.findIndex(h => h.slug === cloudItem.slug && h.approach === cloudItem.approach && (h.version || 1) === (cloudItem.version || 1));
         if (idx !== -1) {
           const localDate = new Date(merged[idx].savedAt || 0);
           const cloudDate = new Date(cloudItem.savedAt || 0);

@@ -104,7 +104,7 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
     const oldHistory = changes.leetsyncHistory.oldValue || [];
 
     const changedEntries = newHistory.filter(newEntry => {
-      const oldEntry = oldHistory.find(h => h.slug === newEntry.slug && h.approach === newEntry.approach);
+      const oldEntry = oldHistory.find(h => h.slug === newEntry.slug && h.approach === newEntry.approach && (h.version || 1) === (newEntry.version || 1));
       if (!oldEntry) return true; // Newly added solve!
       
       return newEntry.savedAt !== oldEntry.savedAt ||
@@ -116,7 +116,7 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
     });
 
     changedEntries.forEach(newUp => {
-      const idx = updates.findIndex(u => u.slug === newUp.slug && u.approach === newUp.approach);
+      const idx = updates.findIndex(u => u.slug === newUp.slug && u.approach === newUp.approach && (u.version || 1) === (newUp.version || 1));
       if (idx !== -1) {
         updates[idx] = newUp;
       } else {

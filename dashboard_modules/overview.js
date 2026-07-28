@@ -141,13 +141,20 @@ export function renderRecentSolvesList(history) {
 
     // Language
     const tdLang = document.createElement("td");
-    tdLang.innerHTML = `<span style="font-family:monospace; text-transform:uppercase; font-size:11px; background:#1e293b; padding:2px 6px; border-radius:4px;">${entry.language || "code"}</span>`;
+    const spanLang = document.createElement("span");
+    spanLang.style = "font-family:monospace; text-transform:uppercase; font-size:11px; background:#1e293b; padding:2px 6px; border-radius:4px;";
+    spanLang.textContent = entry.language || "code";
+    tdLang.appendChild(spanLang);
     tr.appendChild(tdLang);
 
     // Approach
     const tdApproach = document.createElement("td");
     const app = (entry.approach || "oa").toUpperCase();
-    tdApproach.innerHTML = `<span class="diff-badge ${app.toLowerCase() === "oa" ? "easy" : app.toLowerCase() === "ba" ? "medium" : "hard"}" style="font-size: 9.5px; font-weight:700;">${app}</span>`;
+    const spanApp = document.createElement("span");
+    spanApp.className = `diff-badge ${app.toLowerCase() === "oa" ? "easy" : app.toLowerCase() === "ba" ? "medium" : "hard"}`;
+    spanApp.style = "font-size: 9.5px; font-weight:700;";
+    spanApp.textContent = app;
+    tdApproach.appendChild(spanApp);
     tr.appendChild(tdApproach);
 
     // Date
@@ -157,8 +164,13 @@ export function renderRecentSolvesList(history) {
 
     // GitHub Link
     const tdGitHub = document.createElement("td");
-    if (entry.githubUrl) {
-      tdGitHub.innerHTML = `<a href="${entry.githubUrl}" target="_blank" class="action-link">View File ↗</a>`;
+    if (entry.githubUrl && entry.githubUrl.startsWith("http")) {
+      const a = document.createElement("a");
+      a.href = entry.githubUrl;
+      a.target = "_blank";
+      a.className = "action-link";
+      a.textContent = "View File ↗";
+      tdGitHub.appendChild(a);
     } else {
       tdGitHub.textContent = "—";
     }

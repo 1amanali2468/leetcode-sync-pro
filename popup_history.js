@@ -67,7 +67,7 @@ export function openNotesModal(entry, approachLabel) {
       const storedHistory = await chrome.storage.local.get(STORAGE_KEYS.history);
       const hist = storedHistory[STORAGE_KEYS.history] || [];
       const updatedHistory = hist.map((h) => {
-        if (h.slug === entry.slug && h.approach === entry.approach) {
+        if (h.slug === entry.slug && h.approach === entry.approach && (h.version || 1) === (entry.version || 1)) {
           return { ...h, notes: newNotes };
         }
         return h;
@@ -340,7 +340,7 @@ export async function renderHistory() {
       const storedHistory = await chrome.storage.local.get(STORAGE_KEYS.history);
       const hist = storedHistory[STORAGE_KEYS.history] || [];
       const updated = hist.map((h) => {
-        if (h.slug === entry.slug && h.approach === entry.approach) {
+        if (h.slug === entry.slug && h.approach === entry.approach && (h.version || 1) === (entry.version || 1)) {
           let lists = h.starredLists || [];
           if (entry.isFavorite) {
             if (!lists.map(l => l.toLowerCase()).includes("favorite")) {

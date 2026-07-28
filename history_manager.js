@@ -250,19 +250,20 @@ export function mergeNewSolveIntoHistory(history, entry) {
 
   cleanHistory.unshift(entry);
 
-  cleanHistory.forEach((h) => {
+  cleanHistory = cleanHistory.map((h) => {
     if (h.slug === targetSlug || normalizeProblemSlug(h.slug, h.url) === targetSlug) {
-      h.revisionCount = newRevCount;
-      h.lastRevisionAt = nowStr;
+      const updatedH = { ...h };
+      updatedH.revisionCount = newRevCount;
+      updatedH.lastRevisionAt = nowStr;
       if (existingCustomDueDate) {
-        h.customRevisionDueDate = existingCustomDueDate;
-        h.revisionCompleted = true;
-        h.revisionCompletedAt = todayStrVal;
+        updatedH.customRevisionDueDate = existingCustomDueDate;
+        updatedH.revisionCompleted = true;
+        updatedH.revisionCompletedAt = todayStrVal;
       }
-      if (h.approach === entry.approach) {
-        h.notes = entry.notes;
-      }
+      // Note: We deliberately do NOT overwrite notes across different versions/dates of the same approach anymore.
+      return updatedH;
     }
+    return h;
   });
 
   if (cleanHistory.length > 5000) cleanHistory.pop();
