@@ -1080,8 +1080,13 @@ function initCustomSolveForm() {
         statusText.textContent = `❌ Error: ${response?.error || chrome.runtime.lastError?.message || "Failed to save"}`;
         statusText.style.color = "#dc2626";
       } else {
-        statusText.textContent = "✅ Saved & Synced Successfully!";
-        statusText.style.color = "#22c55e";
+        if (response && response.queued) {
+          statusText.textContent = "⚠️ Saved locally! GitHub upload queued.";
+          statusText.style.color = "#fbbf24";
+        } else {
+          statusText.textContent = "✅ Saved & Synced Successfully!";
+          statusText.style.color = "#22c55e";
+        }
         form.reset();
         
         approachNameWrap.classList.add("hidden");

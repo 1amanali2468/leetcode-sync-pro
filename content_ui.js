@@ -741,6 +741,40 @@ function showModal(submission, details, timeSpentStr) {
         version: version
       };
 
+      let localSaved = true;
+      let localError = "";
+      const historyEntry = {
+        id: submissionPayload.questionFrontendId || "0",
+        title: submissionPayload.title,
+        slug: submissionPayload.titleSlug || submissionPayload.slug,
+        url: submissionPayload.url || "",
+        difficulty: submissionPayload.difficulty || "Medium",
+        approach: saveOptions.approach === "custom" ? saveOptions.customName : saveOptions.approach,
+        language: submissionPayload.language,
+        topic: saveOptions.selectedTopic || "",
+        pattern: saveOptions.pattern || "",
+        notes: saveOptions.notes || "",
+        githubUrl: "",
+        savedAt: new Date().toISOString(),
+        isFavorite: isFavorite,
+        collection: saveOptions.collection || "",
+        timeSpent: saveOptions.timeSpent || "",
+        readmePath: "",
+        version: version
+      };
+
+      try {
+        await saveToHistory(historyEntry);
+      } catch (historyErr) {
+        localSaved = false;
+        localError = historyErr.message || "Storage error";
+      }
+
+      if (!localSaved) {
+        resetBtn(`⚠️ Local history save failed: ${localError}`);
+        return;
+      }
+
       chrome.runtime.sendMessage(
         {
           type: "LEETSYNC_SAVE_TO_GITHUB",
@@ -749,53 +783,41 @@ function showModal(submission, details, timeSpentStr) {
         async (response) => {
           try {
             if (chrome.runtime.lastError) {
-              resetBtn("Extension context lost. Please refresh the page.");
+              await enqueuePendingGithubSync(submissionPayload, saveOptions, settings);
+              resMsg.textContent = "⚠️ Saved locally, but GitHub sync queued (context lost).";
+              resMsg.className = "leetsync-result warning";
+              saveBtn.textContent = "Saved (Pending Sync)";
+              setTimeout(closeModal, 4000);
               return;
             }
             if (response && response.ok) {
-              let localSaved = true;
-              let localError = "";
+              const githubUrl = response.result?.solutionUrl || "";
+              const readmePath = response.result?.readmePath || "";
               try {
-                await saveToHistory({
-                  id: submissionPayload.questionFrontendId || "0",
-                  title: submissionPayload.title,
-                  slug: submissionPayload.titleSlug || submissionPayload.slug,
-                  url: submissionPayload.url || "",
-                  difficulty: submissionPayload.difficulty || "Medium",
-                  approach: saveOptions.approach === "custom" ? saveOptions.customName : saveOptions.approach,
-                  language: submissionPayload.language,
-                  topic: saveOptions.selectedTopic || "",
-                  pattern: saveOptions.pattern || "",
-                  notes: saveOptions.notes || "",
-                  githubUrl: response.result?.solutionUrl || "",
-                  savedAt: new Date().toISOString(),
-                  isFavorite: isFavorite,
-                  collection: saveOptions.collection || "",
-                  timeSpent: saveOptions.timeSpent || "",
-                  readmePath: response.result?.readmePath || "",
-                  version: version
-                });
-              } catch (historyErr) {
-                localSaved = false;
-                localError = historyErr.message || "Storage error";
+                historyEntry.githubUrl = githubUrl;
+                historyEntry.readmePath = readmePath;
+                await saveToHistory(historyEntry);
+              } catch (updateErr) {
+                console.error("Failed to update history with GitHub URL:", updateErr);
               }
-
-              if (localSaved) {
-                resMsg.textContent = "✅ Saved to GitHub successfully!";
-                resMsg.className = "leetsync-result success";
-                saveBtn.textContent = "Saved!";
-              } else {
-                resMsg.textContent = `⚠️ Saved to GitHub, but local history failed: ${localError}`;
-                resMsg.className = "leetsync-result warning";
-                saveBtn.textContent = "Saved (Warning)";
-              }
-
-              setTimeout(closeModal, localSaved ? 1500 : 4000);
+              resMsg.textContent = "✅ Saved to GitHub successfully!";
+              resMsg.className = "leetsync-result success";
+              saveBtn.textContent = "Saved!";
+              setTimeout(closeModal, 1500);
             } else {
-              resetBtn(response?.error || "Save failed. Try again.");
+              await enqueuePendingGithubSync(submissionPayload, saveOptions, settings);
+              const errMsg = response?.error || "Upload failed";
+              resMsg.textContent = `⚠️ Saved locally, but GitHub sync queued: ${errMsg}`;
+              resMsg.className = "leetsync-result warning";
+              saveBtn.textContent = "Saved (Pending Sync)";
+              setTimeout(closeModal, 4000);
             }
           } catch (innerErr) {
-            resetBtn(innerErr.message || "Unexpected error. Try again.");
+            await enqueuePendingGithubSync(submissionPayload, saveOptions, settings);
+            resMsg.textContent = `⚠️ Saved locally, but GitHub sync queued: ${innerErr.message}`;
+            resMsg.className = "leetsync-result warning";
+            saveBtn.textContent = "Saved (Pending Sync)";
+            setTimeout(closeModal, 4000);
           }
         }
       );
@@ -895,5 +917,22 @@ function populateTopicsAndPatternsForGFG(overlay, details) {
         populatePatternDropdown(patternSelect, topicSelect.value, overlay);
       });
     }
+  }
+}
+
+async function enqueuePendingGithubSync(submission, saveOptions, settings) {
+  try {
+    const data = await chrome.storage.local.get("pendingGithubSync");
+    const queue = data.pendingGithubSync || [];
+    queue.push({
+      submission,
+      saveOptions,
+      settings,
+      queuedAt: new Date().toISOString()
+    });
+    await chrome.storage.local.set({ pendingGithubSync: queue });
+    console.log("Successfully queued submission in pendingGithubSync.");
+  } catch (e) {
+    console.error("Failed to queue submission in pendingGithubSync:", e);
   }
 }

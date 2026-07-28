@@ -9,7 +9,10 @@ let pollingIntervalId = null;
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "LEETSYNC_SAVE_TO_GITHUB") {
     saveSolutionToGitHub(message.payload)
-      .then((result) => sendResponse({ ok: true, result }))
+      .then((result) => {
+        sendResponse({ ok: true, result });
+        processPendingGithubSync().catch(err => console.error("Queue retry failed:", err));
+      })
       .catch((error) => sendResponse({ ok: false, error: error.message }));
     return true;
   }
@@ -75,10 +78,17 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         // 2. Commit to GitHub (only if githubSettings are fully connected)
         let githubUrl = "";
         let readmePath = "";
+        let queued = false;
         if (settings.token && settings.owner && settings.repo) {
-          const result = await saveSolutionToGitHub({ settings, submission, saveOptions });
-          githubUrl = result.solutionUrl || "";
-          readmePath = result.readmePath || "";
+          try {
+            const result = await saveSolutionToGitHub({ settings, submission, saveOptions });
+            githubUrl = result.solutionUrl || "";
+            readmePath = result.readmePath || "";
+          } catch (gitErr) {
+            console.error("Failed to commit custom solve to GitHub, queueing...", gitErr);
+            await enqueuePendingGithubSync(submission, saveOptions, settings);
+            queued = true;
+          }
         }
 
         // 3. Save to history locally
@@ -154,7 +164,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         if (history.length > 5000) history.pop();
         await chrome.storage.local.set({ leetsyncHistory: history });
 
-        sendResponse({ ok: true });
+        sendResponse({ ok: true, queued });
       } catch (err) {
         console.error("Custom solve save failed:", err);
         sendResponse({ ok: false, error: err.message });
@@ -544,6 +554,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "streak-reminder") {
     checkStreakAndNotify();
     processPendingSync().catch(err => console.error("Alarm retry sync failed:", err));
+    processPendingGithubSync().catch(err => console.error("Alarm retry GitHub sync failed:", err));
   }
 });
 
@@ -648,11 +659,13 @@ function dayOffset(n) {
 chrome.runtime.onInstalled.addListener(() => {
   setupStreakReminderAlarm();
   processPendingSync().catch(err => console.error("Startup pending sync failed:", err));
+  processPendingGithubSync().catch(err => console.error("Startup pending GitHub sync failed:", err));
 });
 
 chrome.runtime.onStartup.addListener(() => {
   setupStreakReminderAlarm();
   processPendingSync().catch(err => console.error("Startup pending sync failed:", err));
+  processPendingGithubSync().catch(err => console.error("Startup pending GitHub sync failed:", err));
 });
 
 function setupStreakReminderAlarm() {
@@ -669,6 +682,7 @@ function setupStreakReminderAlarm() {
 resumePolling();
 setupStreakReminderAlarm();
 processPendingSync().catch(err => console.error("Initial pending sync failed:", err));
+processPendingGithubSync().catch(err => console.error("Initial pending GitHub sync failed:", err));
 
 function todayStr() {
   const d = new Date();
@@ -731,6 +745,71 @@ function getDueRevisions(history) {
     }
   }
   return dueList;
+}
+
+async function enqueuePendingGithubSync(submission, saveOptions, settings) {
+  try {
+    const data = await chrome.storage.local.get("pendingGithubSync");
+    const queue = data.pendingGithubSync || [];
+    queue.push({
+      submission,
+      saveOptions,
+      settings,
+      queuedAt: new Date().toISOString()
+    });
+    await chrome.storage.local.set({ pendingGithubSync: queue });
+    console.log("Successfully queued submission in pendingGithubSync.");
+  } catch (e) {
+    console.error("Failed to queue submission in pendingGithubSync:", e);
+  }
+}
+
+export async function processPendingGithubSync() {
+  const data = await chrome.storage.local.get("pendingGithubSync");
+  const queue = data.pendingGithubSync || [];
+  if (queue.length === 0) return;
+
+  console.log(`Processing ${queue.length} pending solutions in GitHub sync queue...`);
+  const remaining = [];
+  const storedHistory = await chrome.storage.local.get("leetsyncHistory");
+  const history = storedHistory.leetsyncHistory || [];
+  let historyChanged = false;
+
+  for (const item of queue) {
+    try {
+      const { submission, saveOptions, settings } = item;
+      const result = await saveSolutionToGitHub({ settings, submission, saveOptions });
+      if (result && result.ok) {
+        console.log(`Successfully synced queued solution to GitHub: ${submission.title}`);
+        const githubUrl = result.result?.solutionUrl || "";
+        const readmePath = result.result?.readmePath || "";
+        
+        const idx = history.findIndex(h => h.slug === (submission.titleSlug || submission.slug) && h.approach === (saveOptions.approach === "custom" ? saveOptions.customName : saveOptions.approach) && (h.version || 1) === (saveOptions.version || 1));
+        if (idx !== -1) {
+          history[idx].githubUrl = githubUrl;
+          history[idx].readmePath = readmePath;
+          historyChanged = true;
+        }
+      } else {
+        console.warn(`Failed to sync queued solution: ${result?.error}. Retaining in queue.`);
+        remaining.push(item);
+      }
+    } catch (err) {
+      console.error("Error processing queued GitHub sync item:", err);
+      remaining.push(item);
+    }
+  }
+
+  if (historyChanged) {
+    await chrome.storage.local.set({ leetsyncHistory: history });
+  }
+
+  if (remaining.length === 0) {
+    await chrome.storage.local.remove("pendingGithubSync");
+    console.log("All pending GitHub solutions synced successfully and queue cleared.");
+  } else {
+    await chrome.storage.local.set({ pendingGithubSync: remaining });
+  }
 }
 
 
