@@ -1987,7 +1987,7 @@
         "title": "Boundary Traversal",
         "slug": "boundary-of-binary-tree",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://leetcode.com/problems/boundary-of-binary-tree/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/boundary-traversal-of-binary-tree/1"
       },
       {
         "title": "Vertical Order Traversal",
@@ -2043,7 +2043,7 @@
         "title": "Children Sum Property in Binary Tree",
         "slug": "children-sum-property-in-binary-tree",
         "difficulty": "Medium",
-        "leetcodeUrl": "https://takeuforward.org/data-structure/check-for-children-sum-property-in-a-binary-tree/"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/children-sum-parent/1"
       },
       {
         "title": "Print all nodes at a distance of K in BT",
@@ -2127,7 +2127,7 @@
         "title": "Floor and Ceil in a BST",
         "slug": "implementing-ceil-in-bst",
         "difficulty": "Easy",
-        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/implementing-ceil-in-bst/1"
+        "leetcodeUrl": "https://www.geeksforgeeks.org/problems/closest-neighbor-in-bst/1"
       },
       {
         "title": "Floor in a Binary Search Tree",
