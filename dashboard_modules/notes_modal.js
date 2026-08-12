@@ -34,7 +34,19 @@ export async function openNotesModal(entry, approachLabel) {
   
   // Find all existing solves for this problem
   const problemSlug = entry.slug.trim().toLowerCase();
-  const solves = history.filter(h => h.slug && h.slug.trim().toLowerCase() === problemSlug);
+  let solves = history.filter(h => h.slug && h.slug.trim().toLowerCase() === problemSlug);
+
+  // If slug-based lookup has no notes, also search by title (handles GitHub folder slug ≠ LeetCode slug)
+  const hasNotesBySlug = solves.some(s => s.notes && s.notes.trim());
+  if (!hasNotesBySlug && entry.title) {
+    const titleLower = entry.title.trim().toLowerCase();
+    const byTitle = history.filter(h =>
+      h.title && h.title.trim().toLowerCase() === titleLower &&
+      h.notes && h.notes.trim() &&
+      !solves.find(s => s.slug === h.slug && s.approach === h.approach)
+    );
+    solves = [...solves, ...byTitle];
+  }
 
   // Initialize approach session data
   const sessionData = {
@@ -43,18 +55,18 @@ export async function openNotesModal(entry, approachLabel) {
     brute_force: { notes: "", pattern: "" }
   };
 
-  // Populate from history solves
+  // Populate from history solves — never overwrite a non-empty value with empty
   solves.forEach(s => {
     const appLower = (s.approach || "").toLowerCase().trim();
     if (appLower.includes("optimal") || appLower === "oa" || appLower.includes("(oa)")) {
-      sessionData.optimal.notes = s.notes || "";
-      sessionData.optimal.pattern = s.pattern && s.pattern !== "None" ? s.pattern : "";
+      if (!sessionData.optimal.notes) sessionData.optimal.notes = s.notes || "";
+      if (!sessionData.optimal.pattern && s.pattern && s.pattern !== "None") sessionData.optimal.pattern = s.pattern;
     } else if (appLower.includes("better") || appLower === "ba" || appLower.includes("(ba)")) {
-      sessionData.better.notes = s.notes || "";
-      sessionData.better.pattern = s.pattern && s.pattern !== "None" ? s.pattern : "";
+      if (!sessionData.better.notes) sessionData.better.notes = s.notes || "";
+      if (!sessionData.better.pattern && s.pattern && s.pattern !== "None") sessionData.better.pattern = s.pattern;
     } else if (appLower.includes("brute") || appLower === "bf" || appLower.includes("(bf)")) {
-      sessionData.brute_force.notes = s.notes || "";
-      sessionData.brute_force.pattern = s.pattern && s.pattern !== "None" ? s.pattern : "";
+      if (!sessionData.brute_force.notes) sessionData.brute_force.notes = s.notes || "";
+      if (!sessionData.brute_force.pattern && s.pattern && s.pattern !== "None") sessionData.brute_force.pattern = s.pattern;
     }
   });
 

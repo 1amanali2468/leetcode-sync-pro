@@ -256,9 +256,12 @@ export async function syncCloudData() {
         await batchWriteToFirestore(uid, idToken, { updates });
       }
 
-      renderHistory();
-      renderStats();
-      renderCalendar();
+      // Only call popup-specific render functions if we're in the popup context
+      if (document.getElementById("historyList")) {
+        renderHistory();
+        renderStats();
+        renderCalendar();
+      }
       if (statusText) {
         statusText.textContent = "✅ Connected & Synced";
         statusText.style.color = "#22c55e";
@@ -276,6 +279,35 @@ export async function syncCloudData() {
       syncBtn.disabled = false;
     }
   }
+}
+
+// Parses notes from the old code-comment format:
+// // Notes:
+// //   Algorithm: ...
+// //   Core Idea: ...
+function parseNotesFromCodeComment(code) {
+  const lines = code.split("\n");
+  let inNotes = false;
+  const notesLines = [];
+  for (const line of lines) {
+    // Match comment prefixes: //, #, --
+    const commentMatch = line.match(/^\s*(?:\/\/|#|--) ?(.*)/); 
+    if (!commentMatch) {
+      if (inNotes) break; // hit real code, stop
+      continue;
+    }
+    const content = commentMatch[1];
+    if (/^Notes\s*:/i.test(content)) {
+      inNotes = true;
+      const rest = content.replace(/^Notes\s*:\s*/i, "").trim();
+      if (rest) notesLines.push(rest);
+      continue;
+    }
+    if (inNotes) {
+      notesLines.push(content.replace(/^\s{0,3}/, ""));
+    }
+  }
+  return notesLines.join("\n").trim();
 }
 
 export async function fetchGitHubRepoSolves() {
@@ -382,29 +414,30 @@ export async function fetchGitHubRepoSolves() {
       "gulpfile", "package-lock", "yarn", "vite.config", "next.config"
     ];
 
-    files.forEach(file => {
-      if (file.type !== "blob") return;
+    const codeFilesWithoutReadme = [];
+    for (const file of files) {
+      if (file.type !== "blob") continue;
       
       const pathLower = file.path.toLowerCase();
       if (pathLower.startsWith(".") || pathLower.includes("/.") || pathLower.endsWith(".md") || pathLower.endsWith(".json") || pathLower.endsWith(".png") || pathLower.endsWith(".jpg") || pathLower.endsWith(".txt") || pathLower.endsWith(".css") || pathLower.endsWith(".html")) {
-        return;
+        continue;
       }
 
       const parts = file.path.split("/");
       const hasBlacklistedFolder = parts.some(p => projectFoldersBlacklist.includes(p.toLowerCase()));
-      if (hasBlacklistedFolder) return;
+      if (hasBlacklistedFolder) continue;
 
       const filename = parts.pop();
       const parentFolder = parts.pop() || "";
 
       const extMatch = filename.match(/\.([a-zA-Z0-9]+)$/);
-      if (!extMatch) return;
+      if (!extMatch) continue;
       const ext = extMatch[1].toLowerCase();
       const lang = codeExtensions[ext];
-      if (!lang) return;
+      if (!lang) continue;
 
       const nameWithoutExt = filename.substring(0, filename.lastIndexOf(".")).toLowerCase();
-      if (projectFilesBlacklist.includes(nameWithoutExt)) return;
+      if (projectFilesBlacklist.includes(nameWithoutExt)) continue;
 
       const startsWithDigits = parentFolder.match(/^\d+/) || filename.match(/^\d+/);
       
@@ -430,7 +463,7 @@ export async function fetchGitHubRepoSolves() {
       });
 
       if (!startsWithDigits && !containsDSAKeywords && !hasSiblingReadme) {
-        return;
+        continue;
       }
 
       let rawSlug = "";
@@ -452,7 +485,7 @@ export async function fetchGitHubRepoSolves() {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
 
-      if (!slug) return;
+      if (!slug) continue;
 
       const title = slug.split("-")
         .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -471,31 +504,68 @@ export async function fetchGitHubRepoSolves() {
       }
 
       const uniqKey = `${slug}-${approach}`;
-      if (parsedSlugs.has(uniqKey)) return;
+      if (parsedSlugs.has(uniqKey)) continue;
       parsedSlugs.add(uniqKey);
 
       const githubUrl = `https://github.com/${owner}/${repo}/blob/${branch}/${file.path}`;
 
-      importedHistory.push({
-        id: problemId,
-        title: title,
-        slug: slug,
-        difficulty: "Medium",
-        url: "",
-        savedAt: new Date().toISOString(),
-        approach: approach,
-        notes: "",
-        timeSpent: "",
-        collection: "",
-        topic: "Other",
-        pattern: "None",
-        githubUrl: githubUrl,
-        isFavorite: false,
-        revisionCount: 1,
-        revisionCompleted: false,
-        revisionCompletedAt: null
-      });
-    });
+      codeFilesWithoutReadme.push({ file, slug, title, approach, problemId, githubUrl, hasSiblingReadme });
+    }
+
+    // Fetch content for code files that have no sibling README — parse notes from comments
+    const batchSize = 10;
+    for (let i = 0; i < codeFilesWithoutReadme.length; i += batchSize) {
+      const batch = codeFilesWithoutReadme.slice(i, i + batchSize);
+      if (statusText) statusText.textContent = `⏳ Reading code files ${i + 1}–${Math.min(i + batchSize, codeFilesWithoutReadme.length)} of ${codeFilesWithoutReadme.length}...`;
+      await Promise.all(batch.map(async ({ file, slug, title, approach, problemId, githubUrl }) => {
+        let notes = "";
+        let url = "";
+        let timeSpent = "";
+        let topic = "Other";
+        let pattern = "None";
+
+        try {
+          const codeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${file.sha}`, {
+            headers: { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github.v3+json" }
+          });
+          if (codeRes.ok) {
+            const codeData = await codeRes.json();
+            const codeText = atob(codeData.content.replace(/\n/g, ""));
+            notes = parseNotesFromCodeComment(codeText);
+
+            // Also extract metadata from comment header
+            const urlMatch = codeText.match(/\/\/\s*URL\s*:\s*(https?:\/\/\S+)/i);
+            if (urlMatch) url = urlMatch[1].trim();
+            const timeMatch = codeText.match(/\/\/\s*Time\s*Spent\s*:\s*([^\n]+)/i);
+            if (timeMatch) timeSpent = timeMatch[1].trim();
+            const topicMatch = codeText.match(/\/\/\s*Topic\s*:\s*([^\n]+)/i);
+            if (topicMatch) topic = topicMatch[1].trim();
+            const patternMatch = codeText.match(/\/\/\s*Pattern\s*:\s*([^\n]+)/i);
+            if (patternMatch) pattern = patternMatch[1].trim();
+          }
+        } catch (e) { /* silently skip */ }
+
+        importedHistory.push({
+          id: problemId,
+          title: title,
+          slug: slug,
+          difficulty: "Medium",
+          url: url,
+          savedAt: new Date().toISOString(),
+          approach: approach,
+          notes: notes,
+          timeSpent: timeSpent,
+          collection: "",
+          topic: topic,
+          pattern: pattern,
+          githubUrl: githubUrl,
+          isFavorite: false,
+          revisionCount: 1,
+          revisionCompleted: false,
+          revisionCompletedAt: null
+        });
+      }));
+    }
 
     if (importedHistory.length === 0) {
       throw new Error("Could not find or parse any solve records (READMEs or code files) in this repository.");
@@ -505,10 +575,27 @@ export async function fetchGitHubRepoSolves() {
     importedHistory.forEach(importedItem => {
       const idx = mergedHistory.findIndex(h => h.slug === importedItem.slug && h.approach === importedItem.approach);
       if (idx !== -1) {
-        const localDate = new Date(mergedHistory[idx].savedAt || 0);
+        const existing = mergedHistory[idx];
+        const localDate = new Date(existing.savedAt || 0);
         const importedDate = new Date(importedItem.savedAt || 0);
-        if (importedDate > localDate) {
-          mergedHistory[idx] = { ...mergedHistory[idx], ...importedItem };
+        
+        // Always preserve local metadata if the imported one is empty
+        const mergedNotes = importedItem.notes || existing.notes;
+        const mergedTimeSpent = importedItem.timeSpent || existing.timeSpent;
+        const mergedCollection = importedItem.collection || existing.collection;
+        const mergedTopic = importedItem.topic === "Other" ? existing.topic : importedItem.topic;
+        const mergedPattern = importedItem.pattern === "None" ? existing.pattern : importedItem.pattern;
+        
+        if (importedDate > localDate || !existing.githubUrl) {
+          mergedHistory[idx] = { 
+            ...existing, 
+            ...importedItem,
+            notes: mergedNotes,
+            timeSpent: mergedTimeSpent,
+            collection: mergedCollection,
+            topic: mergedTopic,
+            pattern: mergedPattern
+          };
         }
       } else {
         mergedHistory.push(importedItem);
@@ -517,17 +604,22 @@ export async function fetchGitHubRepoSolves() {
 
     await chrome.storage.local.set({ [STORAGE_KEYS.history]: mergedHistory });
 
-    if (statusText) statusText.textContent = `⏳ Merging with Firestore cloud database...`;
-    await syncCloudData();
-
     if (statusText) {
-      statusText.textContent = `✅ Sync Complete! Imported/Synced ${importedHistory.length} items.`;
+      statusText.textContent = `✅ Done! Imported ${importedHistory.length} solves. Notes restored from GitHub.`;
       statusText.style.color = "#22c55e";
     }
 
-    renderHistory();
-    renderStats();
-    renderCalendar();
+    // Push the updated notes to Firestore in the background
+    // Do NOT call syncCloudData() here — it uses popup-only DOM elements.
+    // The dashboard's storage.onChanged listener will auto re-render.
+    const stored2 = await chrome.storage.local.get(["auth_user"]);
+    const authUser2 = stored2.auth_user;
+    if (authUser2 && authUser2.uid) {
+      const idToken2 = await getValidIdToken(authUser2);
+      if (idToken2) {
+        await batchWriteToFirestore(authUser2.uid, idToken2, { updates: mergedHistory });
+      }
+    }
 
   } catch (err) {
     if (statusText) {
@@ -608,14 +700,14 @@ export function parseReadmeMetadata(markdown, filePath, allFiles, githubInfo = {
       const patternMatch = block.match(/Pattern(?:\s*Used)?\s*\|\s*`([^`]+)`/i);
 
       let notes = "";
-      // Use [^\\w\\s]+ to safely match any emoji/icon without encoding corruption
-      const notesMatch = block.match(/####?\s*(?:[^\w\s]+\s*)?Notes/i);
-      if (notesMatch) {
-        const idx = notesMatch.index;
-        const dividerText = notesMatch[0];
-        notes = block.substring(idx + dividerText.length).trim();
-        notes = notes.replace(/^>\s*/gm, "");
-        if (notes === "_No notes added._") notes = "";
+      const hashIdx = block.indexOf("####");
+      if (hashIdx !== -1) {
+        const notesLabelIdx = block.toLowerCase().indexOf("notes", hashIdx);
+        if (notesLabelIdx !== -1) {
+          notes = block.substring(notesLabelIdx + 5).trim();
+          notes = notes.replace(/^>\s*/gm, "");
+          if (notes === "_No notes added._") notes = "";
+        }
       }
 
       let githubUrl = "";

@@ -64,10 +64,31 @@ function extractUrlSlug(url) {
 // This bridges the gap when sheet slug ≠ GFG URL slug.
 function lookupSolves(solvedMap, problem) {
   const slug = (problem.slug || "").trim().toLowerCase();
-  if (solvedMap[slug] && solvedMap[slug].length > 0) return solvedMap[slug];
-  const urlSlug = extractUrlSlug(problem.leetcodeUrl || problem.url || "");
-  if (urlSlug && solvedMap[urlSlug] && solvedMap[urlSlug].length > 0) return solvedMap[urlSlug];
-  return [];
+  let result = [];
+  if (solvedMap[slug] && solvedMap[slug].length > 0) result = solvedMap[slug];
+  else {
+    const urlSlug = extractUrlSlug(problem.leetcodeUrl || problem.url || "");
+    if (urlSlug && solvedMap[urlSlug] && solvedMap[urlSlug].length > 0) result = solvedMap[urlSlug];
+  }
+
+  // If result has no notes, also check entries matched by title for notes display
+  const hasNotes = result.some(s => s.notes && s.notes.trim());
+  if (!hasNotes && problem.title) {
+    const titleLower = problem.title.trim().toLowerCase();
+    // Search all solvedMap entries for a title match with notes
+    for (const entries of Object.values(solvedMap)) {
+      const withNotes = entries.filter(h =>
+        h.title && h.title.trim().toLowerCase() === titleLower &&
+        h.notes && h.notes.trim()
+      );
+      if (withNotes.length > 0) {
+        result = [...result, ...withNotes];
+        break;
+      }
+    }
+  }
+
+  return result;
 }
 
 

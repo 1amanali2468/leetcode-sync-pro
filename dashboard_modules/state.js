@@ -118,7 +118,7 @@ export const el = {
   txtBranch:           document.getElementById("txtBranch"),
   txtBasePath:         document.getElementById("txtBasePath"),
   btnSaveSettings:     document.getElementById("btnSaveSettings"),
-  btnFetchSolves:      document.getElementById("btnFetchSolves"),
+  btnFetchGitHubRepoSolves:      document.getElementById("btnFetchGitHubRepoSolves"),
   btnDisconnect:       document.getElementById("btnDisconnect"),
   txtCustomSheetUrl:   document.getElementById("txtCustomSheetUrl"),
   txtCustomSheetName:  document.getElementById("txtCustomSheetName"),

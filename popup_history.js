@@ -168,6 +168,8 @@ export async function renderHistory() {
 
   renderCollectionOptions(history);
 
+  if (!el.historyList) return; // NOT in popup UI
+
   el.historyList.innerHTML = "";
 
   if (!history.length) {

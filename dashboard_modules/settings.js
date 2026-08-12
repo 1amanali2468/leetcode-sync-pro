@@ -16,12 +16,17 @@ export function registerSettingsChangeCallback(cb) {
   onSettingsChangeCallback = cb;
 }
 
+import { fetchGitHubRepoSolves } from "../popup_sync.js";
+
 export function setupSettingsListeners() {
   if (!el.btnSaveSettings) return;
   el.btnSaveSettings.addEventListener("click", saveSettings);
   el.btnDisconnect.addEventListener("click", disconnect);
   if (el.btnImportCustomSheet) {
     el.btnImportCustomSheet.addEventListener("click", handleCustomSheetImport);
+  }
+  if (el.btnFetchGitHubRepoSolves) {
+    el.btnFetchGitHubRepoSolves.addEventListener("click", fetchGitHubRepoSolves);
   }
 }
 

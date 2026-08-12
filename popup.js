@@ -124,9 +124,11 @@ async function init() {
   const authScreen = document.getElementById("authScreen");
   const shell = document.querySelector(".shell");
 
+  if (!authScreen) return; // We are not in the popup UI
+
   if (!authUser) {
     authScreen.classList.remove("hidden");
-    shell.classList.add("hidden");
+    if (shell) shell.classList.add("hidden");
     document.getElementById("btnLaunchAuth").addEventListener("click", () => {
       chrome.tabs.create({ url: chrome.runtime.getURL("login.html") });
     });
@@ -134,7 +136,7 @@ async function init() {
   }
 
   authScreen.classList.add("hidden");
-  shell.classList.remove("hidden");
+  if (shell) shell.classList.remove("hidden");
 
   const btnOpenDashboard = document.getElementById("btnOpenDashboard");
   if (btnOpenDashboard) {
@@ -766,17 +768,18 @@ export function applySettings(settings) {
   if (el.streakReminderEnabled) {
     el.streakReminderEnabled.checked = settings.hasOwnProperty("streakReminderEnabled") ? settings.streakReminderEnabled : true;
   }
-  el.owner.value    = settings.owner    || "";
-  el.repo.value     = settings.repo     || "";
-  el.branch.value   = settings.branch   || "main";
-  el.basePath.value = settings.basePath || "";
+  if (el.owner) el.owner.value    = settings.owner    || "";
+  if (el.repo) el.repo.value     = settings.repo     || "";
+  if (el.branch) el.branch.value   = settings.branch   || "main";
+  if (el.basePath) el.basePath.value = settings.basePath || "";
+  
   updateConnectionUI(settings);
-  if (settings.token) {
+  if (settings.token && el.repoSelect) {
     loadGitHubRepositories(settings.token, settings.repo);
-  } else {
-    el.repoSelectContainer.classList.add("hidden");
-    el.repo.classList.remove("hidden");
-    el.toggleNewRepoBtn.classList.add("hidden");
+  } else if (!settings.token) {
+    if (el.repoSelectContainer) el.repoSelectContainer.classList.add("hidden");
+    if (el.repo) el.repo.classList.remove("hidden");
+    if (el.toggleNewRepoBtn) el.toggleNewRepoBtn.classList.add("hidden");
   }
 }
 

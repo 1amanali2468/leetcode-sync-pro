@@ -369,6 +369,7 @@ export async function renderSheets() {
           ghLink.innerHTML = GITHUB_SVG;
           ghLink.addEventListener("mouseover", () => ghLink.style.transform = "scale(1.15)");
           ghLink.addEventListener("mouseout", () => ghLink.style.transform = "scale(1)");
+          ghLink.addEventListener("click", (e) => e.stopPropagation());
           tdGitHub.appendChild(ghLink);
         } else {
           const disabledGh = document.createElement("span");
@@ -623,6 +624,7 @@ export async function renderSheets() {
             ghLink.innerHTML = GITHUB_SVG;
             ghLink.addEventListener("mouseover", () => ghLink.style.transform = "scale(1.15)");
             ghLink.addEventListener("mouseout", () => ghLink.style.transform = "scale(1)");
+            ghLink.addEventListener("click", (e) => e.stopPropagation());
             tdGitHub.appendChild(ghLink);
           } else {
             const disabledGh = document.createElement("span");

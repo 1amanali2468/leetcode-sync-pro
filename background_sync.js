@@ -121,7 +121,8 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
              newEntry.isFavorite !== oldEntry.isFavorite ||
              newEntry.collection !== oldEntry.collection ||
              newEntry.revisionCount !== oldEntry.revisionCount ||
-             newEntry.revisionCompleted !== oldEntry.revisionCompleted;
+             newEntry.revisionCompleted !== oldEntry.revisionCompleted ||
+             newEntry.githubUrl !== oldEntry.githubUrl;
     });
 
     changedEntries.forEach(newUp => {
